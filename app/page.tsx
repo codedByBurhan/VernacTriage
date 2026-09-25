@@ -11,12 +11,14 @@ import { TokenVisualization } from "@/components/TokenVisualization";
 import { CanonicalReconstruction } from "@/components/CanonicalReconstruction";
 import { TriageInformation } from "@/components/TriageInformation";
 import { IntegrityCheck } from "@/components/IntegrityCheck";
+import { AnalysisProgress } from "@/components/AnalysisProgress";
 import {
   Sparkles,
   Braces,
   FileCheck,
   AlertCircle,
   Info,
+  X,
 } from "lucide-react";
 
 export default function Home() {
@@ -205,14 +207,27 @@ export default function Home() {
 
               {/* Error Banner */}
               {analysisError && (
-                <div className="p-3.5 rounded-xl bg-rose-950/40 border border-rose-500/30 flex items-start gap-3 text-rose-200 text-xs">
-                  <AlertCircle className="w-4 h-4 text-rose-400 shrink-0 mt-0.5" />
-                  <div className="space-y-1">
-                    <span className="font-semibold block">Analysis Issue Detected</span>
-                    <p className="text-rose-300/90 leading-relaxed">{analysisError}</p>
+                <div className="p-3.5 rounded-xl bg-rose-950/40 border border-rose-500/30 flex items-start justify-between gap-3 text-rose-200 text-xs">
+                  <div className="flex items-start gap-2.5">
+                    <AlertCircle className="w-4 h-4 text-rose-400 shrink-0 mt-0.5" />
+                    <div className="space-y-1">
+                      <span className="font-semibold block">Analysis Issue Detected</span>
+                      <p className="text-rose-300/90 leading-relaxed">{analysisError}</p>
+                    </div>
                   </div>
+                  <button
+                    type="button"
+                    onClick={() => setAnalysisError(null)}
+                    className="p-1 rounded hover:bg-rose-900/40 text-rose-400 hover:text-white transition-colors cursor-pointer"
+                    title="Dismiss error"
+                  >
+                    <X className="w-3.5 h-3.5" />
+                  </button>
                 </div>
               )}
+
+              {/* Progress Tracker (while analyzing) */}
+              {isAnalyzing && <AnalysisProgress isAnalyzing={isAnalyzing} />}
 
               {/* SECTION A: Token Breakdown */}
               <div className="space-y-2.5">
