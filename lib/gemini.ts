@@ -1,4 +1,4 @@
-import { GoogleGenAI } from "@google/genai";
+import { GoogleGenAI, ThinkingLevel } from "@google/genai";
 import { TriageAnalysisResult } from "./types";
 import { DEMO_PRESETS } from "@/data/presets";
 
@@ -71,13 +71,13 @@ export async function analyzeWithGemini(
     throw new Error("Gemini API key is not configured.");
   }
 
-  // Model hierarchy: allow override via GEMINI_MODEL or try gemini-2.5-flash / gemini-2.0-flash
-  const modelName = process.env.GEMINI_MODEL || "gemini-2.5-flash";
+  // Application model configuration: strictly gemini-3.8-flash
+  const MODEL_ID = "gemini-3.8-flash";
 
   try {
     const ai = new GoogleGenAI({ apiKey });
     const response = await ai.models.generateContent({
-      model: modelName,
+      model: MODEL_ID,
       contents: [
         {
           role: "user",
@@ -87,7 +87,9 @@ export async function analyzeWithGemini(
       config: {
         systemInstruction: SYSTEM_INSTRUCTION,
         responseMimeType: "application/json",
-        temperature: 0.1,
+        thinkingConfig: {
+          thinkingLevel: ThinkingLevel.LOW,
+        },
       },
     });
 
