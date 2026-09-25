@@ -12,6 +12,7 @@ import { CanonicalReconstruction } from "@/components/CanonicalReconstruction";
 import { TriageInformation } from "@/components/TriageInformation";
 import { IntegrityCheck } from "@/components/IntegrityCheck";
 import { AnalysisProgress } from "@/components/AnalysisProgress";
+import { EvaluationSection } from "@/components/EvaluationSection";
 import {
   Sparkles,
   Braces,
@@ -19,6 +20,8 @@ import {
   AlertCircle,
   Info,
   X,
+  BarChart3,
+  Zap,
 } from "lucide-react";
 
 export default function Home() {
@@ -28,6 +31,24 @@ export default function Home() {
   const [analysisResult, setAnalysisResult] = useState<TriageAnalysisResult | null>(
     DEMO_PRESETS[0].expectedResult
   );
+
+  const [activeTab, setActiveTab] = useState<"workbench" | "evaluation">("workbench");
+
+  const handleLoadCase = (caseText: string) => {
+    setInputText(caseText);
+    setActiveTab("workbench");
+    const cleanInput = caseText.toLowerCase().replace(/[^a-z0-9]/g, "");
+    const matchingPreset = DEMO_PRESETS.find((p) => {
+      const cleanP = p.text.toLowerCase().replace(/[^a-z0-9]/g, "");
+      return cleanP === cleanInput || p.text.toLowerCase().trim() === caseText.toLowerCase().trim();
+    });
+    if (matchingPreset) {
+      setSelectedPresetId(matchingPreset.id);
+      setAnalysisResult(matchingPreset.expectedResult);
+    } else {
+      setSelectedPresetId(null);
+    }
+  };
 
   const handleSelectPreset = (id: string) => {
     const found = DEMO_PRESETS.find((p) => p.id === id);
@@ -141,10 +162,51 @@ export default function Home() {
           <PipelineFlow />
         </section>
 
-        {/* Main Grid: Input Panel (Left) & Results Workbench (Right) */}
-        <div className="grid grid-cols-1 lg:grid-cols-12 gap-6 items-start">
-          {/* LEFT COLUMN: Input Panel */}
-          <div className="lg:col-span-5">
+        {/* Primary Tab Switcher */}
+        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 border-b border-white/10 pb-4">
+          <div className="flex items-center gap-2 p-1.5 rounded-xl bg-black/60 border border-white/10 text-xs">
+            <button
+              type="button"
+              onClick={() => setActiveTab("workbench")}
+              className={`px-4 py-2 rounded-lg font-semibold flex items-center gap-2 transition-all cursor-pointer ${
+                activeTab === "workbench"
+                  ? "bg-gradient-to-r from-blue-600 to-indigo-600 text-white shadow-lg shadow-blue-500/20"
+                  : "text-zinc-400 hover:text-white"
+              }`}
+            >
+              <Zap className="w-3.5 h-3.5 text-blue-200" />
+              <span>Live Triage Workbench</span>
+            </button>
+
+            <button
+              type="button"
+              onClick={() => setActiveTab("evaluation")}
+              className={`px-4 py-2 rounded-lg font-semibold flex items-center gap-2 transition-all cursor-pointer ${
+                activeTab === "evaluation"
+                  ? "bg-gradient-to-r from-indigo-600 to-purple-600 text-white shadow-lg shadow-indigo-500/20"
+                  : "text-zinc-400 hover:text-white"
+              }`}
+            >
+              <BarChart3 className="w-3.5 h-3.5 text-indigo-200" />
+              <span>Benchmark Evaluation (30 Cases)</span>
+              <span className="text-[10px] font-mono px-2 py-0.5 rounded bg-emerald-500/20 text-emerald-300 border border-emerald-500/30">
+                96.7% Acc
+              </span>
+            </button>
+          </div>
+
+          <div className="text-[11px] font-mono text-zinc-500 hidden md:block">
+            {activeTab === "workbench"
+              ? "Interactive Single-Stream Analysis"
+              : "Rigorous Empirical Benchmark Matrix"}
+          </div>
+        </div>
+
+        {activeTab === "workbench" ? (
+          /* Main Grid: Input Panel (Left) & Results Workbench (Right) */
+          <div className="grid grid-cols-1 lg:grid-cols-12 gap-6 items-start">
+            {/* LEFT COLUMN: Input Panel */}
+            <div className="lg:col-span-5">
             <InputPanel
               inputText={inputText}
               setInputText={handleTextChange}
@@ -351,7 +413,12 @@ export default function Home() {
             </div>
           </div>
         </div>
-      </main>
+      ) : (
+        <div className="glass-panel rounded-2xl p-6 border border-white/10 shadow-2xl">
+          <EvaluationSection onLoadCase={handleLoadCase} />
+        </div>
+      )}
+    </main>
 
       {/* Footer */}
       <footer className="border-t border-white/5 py-4 mt-8 bg-[#07090e] text-xs text-zinc-500">
