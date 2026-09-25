@@ -4,22 +4,49 @@ import React, { useState } from "react";
 import { Navbar } from "@/components/Navbar";
 import { PipelineFlow } from "@/components/PipelineFlow";
 import { LinguisticLegend } from "@/components/LinguisticLegend";
+import { InputPanel } from "@/components/InputPanel";
+import { DEMO_PRESETS } from "@/data/presets";
+import { TriageAnalysisResult } from "@/lib/types";
 import {
   Sparkles,
-  ArrowRight,
-  Languages,
-  CheckCircle2,
-  AlertTriangle,
-  RotateCcw,
   Braces,
-  Fingerprint,
   FileCheck,
-  Zap,
 } from "lucide-react";
 
 export default function Home() {
-  const [inputText, setInputText] = useState("");
+  const [inputText, setInputText] = useState(DEMO_PRESETS[0].text);
+  const [selectedPresetId, setSelectedPresetId] = useState<string | null>(DEMO_PRESETS[0].id);
   const [isAnalyzing, setIsAnalyzing] = useState(false);
+  const [analysisResult, setAnalysisResult] = useState<TriageAnalysisResult | null>(null);
+
+  const handleSelectPreset = (id: string) => {
+    const found = DEMO_PRESETS.find((p) => p.id === id);
+    if (found) {
+      setSelectedPresetId(id);
+      setInputText(found.text);
+    }
+  };
+
+  const handleTextChange = (val: string) => {
+    setInputText(val);
+    const matchingPreset = DEMO_PRESETS.find((p) => p.text === val.trim());
+    setSelectedPresetId(matchingPreset ? matchingPreset.id : null);
+  };
+
+  const handleAnalyze = async () => {
+    if (!inputText.trim()) return;
+    setIsAnalyzing(true);
+
+    // In Phase 3: Check preset or simulate/prepare for Phase 4 API
+    try {
+      const matchingPreset = DEMO_PRESETS.find((p) => p.text === inputText.trim());
+      if (matchingPreset) {
+        setAnalysisResult(matchingPreset.expectedResult);
+      }
+    } finally {
+      setIsAnalyzing(false);
+    }
+  };
 
   return (
     <div className="min-h-screen flex flex-col bg-[#090a10] text-[#f3f4f8] selection:bg-blue-600/30 selection:text-blue-200">
@@ -35,13 +62,16 @@ export default function Home() {
                 Cross-Dialect NLP & Semantic Normalization
               </div>
               <h1 className="text-3xl sm:text-4xl font-black tracking-tight text-white font-mono">
-                DECODE THE WAY PEOPLE <span className="text-transparent bg-clip-text bg-gradient-to-r from-blue-400 via-indigo-300 to-purple-400">ACTUALLY COMMUNICATE.</span>
+                DECODE THE WAY PEOPLE{" "}
+                <span className="text-transparent bg-clip-text bg-gradient-to-r from-blue-400 via-indigo-300 to-purple-400">
+                  ACTUALLY COMMUNICATE.
+                </span>
               </h1>
               <p className="text-zinc-400 text-sm sm:text-base max-w-2xl mt-1">
                 AI-powered interpretation of code-switched, phonetically spelled, and romanized language with deterministic integrity verification.
               </p>
             </div>
-            
+
             {/* Quick dialect badges */}
             <div className="flex items-center gap-2">
               <span className="px-3 py-1.5 rounded-lg bg-zinc-900 border border-zinc-800 text-xs text-zinc-300 flex items-center gap-1.5">
@@ -61,127 +91,19 @@ export default function Home() {
 
         {/* Main Grid: Input Panel (Left) & Results Workbench (Right) */}
         <div className="grid grid-cols-1 lg:grid-cols-12 gap-6 items-start">
-          {/* LEFT COLUMN: Input Panel (lg:col-span-5) */}
-          <div className="lg:col-span-5 space-y-4">
-            <div className="glass-panel rounded-2xl p-5 border border-white/10 shadow-xl space-y-4">
-              <div className="flex items-center justify-between pb-3 border-b border-white/5">
-                <div className="flex items-center gap-2">
-                  <Fingerprint className="w-4 h-4 text-blue-400" />
-                  <span className="text-sm font-semibold text-zinc-100 uppercase tracking-wider font-mono">
-                    Messy Input Stream
-                  </span>
-                </div>
-                <div className="text-[11px] font-mono text-zinc-400">
-                  {inputText.length} / 500 chars
-                </div>
-              </div>
-
-              {/* Presets Bar Placeholder (Phase 2 shell) */}
-              <div className="space-y-1.5">
-                <div className="flex items-center justify-between">
-                  <span className="text-xs font-medium text-zinc-400">
-                    Quick Presets (1-Click Load):
-                  </span>
-                  <span className="text-[10px] text-zinc-500 font-mono">
-                    Phase 3 Active
-                  </span>
-                </div>
-                <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
-                  <button
-                    type="button"
-                    onClick={() =>
-                      setInputText(
-                        "Bhai kl parcel deliver ni hua, plz check kro na wrna refund initiate kr do ASAP"
-                      )
-                    }
-                    className="text-left p-2.5 rounded-lg bg-zinc-900/70 border border-amber-500/20 hover:border-amber-500/40 transition-colors group cursor-pointer"
-                  >
-                    <div className="flex items-center justify-between">
-                      <span className="text-xs font-semibold text-amber-300">
-                        1. Hinglish Delivery
-                      </span>
-                      <span className="text-[10px] px-1.5 py-0.5 rounded bg-amber-500/10 text-amber-400 border border-amber-500/20">
-                        Hindi+Eng
-                      </span>
-                    </div>
-                    <p className="text-[11px] text-zinc-400 truncate mt-1">
-                      &quot;Bhai kl parcel deliver ni hua...&quot;
-                    </p>
-                  </button>
-
-                  <button
-                    type="button"
-                    onClick={() =>
-                      setInputText(
-                        "Yalla ya bro, el traffic ktir ktir zameh today, 7awel to arrive b4 8:00"
-                      )
-                    }
-                    className="text-left p-2.5 rounded-lg bg-zinc-900/70 border border-purple-500/20 hover:border-purple-500/40 transition-colors group cursor-pointer"
-                  >
-                    <div className="flex items-center justify-between">
-                      <span className="text-xs font-semibold text-purple-300">
-                        2. Arabizi Traffic
-                      </span>
-                      <span className="text-[10px] px-1.5 py-0.5 rounded bg-purple-500/10 text-purple-400 border border-purple-500/20">
-                        Arabic 3rb
-                      </span>
-                    </div>
-                    <p className="text-[11px] text-zinc-400 truncate mt-1">
-                      &quot;Yalla ya bro, el traffic ktir...&quot;
-                    </p>
-                  </button>
-                </div>
-              </div>
-
-              {/* Textarea */}
-              <div className="relative">
-                <textarea
-                  rows={5}
-                  value={inputText}
-                  onChange={(e) => setInputText(e.target.value)}
-                  placeholder="Paste or type messy multilingual text (e.g. Hinglish code-switching or Arabizi with numbers like 7awel, 3ala, etc.)..."
-                  className="w-full rounded-xl bg-black/50 border border-white/10 px-3.5 py-3 text-sm text-zinc-100 placeholder:text-zinc-600 focus:outline-none focus:ring-1 focus:ring-blue-500 focus:border-blue-500/50 font-sans resize-none transition-all"
-                />
-              </div>
-
-              {/* Action Buttons */}
-              <div className="flex items-center gap-3 pt-1">
-                <button
-                  type="button"
-                  disabled={!inputText.trim()}
-                  className="flex-1 py-2.5 px-4 rounded-xl bg-gradient-to-r from-blue-600 via-indigo-600 to-purple-600 hover:from-blue-500 hover:to-purple-500 disabled:opacity-40 disabled:cursor-not-allowed text-white font-medium text-sm flex items-center justify-center gap-2 shadow-lg shadow-blue-500/20 transition-all cursor-pointer"
-                >
-                  <Zap className="w-4 h-4 text-blue-200" />
-                  Analyze Input
-                </button>
-
-                {inputText && (
-                  <button
-                    type="button"
-                    onClick={() => setInputText("")}
-                    className="p-2.5 rounded-xl bg-zinc-900/80 hover:bg-zinc-800 border border-white/10 text-zinc-400 hover:text-zinc-200 transition-colors cursor-pointer"
-                    title="Clear text"
-                  >
-                    <RotateCcw className="w-4 h-4" />
-                  </button>
-                )}
-              </div>
-            </div>
-
-            {/* Dialect Reference Guide */}
-            <div className="glass-panel-subtle rounded-xl p-4 border border-white/5 space-y-2 text-xs text-zinc-400">
-              <span className="font-semibold text-zinc-300 uppercase tracking-wider text-[11px] block">
-                Target Linguistic Challenges
-              </span>
-              <ul className="space-y-1 list-disc list-inside text-zinc-400 text-[11px]">
-                <li><strong className="text-zinc-200">Code-Switching:</strong> Intra-sentential matrix language alternating (e.g., Hindi + English).</li>
-                <li><strong className="text-zinc-200">Phonetic Romanization:</strong> Non-standard phonetic Latin spellings (&quot;kl&quot;, &quot;ni&quot;, &quot;plz&quot;, &quot;wrna&quot;).</li>
-                <li><strong className="text-zinc-200">Arabizi Numerals:</strong> Digits representing phonetic Arabic phonemes (e.g., &apos;7&apos; for ح / Ḥā&apos;, &apos;3&apos; for ع / &apos;Ayn).</li>
-              </ul>
-            </div>
+          {/* LEFT COLUMN: Input Panel */}
+          <div className="lg:col-span-5">
+            <InputPanel
+              inputText={inputText}
+              setInputText={handleTextChange}
+              selectedPresetId={selectedPresetId}
+              onSelectPreset={handleSelectPreset}
+              onAnalyze={handleAnalyze}
+              isAnalyzing={isAnalyzing}
+            />
           </div>
 
-          {/* RIGHT COLUMN: Results Workbench (lg:col-span-7) */}
+          {/* RIGHT COLUMN: Results Workbench */}
           <div className="lg:col-span-7 space-y-4">
             {/* Taxonomy Legend */}
             <LinguisticLegend />
@@ -197,28 +119,27 @@ export default function Home() {
                   </span>
                 </div>
                 <span className="text-xs px-2.5 py-0.5 rounded-md bg-zinc-900 border border-zinc-800 text-zinc-400 font-mono">
-                  Ready for Analysis
+                  {selectedPresetId ? `Active Preset: ${selectedPresetId}` : "Custom Text"}
                 </span>
               </div>
 
-              {/* SECTION A Preview Shell: Token Breakdown */}
+              {/* SECTION A: Token Breakdown Placeholder */}
               <div className="space-y-2.5">
                 <div className="flex items-center justify-between">
                   <span className="text-xs font-semibold text-zinc-300 uppercase tracking-wider">
-                    Section A — Token Analysis & Classification
+                    Section A — Token Analysis &amp; Classification
                   </span>
                   <span className="text-[10px] text-zinc-500 font-mono">Interactive Pills</span>
                 </div>
                 <div className="min-h-[70px] rounded-xl bg-black/40 border border-dashed border-white/10 p-3.5 flex flex-wrap items-center gap-2">
                   <span className="text-xs text-zinc-500 italic">
-                    Load a preset or click &quot;Analyze Input&quot; to inspect token-level language identification, phonetic types, and normalized native forms.
+                    Presets connected. Click &quot;Analyze Input&quot; or select a preset to feed the pipeline.
                   </span>
                 </div>
               </div>
 
-              {/* SECTION B Preview Shell: Canonical Dual-Script Reconstruction */}
+              {/* SECTION B: Canonical Dual-Script Reconstruction */}
               <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
-                {/* Native Script Card */}
                 <div className="rounded-xl bg-black/40 border border-white/5 p-4 space-y-2">
                   <div className="flex items-center justify-between text-xs">
                     <span className="font-semibold text-zinc-300">
@@ -233,7 +154,6 @@ export default function Home() {
                   </div>
                 </div>
 
-                {/* English Standard Card */}
                 <div className="rounded-xl bg-black/40 border border-white/5 p-4 space-y-2">
                   <div className="flex items-center justify-between text-xs">
                     <span className="font-semibold text-zinc-300">
@@ -249,11 +169,11 @@ export default function Home() {
                 </div>
               </div>
 
-              {/* SECTION C Preview Shell: Business Intent & Entities */}
+              {/* SECTION C: Business Intent & Entities */}
               <div className="rounded-xl bg-black/40 border border-white/5 p-4 space-y-2">
                 <div className="flex items-center justify-between text-xs">
                   <span className="font-semibold text-zinc-300">
-                    Section C — Business Intent & Extracted Entities
+                    Section C — Business Intent &amp; Extracted Entities
                   </span>
                   <span className="text-[10px] text-purple-400/80 font-mono">
                     Triage Metadata
@@ -264,7 +184,7 @@ export default function Home() {
                 </div>
               </div>
 
-              {/* SECTION D Preview Shell: AI Integrity Check */}
+              {/* SECTION D: AI Integrity Check */}
               <div className="rounded-xl bg-emerald-950/20 border border-emerald-500/20 p-4 space-y-2">
                 <div className="flex items-center justify-between text-xs">
                   <div className="flex items-center gap-1.5 text-emerald-400 font-semibold">
