@@ -10,6 +10,7 @@ import { TriageAnalysisResult } from "@/lib/types";
 import { TokenVisualization } from "@/components/TokenVisualization";
 import { CanonicalReconstruction } from "@/components/CanonicalReconstruction";
 import { TriageInformation } from "@/components/TriageInformation";
+import { IntegrityCheck } from "@/components/IntegrityCheck";
 import {
   Sparkles,
   Braces,
@@ -240,35 +241,39 @@ export default function Home() {
               )}
 
               {/* SECTION D: AI Integrity Check */}
-              <div className="rounded-xl bg-emerald-950/20 border border-emerald-500/20 p-4 space-y-2">
-                <div className="flex items-center justify-between text-xs">
-                  <div className="flex items-center gap-1.5 text-emerald-400 font-semibold">
-                    <FileCheck className="w-4 h-4" />
-                    <span>AI Integrity Check (Deterministic Guard)</span>
+              {analysisResult ? (
+                <IntegrityCheck verification={analysisResult.verification} />
+              ) : (
+                <div className="rounded-xl bg-emerald-950/20 border border-emerald-500/20 p-4 space-y-2">
+                  <div className="flex items-center justify-between text-xs">
+                    <div className="flex items-center gap-1.5 text-emerald-400 font-semibold">
+                      <FileCheck className="w-4 h-4" />
+                      <span>AI Integrity Check (Deterministic Guard)</span>
+                    </div>
+                    <span className="text-[10px] text-emerald-400/80 font-mono">
+                      Post-LLM Verifier
+                    </span>
                   </div>
-                  <span className="text-[10px] text-emerald-400/80 font-mono">
-                    Post-LLM Verifier
-                  </span>
+                  <div className="grid grid-cols-2 sm:grid-cols-4 gap-2 pt-1">
+                    <div className="p-2 rounded bg-black/30 border border-emerald-500/10 text-center">
+                      <span className="text-[10px] text-zinc-400 block">Entities</span>
+                      <span className="text-xs font-mono text-zinc-500">—</span>
+                    </div>
+                    <div className="p-2 rounded bg-black/30 border border-emerald-500/10 text-center">
+                      <span className="text-[10px] text-zinc-400 block">Numbers</span>
+                      <span className="text-xs font-mono text-zinc-500">—</span>
+                    </div>
+                    <div className="p-2 rounded bg-black/30 border border-emerald-500/10 text-center">
+                      <span className="text-[10px] text-zinc-400 block">Negation</span>
+                      <span className="text-xs font-mono text-zinc-500">—</span>
+                    </div>
+                    <div className="p-2 rounded bg-black/30 border border-emerald-500/10 text-center">
+                      <span className="text-[10px] text-zinc-400 block">Schema</span>
+                      <span className="text-xs font-mono text-zinc-500">—</span>
+                    </div>
+                  </div>
                 </div>
-                <div className="grid grid-cols-2 sm:grid-cols-4 gap-2 pt-1">
-                  <div className="p-2 rounded bg-black/30 border border-emerald-500/10 text-center">
-                    <span className="text-[10px] text-zinc-400 block">Entities</span>
-                    <span className="text-xs font-mono text-zinc-500">—</span>
-                  </div>
-                  <div className="p-2 rounded bg-black/30 border border-emerald-500/10 text-center">
-                    <span className="text-[10px] text-zinc-400 block">Numbers</span>
-                    <span className="text-xs font-mono text-zinc-500">—</span>
-                  </div>
-                  <div className="p-2 rounded bg-black/30 border border-emerald-500/10 text-center">
-                    <span className="text-[10px] text-zinc-400 block">Negation</span>
-                    <span className="text-xs font-mono text-zinc-500">—</span>
-                  </div>
-                  <div className="p-2 rounded bg-black/30 border border-emerald-500/10 text-center">
-                    <span className="text-[10px] text-zinc-400 block">Schema</span>
-                    <span className="text-xs font-mono text-zinc-500">—</span>
-                  </div>
-                </div>
-              </div>
+              )}
             </div>
           </div>
         </div>
