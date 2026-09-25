@@ -9,6 +9,7 @@ import { DEMO_PRESETS } from "@/data/presets";
 import { TriageAnalysisResult } from "@/lib/types";
 import { TokenVisualization } from "@/components/TokenVisualization";
 import { CanonicalReconstruction } from "@/components/CanonicalReconstruction";
+import { TriageInformation } from "@/components/TriageInformation";
 import {
   Sparkles,
   Braces,
@@ -217,19 +218,26 @@ export default function Home() {
               )}
 
               {/* SECTION C: Business Intent & Entities */}
-              <div className="rounded-xl bg-black/40 border border-white/5 p-4 space-y-2">
-                <div className="flex items-center justify-between text-xs">
-                  <span className="font-semibold text-zinc-300">
-                    Section C — Business Intent &amp; Extracted Entities
-                  </span>
-                  <span className="text-[10px] text-purple-400/80 font-mono">
-                    Triage Metadata
-                  </span>
+              {analysisResult ? (
+                <TriageInformation
+                  intent={analysisResult.intent}
+                  entities={analysisResult.entities}
+                />
+              ) : (
+                <div className="rounded-xl bg-black/40 border border-white/5 p-4 space-y-2">
+                  <div className="flex items-center justify-between text-xs">
+                    <span className="font-semibold text-zinc-300">
+                      Section C — Business Intent &amp; Extracted Entities
+                    </span>
+                    <span className="text-[10px] text-purple-400/80 font-mono">
+                      Triage Metadata
+                    </span>
+                  </div>
+                  <div className="h-12 flex items-center text-xs text-zinc-500 italic">
+                    Extracted intent labels, confidence scoring, and structured entity tags will display here.
+                  </div>
                 </div>
-                <div className="h-12 flex items-center text-xs text-zinc-500 italic">
-                  Extracted intent labels, confidence scoring, and structured entity tags will display here.
-                </div>
-              </div>
+              )}
 
               {/* SECTION D: AI Integrity Check */}
               <div className="rounded-xl bg-emerald-950/20 border border-emerald-500/20 p-4 space-y-2">
