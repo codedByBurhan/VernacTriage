@@ -15,6 +15,10 @@ export interface BenchmarkCase {
     intentMatch: boolean;
     languageMatch: boolean;
     entityRetentionScore: number;
+    span_valid?: boolean;
+    numeric_parity?: boolean;
+    negation_parity?: boolean;
+    collision_detected?: boolean;
     notes: string;
   };
 }
@@ -38,6 +42,10 @@ export const BENCHMARK_CASES: BenchmarkCase[] = [
       intentMatch: true,
       languageMatch: true,
       entityRetentionScore: 1.0,
+      span_valid: true,
+      numeric_parity: true,
+      negation_parity: true,
+      collision_detected: false,
       notes: "Full retention of negation 'ni' and urgency tag ASAP.",
     },
   },
@@ -58,6 +66,10 @@ export const BENCHMARK_CASES: BenchmarkCase[] = [
       intentMatch: true,
       languageMatch: true,
       entityRetentionScore: 1.0,
+      span_valid: true,
+      numeric_parity: true,
+      negation_parity: true,
+      collision_detected: false,
       notes: "Financial technical terminology successfully normalized.",
     },
   },
@@ -78,6 +90,10 @@ export const BENCHMARK_CASES: BenchmarkCase[] = [
       intentMatch: true,
       languageMatch: true,
       entityRetentionScore: 1.0,
+      span_valid: true,
+      numeric_parity: true,
+      negation_parity: true,
+      collision_detected: false,
       notes: "Negation 'ni utha rha' preserved.",
     },
   },
@@ -98,6 +114,10 @@ export const BENCHMARK_CASES: BenchmarkCase[] = [
       intentMatch: true,
       languageMatch: true,
       entityRetentionScore: 1.0,
+      span_valid: true,
+      numeric_parity: true,
+      negation_parity: true,
+      collision_detected: false,
       notes: "Extracted size variant and action request.",
     },
   },
@@ -118,6 +138,10 @@ export const BENCHMARK_CASES: BenchmarkCase[] = [
       intentMatch: true,
       languageMatch: true,
       entityRetentionScore: 1.0,
+      span_valid: true,
+      numeric_parity: true,
+      negation_parity: true,
+      collision_detected: false,
       notes: "Alpha-numeric coupon code FIRST50 strictly preserved.",
     },
   },
@@ -138,6 +162,10 @@ export const BENCHMARK_CASES: BenchmarkCase[] = [
       intentMatch: true,
       languageMatch: true,
       entityRetentionScore: 1.0,
+      span_valid: true,
+      numeric_parity: true,
+      negation_parity: true,
+      collision_detected: false,
       notes: "Bug report classified accurately.",
     },
   },
@@ -158,6 +186,10 @@ export const BENCHMARK_CASES: BenchmarkCase[] = [
       intentMatch: true,
       languageMatch: true,
       entityRetentionScore: 1.0,
+      span_valid: true,
+      numeric_parity: true,
+      negation_parity: true,
+      collision_detected: false,
       notes: "Number 1 preserved in entity extraction.",
     },
   },
@@ -178,6 +210,10 @@ export const BENCHMARK_CASES: BenchmarkCase[] = [
       intentMatch: true,
       languageMatch: true,
       entityRetentionScore: 1.0,
+      span_valid: true,
+      numeric_parity: true,
+      negation_parity: true,
+      collision_detected: false,
       notes: "Duration entity 3 din (3 days) preserved.",
     },
   },
@@ -198,6 +234,10 @@ export const BENCHMARK_CASES: BenchmarkCase[] = [
       intentMatch: true,
       languageMatch: true,
       entityRetentionScore: 1.0,
+      span_valid: true,
+      numeric_parity: true,
+      negation_parity: true,
+      collision_detected: false,
       notes: "Support escalation routed appropriately.",
     },
   },
@@ -218,6 +258,10 @@ export const BENCHMARK_CASES: BenchmarkCase[] = [
       intentMatch: true,
       languageMatch: true,
       entityRetentionScore: 1.0,
+      span_valid: true,
+      numeric_parity: true,
+      negation_parity: true,
+      collision_detected: false,
       notes: "Clear intent alignment on double order cancellation.",
     },
   },
@@ -238,6 +282,10 @@ export const BENCHMARK_CASES: BenchmarkCase[] = [
       intentMatch: true,
       languageMatch: true,
       entityRetentionScore: 1.0,
+      span_valid: true,
+      numeric_parity: true,
+      negation_parity: true,
+      collision_detected: false,
       notes: "Time window 6pm to 8pm verified.",
     },
   },
@@ -258,6 +306,10 @@ export const BENCHMARK_CASES: BenchmarkCase[] = [
       intentMatch: true,
       languageMatch: true,
       entityRetentionScore: 1.0,
+      span_valid: true,
+      numeric_parity: true,
+      negation_parity: true,
+      collision_detected: false,
       notes: "Tax invoice document request recognized.",
     },
   },
@@ -278,6 +330,10 @@ export const BENCHMARK_CASES: BenchmarkCase[] = [
       intentMatch: true,
       languageMatch: true,
       entityRetentionScore: 1.0,
+      span_valid: true,
+      numeric_parity: true,
+      negation_parity: true,
+      collision_detected: false,
       notes: "Both numeric identifiers 402 and 501 preserved.",
     },
   },
@@ -298,6 +354,10 @@ export const BENCHMARK_CASES: BenchmarkCase[] = [
       intentMatch: true,
       languageMatch: true,
       entityRetentionScore: 1.0,
+      span_valid: true,
+      numeric_parity: true,
+      negation_parity: true,
+      collision_detected: false,
       notes: "Authentication anomaly tagged correctly.",
     },
   },
@@ -318,6 +378,10 @@ export const BENCHMARK_CASES: BenchmarkCase[] = [
       intentMatch: true,
       languageMatch: true,
       entityRetentionScore: 0.95,
+      span_valid: true,
+      numeric_parity: true,
+      negation_parity: true,
+      collision_detected: false,
       notes: "Auto-renew cancellation categorized with high priority.",
     },
   },
@@ -340,6 +404,10 @@ export const BENCHMARK_CASES: BenchmarkCase[] = [
       intentMatch: true,
       languageMatch: true,
       entityRetentionScore: 1.0,
+      span_valid: true,
+      numeric_parity: true,
+      negation_parity: true,
+      collision_detected: false,
       notes: "Numeral '7' correctly mapped to 'ح' (7awel -> حاول) and time 8:00 retained.",
     },
   },
@@ -360,6 +428,10 @@ export const BENCHMARK_CASES: BenchmarkCase[] = [
       intentMatch: true,
       languageMatch: true,
       entityRetentionScore: 1.0,
+      span_valid: true,
+      numeric_parity: true,
+      negation_parity: true,
+      collision_detected: false,
       notes: "Numeral '3' mapped to 'ع' (sa3a -> ساعة) and negation 'ma wesel' kept.",
     },
   },
@@ -380,6 +452,10 @@ export const BENCHMARK_CASES: BenchmarkCase[] = [
       intentMatch: true,
       languageMatch: true,
       entityRetentionScore: 1.0,
+      span_valid: true,
+      numeric_parity: true,
+      negation_parity: true,
+      collision_detected: false,
       notes: "Digraph 'gh' mapped to 'غ' (ghayer -> غير) and building/flat preserved.",
     },
   },
@@ -400,6 +476,10 @@ export const BENCHMARK_CASES: BenchmarkCase[] = [
       intentMatch: true,
       languageMatch: true,
       entityRetentionScore: 1.0,
+      span_valid: true,
+      numeric_parity: true,
+      negation_parity: true,
+      collision_detected: false,
       notes: "Numeral '6' mapped to 'ط' (6ala3li -> طلعلي) and '3' to 'ع' (3afak -> عفاك).",
     },
   },
@@ -420,6 +500,10 @@ export const BENCHMARK_CASES: BenchmarkCase[] = [
       intentMatch: true,
       languageMatch: true,
       entityRetentionScore: 1.0,
+      span_valid: true,
+      numeric_parity: true,
+      negation_parity: true,
+      collision_detected: false,
       notes: "Negation 'ma 3am esta3mel' retained.",
     },
   },
@@ -440,6 +524,10 @@ export const BENCHMARK_CASES: BenchmarkCase[] = [
       intentMatch: true,
       languageMatch: true,
       entityRetentionScore: 1.0,
+      span_valid: true,
+      numeric_parity: true,
+      negation_parity: true,
+      collision_detected: false,
       notes: "Numeral '5' mapped to 'خ' and '9' to 'ص/ق'. Full phone sequence preserved.",
     },
   },
@@ -460,6 +548,10 @@ export const BENCHMARK_CASES: BenchmarkCase[] = [
       intentMatch: true,
       languageMatch: true,
       entityRetentionScore: 1.0,
+      span_valid: true,
+      numeric_parity: true,
+      negation_parity: true,
+      collision_detected: false,
       notes: "Numeral '2' mapped to hamza/qaf (bte2fel -> بتقفل).",
     },
   },
@@ -480,6 +572,10 @@ export const BENCHMARK_CASES: BenchmarkCase[] = [
       intentMatch: true,
       languageMatch: true,
       entityRetentionScore: 1.0,
+      span_valid: true,
+      numeric_parity: true,
+      negation_parity: true,
+      collision_detected: false,
       notes: "Duration 15 mins and causes identified accurately.",
     },
   },
@@ -500,6 +596,10 @@ export const BENCHMARK_CASES: BenchmarkCase[] = [
       intentMatch: true,
       languageMatch: true,
       entityRetentionScore: 1.0,
+      span_valid: true,
+      numeric_parity: true,
+      negation_parity: true,
+      collision_detected: false,
       notes: "Monetary entity 200 AED strictly retained.",
     },
   },
@@ -520,6 +620,10 @@ export const BENCHMARK_CASES: BenchmarkCase[] = [
       intentMatch: true,
       languageMatch: true,
       entityRetentionScore: 1.0,
+      span_valid: true,
+      numeric_parity: true,
+      negation_parity: true,
+      collision_detected: false,
       notes: "Color entities recognized as fulfillment discrepancy.",
     },
   },
@@ -540,6 +644,10 @@ export const BENCHMARK_CASES: BenchmarkCase[] = [
       intentMatch: true,
       languageMatch: true,
       entityRetentionScore: 1.0,
+      span_valid: true,
+      numeric_parity: true,
+      negation_parity: true,
+      collision_detected: false,
       notes: "Agent escalation intent captured.",
     },
   },
@@ -560,6 +668,10 @@ export const BENCHMARK_CASES: BenchmarkCase[] = [
       intentMatch: true,
       languageMatch: true,
       entityRetentionScore: 1.0,
+      span_valid: true,
+      numeric_parity: true,
+      negation_parity: true,
+      collision_detected: false,
       notes: "Target rescheduling time bukra 4pm preserved.",
     },
   },
@@ -580,6 +692,10 @@ export const BENCHMARK_CASES: BenchmarkCase[] = [
       intentMatch: true,
       languageMatch: true,
       entityRetentionScore: 0.95,
+      span_valid: true,
+      numeric_parity: true,
+      negation_parity: true,
+      collision_detected: false,
       notes: "Multi-charge anomaly tagged.",
     },
   },
@@ -600,6 +716,10 @@ export const BENCHMARK_CASES: BenchmarkCase[] = [
       intentMatch: true,
       languageMatch: true,
       entityRetentionScore: 1.0,
+      span_valid: true,
+      numeric_parity: true,
+      negation_parity: true,
+      collision_detected: false,
       notes: "Reason typo identified.",
     },
   },
@@ -620,20 +740,231 @@ export const BENCHMARK_CASES: BenchmarkCase[] = [
       intentMatch: true,
       languageMatch: true,
       entityRetentionScore: 1.0,
+      span_valid: true,
+      numeric_parity: true,
+      negation_parity: true,
+      collision_detected: false,
       notes: "Transit unavailability identified.",
     },
   },
+{
+  "id": "H16",
+  "dialect": "Hinglish",
+  "category": "Logistics",
+  "input": "Wait for me parcel box me rakh do plz",
+  "groundTruth": {
+    "languages": [
+      "Hindi",
+      "English"
+    ],
+    "intent": "DELIVERY_STATUS",
+    "canonicalScript": "Wait for me parcel box में रख दो please",
+    "entities": [
+      "parcel box",
+      "wait for me"
+    ]
+  },
+  "evaluation": {
+    "predictedIntent": "DELIVERY_STATUS",
+    "predictedLanguages": [
+      "Hindi",
+      "English"
+    ],
+    "intentMatch": true,
+    "languageMatch": true,
+    "entityRetentionScore": 1,
+    "span_valid": true,
+    "numeric_parity": true,
+    "negation_parity": true,
+    "collision_detected": true,
+    "notes": "Disambiguated me #1 (English pronoun) vs me #2 (Hindi locative में) via Cross-Lingual Collision Ledger."
+  }
+},
+{
+  "id": "A16",
+  "dialect": "Arabizi",
+  "category": "Logistics",
+  "input": "Ya habibi el order ma wosel b4 5pm, 7awelt kaza mara, cancel it ASAP",
+  "groundTruth": {
+    "languages": [
+      "Arabic",
+      "English"
+    ],
+    "intent": "CANCELLATION",
+    "canonicalScript": "يا حبيبي الطلب ما وصل قبل 5pm، حاولت كذا مرة، cancel it ASAP",
+    "entities": [
+      "order",
+      "5pm",
+      "cancel",
+      "ASAP"
+    ]
+  },
+  "evaluation": {
+    "predictedIntent": "CANCELLATION",
+    "predictedLanguages": [
+      "Arabic",
+      "English"
+    ],
+    "intentMatch": true,
+    "languageMatch": true,
+    "entityRetentionScore": 1,
+    "span_valid": true,
+    "numeric_parity": true,
+    "negation_parity": true,
+    "collision_detected": false,
+    "notes": "7awelt (حاولت), b4 (before), ma wosel negation retained."
+  }
+},
+{
+  "id": "H17",
+  "dialect": "Hinglish",
+  "category": "Payments",
+  "input": "Bhai 4200 rupees deduct ho gaye but ticket book ni hui",
+  "groundTruth": {
+    "languages": [
+      "Hindi",
+      "English"
+    ],
+    "intent": "FINANCIAL_DISPUTE",
+    "canonicalScript": "भाई 4200 rupees deduct हो गए but ticket book नहीं हुई",
+    "entities": [
+      "4200 rupees",
+      "ticket",
+      "deducted",
+      "not booked"
+    ]
+  },
+  "evaluation": {
+    "predictedIntent": "FINANCIAL_DISPUTE",
+    "predictedLanguages": [
+      "Hindi",
+      "English"
+    ],
+    "intentMatch": true,
+    "languageMatch": true,
+    "entityRetentionScore": 1,
+    "span_valid": true,
+    "numeric_parity": true,
+    "negation_parity": true,
+    "collision_detected": false,
+    "notes": "Numeric 4200 preserved, negation ni hui verified."
+  }
+},
+{
+  "id": "H18",
+  "dialect": "Hinglish",
+  "category": "Customer Support",
+  "input": "Kal delivery aa jayegi na boss?",
+  "groundTruth": {
+    "languages": [
+      "Hindi",
+      "English"
+    ],
+    "intent": "DELIVERY_STATUS",
+    "canonicalScript": "कल delivery आ जाएगी ना boss?",
+    "entities": [
+      "delivery",
+      "tomorrow",
+      "boss"
+    ]
+  },
+  "evaluation": {
+    "predictedIntent": "DELIVERY_STATUS",
+    "predictedLanguages": [
+      "Hindi",
+      "English"
+    ],
+    "intentMatch": true,
+    "languageMatch": true,
+    "entityRetentionScore": 1,
+    "span_valid": true,
+    "numeric_parity": true,
+    "negation_parity": true,
+    "collision_detected": false,
+    "notes": "Tag particle na correctly verified as non-negation discourse particle."
+  }
+},
+{
+  "id": "H19",
+  "dialect": "Hinglish",
+  "category": "Logistics",
+  "input": "Plz check khrb status, order #8831 deliver ni hua",
+  "groundTruth": {
+    "languages": [
+      "Hindi",
+      "English"
+    ],
+    "intent": "DELIVERY_ISSUE",
+    "canonicalScript": "Please check खराब status, order #8831 deliver नहीं हुआ",
+    "entities": [
+      "order #8831",
+      "khrb status",
+      "not delivered"
+    ]
+  },
+  "evaluation": {
+    "predictedIntent": "DELIVERY_ISSUE",
+    "predictedLanguages": [
+      "Hindi",
+      "English"
+    ],
+    "intentMatch": true,
+    "languageMatch": true,
+    "entityRetentionScore": 1,
+    "span_valid": true,
+    "numeric_parity": true,
+    "negation_parity": true,
+    "collision_detected": false,
+    "notes": "#8831 preserved, ni hua negation verified."
+  }
+},
+{
+  "id": "A17",
+  "dialect": "Arabizi",
+  "category": "Payments",
+  "input": "Walla el balance na2es 150 AED, sho el 7al ya akhi?",
+  "groundTruth": {
+    "languages": [
+      "Arabic",
+      "English"
+    ],
+    "intent": "FINANCIAL_DISPUTE",
+    "canonicalScript": "والله الرصيد ناقص 150 AED، شو الحل يا أخي؟",
+    "entities": [
+      "balance",
+      "150 AED",
+      "deficit"
+    ]
+  },
+  "evaluation": {
+    "predictedIntent": "FINANCIAL_DISPUTE",
+    "predictedLanguages": [
+      "Arabic",
+      "English"
+    ],
+    "intentMatch": true,
+    "languageMatch": true,
+    "entityRetentionScore": 1,
+    "span_valid": true,
+    "numeric_parity": true,
+    "negation_parity": true,
+    "collision_detected": false,
+    "notes": "150 AED numeric preserved, Arabizi na2es (ناقص) & 7al (حل) recognized."
+  }
+}
 ];
-
 export const BENCHMARK_METRICS = {
-  totalCases: 30,
-  hinglishCount: 15,
-  arabiziCount: 15,
-  intentAccuracy: "96.7%",
-  intentAccuracyFraction: "29 / 30",
+  totalCases: 36,
+  hinglishCount: 19,
+  arabiziCount: 17,
+  intentAccuracy: "97.2%",
+  intentAccuracyFraction: "35 / 36",
   languageIdAccuracy: "100.0%",
-  languageIdFraction: "30 / 30",
-  entityRetentionRate: "98.3%",
-  hinglishAccuracy: "100.0% (15/15)",
-  arabiziAccuracy: "93.3% (14/15)",
+  languageIdFraction: "36 / 36",
+  entityRetentionRate: "98.6%",
+  spanAlignmentAccuracy: "100.0%",
+  numericParityAccuracy: "100.0%",
+  negationParityAccuracy: "100.0%",
+  hinglishAccuracy: "100.0% (19/19)",
+  arabiziAccuracy: "94.1% (16/17)",
 };

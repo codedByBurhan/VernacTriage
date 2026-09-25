@@ -6,11 +6,12 @@ import { PipelineFlow } from "@/components/PipelineFlow";
 import { LinguisticLegend } from "@/components/LinguisticLegend";
 import { InputPanel } from "@/components/InputPanel";
 import { DEMO_PRESETS } from "@/data/presets";
-import { TriageAnalysisResult } from "@/lib/types";
+import { TriageAnalysisResult, AnalyzedToken } from "@/lib/types";
 import { TokenVisualization } from "@/components/TokenVisualization";
 import { CanonicalReconstruction } from "@/components/CanonicalReconstruction";
 import { TriageInformation } from "@/components/TriageInformation";
-import { IntegrityCheck } from "@/components/IntegrityCheck";
+import { IntegrityAudit } from "@/components/IntegrityAudit";
+import { ActionDispatchDrawer } from "@/components/ActionDispatchDrawer";
 import { AnalysisProgress } from "@/components/AnalysisProgress";
 import { EvaluationSection } from "@/components/EvaluationSection";
 import {
@@ -31,6 +32,7 @@ export default function Home() {
   const [analysisResult, setAnalysisResult] = useState<TriageAnalysisResult | null>(
     DEMO_PRESETS[0].expectedResult
   );
+  const [hoveredToken, setHoveredToken] = useState<AnalyzedToken | null>(null);
 
   const [activeTab, setActiveTab] = useState<"workbench" | "evaluation">("workbench");
 
@@ -56,6 +58,7 @@ export default function Home() {
       setSelectedPresetId(id);
       setInputText(found.text);
       setAnalysisResult(found.expectedResult);
+      setHoveredToken(null);
     }
   };
 
@@ -63,6 +66,7 @@ export default function Home() {
     setInputText(val);
     const matchingPreset = DEMO_PRESETS.find((p) => p.text === val.trim());
     setSelectedPresetId(matchingPreset ? matchingPreset.id : null);
+    setHoveredToken(null);
   };
 
   const [analysisError, setAnalysisError] = useState<string | null>(null);
@@ -73,6 +77,7 @@ export default function Home() {
     setIsAnalyzing(true);
     setAnalysisError(null);
     setCacheNotice(null);
+    setHoveredToken(null);
 
     // Normalize for fallback lookup
     const cleanInput = inputText.toLowerCase().replace(/[^a-z0-9]/g, "");
@@ -82,12 +87,16 @@ export default function Home() {
         p.text.toLowerCase().trim() === inputText.toLowerCase().trim() ||
         cleanP === cleanInput ||
         cleanInput.includes(cleanP) ||
-        cleanP.includes(cleanInput)
+        cleanPresetIncludes(cleanP, cleanInput)
       );
     });
 
+    function cleanPresetIncludes(p: string, i: string) {
+      return p.includes(i) || i.includes(p);
+    }
+
     try {
-      const response = await fetch("/api/analyze", {
+      const response = await fetch("/api/triage", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ text: inputText.trim() }),
@@ -123,6 +132,17 @@ export default function Home() {
     }
   };
 
+  const highlightedSpan =
+    hoveredToken &&
+    typeof hoveredToken.start_idx === "number" &&
+    typeof hoveredToken.end_idx === "number"
+      ? {
+          start_idx: hoveredToken.start_idx,
+          end_idx: hoveredToken.end_idx,
+          raw: hoveredToken.raw,
+        }
+      : null;
+
   return (
     <div className="min-h-screen flex flex-col bg-[#090a10] text-[#f3f4f8] selection:bg-blue-600/30 selection:text-blue-200">
       <Navbar />
@@ -134,7 +154,7 @@ export default function Home() {
             <div>
               <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-blue-500/10 border border-blue-500/20 text-blue-400 text-xs font-medium mb-2">
                 <Sparkles className="w-3.5 h-3.5" />
-                Cross-Dialect NLP & Semantic Normalization
+                Cross-Dialect NLP &amp; Deterministic Integrity System
               </div>
               <h1 className="text-3xl sm:text-4xl font-black tracking-tight text-white font-mono">
                 DECODE THE WAY PEOPLE{" "}
@@ -143,7 +163,7 @@ export default function Home() {
                 </span>
               </h1>
               <p className="text-zinc-400 text-sm sm:text-base max-w-2xl mt-1">
-                AI-powered interpretation of code-switched, phonetically spelled, and romanized language with deterministic integrity verification.
+                AI-powered interpretation of code-switched, phonetically spelled, and romanized language with deterministic character span alignment and integrity audit.
               </p>
             </div>
 
@@ -190,16 +210,16 @@ export default function Home() {
               }`}
             >
               <BarChart3 className="w-3.5 h-3.5 text-indigo-200" />
-              <span>Benchmark Evaluation (30 Cases)</span>
+              <span>Benchmark Evaluation (36 Cases)</span>
               <span className="text-[10px] font-mono px-2 py-0.5 rounded bg-emerald-500/20 text-emerald-300 border border-emerald-500/30">
-                96.7% Acc
+                97.2% Acc
               </span>
             </button>
           </div>
 
           <div className="text-[11px] font-mono text-zinc-500 hidden md:block">
             {activeTab === "workbench"
-              ? "Interactive Single-Stream Analysis"
+              ? "Compiler-Inspired Lexical Reconstruction Pipeline"
               : "Rigorous Empirical Benchmark Matrix"}
           </div>
         </div>
@@ -209,218 +229,231 @@ export default function Home() {
           <div className="grid grid-cols-1 lg:grid-cols-12 gap-6 items-start">
             {/* LEFT COLUMN: Input Panel */}
             <div className="lg:col-span-5">
-            <InputPanel
-              inputText={inputText}
-              setInputText={handleTextChange}
-              selectedPresetId={selectedPresetId}
-              onSelectPreset={handleSelectPreset}
-              onAnalyze={handleAnalyze}
-              isAnalyzing={isAnalyzing}
-            />
-          </div>
+              <InputPanel
+                inputText={inputText}
+                setInputText={handleTextChange}
+                selectedPresetId={selectedPresetId}
+                onSelectPreset={handleSelectPreset}
+                onAnalyze={handleAnalyze}
+                isAnalyzing={isAnalyzing}
+                highlightedSpan={highlightedSpan}
+              />
+            </div>
 
-          {/* RIGHT COLUMN: Results Workbench */}
-          <div className="lg:col-span-7 space-y-4">
-            {/* Taxonomy Legend */}
-            <LinguisticLegend />
+            {/* RIGHT COLUMN: Results Workbench */}
+            <div className="lg:col-span-7 space-y-4">
+              {/* Taxonomy Legend */}
+              <LinguisticLegend />
 
-            {/* Workbench Shell Card */}
-            <div className="glass-panel rounded-2xl p-5 border border-white/10 shadow-xl space-y-6">
-              {/* Section Header */}
-              <div className="flex flex-col sm:flex-row sm:items-center justify-between pb-3 border-b border-white/5 gap-2">
-                <div className="flex items-center gap-2">
-                  <Braces className="w-4 h-4 text-indigo-400" />
-                  <span className="text-sm font-semibold text-zinc-100 uppercase tracking-wider font-mono">
-                    Linguistic Triage Workbench
-                  </span>
-                </div>
-                <div className="flex items-center gap-2">
-                  {analysisResult && (
-                    <span
-                      className={`text-[10px] font-mono px-2 py-0.5 rounded-full border flex items-center gap-1.5 ${
-                        analysisResult.model_source === "gemini-2.5-flash"
-                          ? "bg-emerald-500/10 text-emerald-400 border-emerald-500/30"
-                          : "bg-blue-500/10 text-blue-300 border-blue-500/30"
-                      }`}
-                    >
-                      <span
-                        className={`w-1.5 h-1.5 rounded-full ${
-                          analysisResult.model_source === "gemini-2.5-flash"
-                            ? "bg-emerald-400 animate-pulse"
-                            : "bg-blue-400"
-                        }`}
-                      />
-                      {analysisResult.model_source === "gemini-2.5-flash"
-                        ? "Live Gemini 2.5 Flash"
-                        : "Verified Demo Cache"}
+              {/* Workbench Shell Card */}
+              <div className="glass-panel rounded-2xl p-5 border border-white/10 shadow-xl space-y-6">
+                {/* Section Header */}
+                <div className="flex flex-col sm:flex-row sm:items-center justify-between pb-3 border-b border-white/5 gap-2">
+                  <div className="flex items-center gap-2">
+                    <Braces className="w-4 h-4 text-indigo-400" />
+                    <span className="text-sm font-semibold text-zinc-100 uppercase tracking-wider font-mono">
+                      Linguistic Triage Workbench
                     </span>
-                  )}
-                  <span className="text-xs px-2.5 py-0.5 rounded-md bg-zinc-900 border border-zinc-800 text-zinc-400 font-mono">
-                    {selectedPresetId ? `Preset: ${selectedPresetId}` : "Custom Text"}
-                  </span>
-                </div>
-              </div>
-
-              {/* Cache Notice Banner */}
-              {cacheNotice && (
-                <div className="p-3 rounded-xl bg-blue-950/40 border border-blue-500/30 flex items-center gap-2.5 text-blue-200 text-xs">
-                  <Info className="w-4 h-4 text-blue-400 shrink-0" />
-                  <span>{cacheNotice}</span>
-                </div>
-              )}
-
-              {/* Error Banner */}
-              {analysisError && (
-                <div className="p-3.5 rounded-xl bg-rose-950/40 border border-rose-500/30 flex items-start justify-between gap-3 text-rose-200 text-xs">
-                  <div className="flex items-start gap-2.5">
-                    <AlertCircle className="w-4 h-4 text-rose-400 shrink-0 mt-0.5" />
-                    <div className="space-y-1">
-                      <span className="font-semibold block">Analysis Issue Detected</span>
-                      <p className="text-rose-300/90 leading-relaxed">{analysisError}</p>
-                    </div>
                   </div>
-                  <button
-                    type="button"
-                    onClick={() => setAnalysisError(null)}
-                    className="p-1 rounded hover:bg-rose-900/40 text-rose-400 hover:text-white transition-colors cursor-pointer"
-                    title="Dismiss error"
-                  >
-                    <X className="w-3.5 h-3.5" />
-                  </button>
+                  <div className="flex items-center gap-2">
+                    {analysisResult && (
+                      <span
+                        className={`text-[10px] font-mono px-2 py-0.5 rounded-full border flex items-center gap-1.5 ${
+                          analysisResult.model_source === "gemini-2.5-flash"
+                            ? "bg-emerald-500/10 text-emerald-400 border-emerald-500/30"
+                            : "bg-blue-500/10 text-blue-300 border-blue-500/30"
+                        }`}
+                      >
+                        <span
+                          className={`w-1.5 h-1.5 rounded-full ${
+                            analysisResult.model_source === "gemini-2.5-flash"
+                              ? "bg-emerald-400 animate-pulse"
+                              : "bg-blue-400"
+                          }`}
+                        />
+                        {analysisResult.model_source === "gemini-2.5-flash"
+                          ? "Live Gemini 2.5 Flash"
+                          : "Verified Demo Cache"}
+                      </span>
+                    )}
+                    <span className="text-xs px-2.5 py-0.5 rounded-md bg-zinc-900 border border-zinc-800 text-zinc-400 font-mono">
+                      {selectedPresetId ? `Preset: ${selectedPresetId}` : "Custom Text"}
+                    </span>
+                  </div>
                 </div>
-              )}
 
-              {/* Progress Tracker (while analyzing) */}
-              {isAnalyzing && <AnalysisProgress isAnalyzing={isAnalyzing} />}
-
-              {/* SECTION A: Token Breakdown */}
-              <div className="space-y-2.5">
-                <div className="flex items-center justify-between">
-                  <span className="text-xs font-semibold text-zinc-300 uppercase tracking-wider">
-                    Section A — Token Analysis &amp; Classification
-                  </span>
-                  <span className="text-[10px] text-zinc-500 font-mono">
-                    {analysisResult ? `${analysisResult.tokens.length} Classified Tokens` : "Interactive Pills"}
-                  </span>
-                </div>
-
-                {analysisResult ? (
-                  <TokenVisualization
-                    tokens={analysisResult.tokens}
-                    detectedLanguages={analysisResult.detected_languages}
-                    phenomena={analysisResult.phenomena}
-                  />
-                ) : (
-                  <div className="min-h-[80px] rounded-xl bg-black/40 border border-dashed border-white/10 p-4 flex items-center justify-center text-xs text-zinc-500 italic">
-                    Load a preset or click &quot;Analyze Input&quot; to inspect token-level language identification, phonetic types, and normalized native forms.
+                {/* Cache Notice Banner */}
+                {cacheNotice && (
+                  <div className="p-3 rounded-xl bg-blue-950/40 border border-blue-500/30 flex items-center gap-2.5 text-blue-200 text-xs">
+                    <Info className="w-4 h-4 text-blue-400 shrink-0" />
+                    <span>{cacheNotice}</span>
                   </div>
                 )}
+
+                {/* Error Banner */}
+                {analysisError && (
+                  <div className="p-3.5 rounded-xl bg-rose-950/40 border border-rose-500/30 flex items-start justify-between gap-3 text-rose-200 text-xs">
+                    <div className="flex items-start gap-2.5">
+                      <AlertCircle className="w-4 h-4 text-rose-400 shrink-0 mt-0.5" />
+                      <div className="space-y-1">
+                        <span className="font-semibold block">Analysis Issue Detected</span>
+                        <p className="text-rose-300/90 leading-relaxed">{analysisError}</p>
+                      </div>
+                    </div>
+                    <button
+                      type="button"
+                      onClick={() => setAnalysisError(null)}
+                      className="p-1 rounded hover:bg-rose-900/40 text-rose-400 hover:text-white transition-colors cursor-pointer"
+                      title="Dismiss error"
+                    >
+                      <X className="w-3.5 h-3.5" />
+                    </button>
+                  </div>
+                )}
+
+                {/* Progress Tracker (while analyzing) */}
+                {isAnalyzing && <AnalysisProgress isAnalyzing={isAnalyzing} />}
+
+                {/* SECTION A: Token Breakdown */}
+                <div className="space-y-2.5">
+                  <div className="flex items-center justify-between">
+                    <span className="text-xs font-semibold text-zinc-300 uppercase tracking-wider">
+                      Section A — Token Analysis &amp; Span Alignment
+                    </span>
+                    <span className="text-[10px] text-zinc-500 font-mono">
+                      {analysisResult ? `${analysisResult.tokens.length} Classified Tokens` : "Interactive Pills"}
+                    </span>
+                  </div>
+
+                  {analysisResult ? (
+                    <TokenVisualization
+                      tokens={analysisResult.tokens}
+                      detectedLanguages={analysisResult.detected_languages}
+                      phenomena={analysisResult.phenomena}
+                      onHoverToken={setHoveredToken}
+                      hoveredToken={hoveredToken}
+                    />
+                  ) : (
+                    <div className="min-h-[80px] rounded-xl bg-black/40 border border-dashed border-white/10 p-4 flex items-center justify-center text-xs text-zinc-500 italic">
+                      Load a preset or click &quot;Analyze Input&quot; to inspect token-level language identification, phonetic types, and normalized native forms.
+                    </div>
+                  )}
+                </div>
+
+                {/* SECTION B: Canonical Dual-Script Reconstruction */}
+                {analysisResult ? (
+                  <CanonicalReconstruction
+                    originalText={analysisResult.original_text}
+                    canonicalScript={analysisResult.canonical_script}
+                    englishTranslation={analysisResult.english_translation}
+                  />
+                ) : (
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
+                    <div className="rounded-xl bg-black/40 border border-white/5 p-4 space-y-2">
+                      <div className="flex items-center justify-between text-xs">
+                        <span className="font-semibold text-zinc-300">
+                          Native Script Reconstruction
+                        </span>
+                        <span className="text-[10px] text-amber-400/80 font-mono">
+                          Devanagari / Arabic
+                        </span>
+                      </div>
+                      <div className="h-14 flex items-center text-xs text-zinc-500 italic">
+                        Awaiting pipeline analysis...
+                      </div>
+                    </div>
+
+                    <div className="rounded-xl bg-black/40 border border-white/5 p-4 space-y-2">
+                      <div className="flex items-center justify-between text-xs">
+                        <span className="font-semibold text-zinc-300">
+                          Standard English Translation
+                        </span>
+                        <span className="text-[10px] text-blue-400/80 font-mono">
+                          Business Canonical
+                        </span>
+                      </div>
+                      <div className="h-14 flex items-center text-xs text-zinc-500 italic">
+                        Awaiting pipeline analysis...
+                      </div>
+                    </div>
+                  </div>
+                )}
+
+                {/* SECTION C: Business Intent & Entities + Pragmatic Register */}
+                {analysisResult ? (
+                  <TriageInformation
+                    intent={analysisResult.intent}
+                    entities={analysisResult.entities}
+                    pragmaticRegister={analysisResult.pragmatic_register}
+                  />
+                ) : (
+                  <div className="rounded-xl bg-black/40 border border-white/5 p-4 space-y-2">
+                    <div className="flex items-center justify-between text-xs">
+                      <span className="font-semibold text-zinc-300">
+                        Section C — Business Intent &amp; Extracted Entities
+                      </span>
+                      <span className="text-[10px] text-purple-400/80 font-mono">
+                        Triage Metadata
+                      </span>
+                    </div>
+                    <div className="h-12 flex items-center text-xs text-zinc-500 italic">
+                      Extracted intent labels, confidence scoring, and structured entity tags will display here.
+                    </div>
+                  </div>
+                )}
+
+                {/* SECTION D: Deterministic Integrity Audit */}
+                {analysisResult ? (
+                  <IntegrityAudit verification={analysisResult.verification} />
+                ) : (
+                  <div className="rounded-xl bg-emerald-950/20 border border-emerald-500/20 p-4 space-y-2">
+                    <div className="flex items-center justify-between text-xs">
+                      <div className="flex items-center gap-1.5 text-emerald-400 font-semibold">
+                        <FileCheck className="w-4 h-4" />
+                        <span>Deterministic Integrity Audit (Post-LLM Guard)</span>
+                      </div>
+                      <span className="text-[10px] text-emerald-400/80 font-mono">
+                        Post-LLM Assertion
+                      </span>
+                    </div>
+                    <div className="grid grid-cols-2 sm:grid-cols-5 gap-2 pt-1">
+                      <div className="p-2 rounded bg-black/30 border border-emerald-500/10 text-center">
+                        <span className="text-[10px] text-zinc-400 block">Schema</span>
+                        <span className="text-xs font-mono text-zinc-500">—</span>
+                      </div>
+                      <div className="p-2 rounded bg-black/30 border border-emerald-500/10 text-center">
+                        <span className="text-[10px] text-zinc-400 block">Spans</span>
+                        <span className="text-xs font-mono text-zinc-500">—</span>
+                      </div>
+                      <div className="p-2 rounded bg-black/30 border border-emerald-500/10 text-center">
+                        <span className="text-[10px] text-zinc-400 block">Numbers</span>
+                        <span className="text-xs font-mono text-zinc-500">—</span>
+                      </div>
+                      <div className="p-2 rounded bg-black/30 border border-emerald-500/10 text-center">
+                        <span className="text-[10px] text-zinc-400 block">Negation</span>
+                        <span className="text-xs font-mono text-zinc-500">—</span>
+                      </div>
+                      <div className="p-2 rounded bg-black/30 border border-emerald-500/10 text-center">
+                        <span className="text-[10px] text-zinc-400 block">Entities</span>
+                        <span className="text-xs font-mono text-zinc-500">—</span>
+                      </div>
+                    </div>
+                  </div>
+                )}
+
+                {/* SECTION E: Secondary Automated Action Dispatch Payload */}
+                {analysisResult?.action_dispatch && (
+                  <ActionDispatchDrawer dispatch={analysisResult.action_dispatch} />
+                )}
               </div>
-
-              {/* SECTION B: Canonical Dual-Script Reconstruction */}
-              {analysisResult ? (
-                <CanonicalReconstruction
-                  originalText={analysisResult.original_text}
-                  canonicalScript={analysisResult.canonical_script}
-                  englishTranslation={analysisResult.english_translation}
-                />
-              ) : (
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
-                  <div className="rounded-xl bg-black/40 border border-white/5 p-4 space-y-2">
-                    <div className="flex items-center justify-between text-xs">
-                      <span className="font-semibold text-zinc-300">
-                        Native Script Reconstruction
-                      </span>
-                      <span className="text-[10px] text-amber-400/80 font-mono">
-                        Devanagari / Arabic
-                      </span>
-                    </div>
-                    <div className="h-14 flex items-center text-xs text-zinc-500 italic">
-                      Awaiting pipeline analysis...
-                    </div>
-                  </div>
-
-                  <div className="rounded-xl bg-black/40 border border-white/5 p-4 space-y-2">
-                    <div className="flex items-center justify-between text-xs">
-                      <span className="font-semibold text-zinc-300">
-                        Standard English Translation
-                      </span>
-                      <span className="text-[10px] text-blue-400/80 font-mono">
-                        Business Canonical
-                      </span>
-                    </div>
-                    <div className="h-14 flex items-center text-xs text-zinc-500 italic">
-                      Awaiting pipeline analysis...
-                    </div>
-                  </div>
-                </div>
-              )}
-
-              {/* SECTION C: Business Intent & Entities */}
-              {analysisResult ? (
-                <TriageInformation
-                  intent={analysisResult.intent}
-                  entities={analysisResult.entities}
-                />
-              ) : (
-                <div className="rounded-xl bg-black/40 border border-white/5 p-4 space-y-2">
-                  <div className="flex items-center justify-between text-xs">
-                    <span className="font-semibold text-zinc-300">
-                      Section C — Business Intent &amp; Extracted Entities
-                    </span>
-                    <span className="text-[10px] text-purple-400/80 font-mono">
-                      Triage Metadata
-                    </span>
-                  </div>
-                  <div className="h-12 flex items-center text-xs text-zinc-500 italic">
-                    Extracted intent labels, confidence scoring, and structured entity tags will display here.
-                  </div>
-                </div>
-              )}
-
-              {/* SECTION D: AI Integrity Check */}
-              {analysisResult ? (
-                <IntegrityCheck verification={analysisResult.verification} />
-              ) : (
-                <div className="rounded-xl bg-emerald-950/20 border border-emerald-500/20 p-4 space-y-2">
-                  <div className="flex items-center justify-between text-xs">
-                    <div className="flex items-center gap-1.5 text-emerald-400 font-semibold">
-                      <FileCheck className="w-4 h-4" />
-                      <span>AI Integrity Check (Deterministic Guard)</span>
-                    </div>
-                    <span className="text-[10px] text-emerald-400/80 font-mono">
-                      Post-LLM Verifier
-                    </span>
-                  </div>
-                  <div className="grid grid-cols-2 sm:grid-cols-4 gap-2 pt-1">
-                    <div className="p-2 rounded bg-black/30 border border-emerald-500/10 text-center">
-                      <span className="text-[10px] text-zinc-400 block">Entities</span>
-                      <span className="text-xs font-mono text-zinc-500">—</span>
-                    </div>
-                    <div className="p-2 rounded bg-black/30 border border-emerald-500/10 text-center">
-                      <span className="text-[10px] text-zinc-400 block">Numbers</span>
-                      <span className="text-xs font-mono text-zinc-500">—</span>
-                    </div>
-                    <div className="p-2 rounded bg-black/30 border border-emerald-500/10 text-center">
-                      <span className="text-[10px] text-zinc-400 block">Negation</span>
-                      <span className="text-xs font-mono text-zinc-500">—</span>
-                    </div>
-                    <div className="p-2 rounded bg-black/30 border border-emerald-500/10 text-center">
-                      <span className="text-[10px] text-zinc-400 block">Schema</span>
-                      <span className="text-xs font-mono text-zinc-500">—</span>
-                    </div>
-                  </div>
-                </div>
-              )}
             </div>
           </div>
-        </div>
-      ) : (
-        <div className="glass-panel rounded-2xl p-6 border border-white/10 shadow-2xl">
-          <EvaluationSection onLoadCase={handleLoadCase} />
-        </div>
-      )}
-    </main>
+        ) : (
+          <div className="glass-panel rounded-2xl p-6 border border-white/10 shadow-2xl">
+            <EvaluationSection onLoadCase={handleLoadCase} />
+          </div>
+        )}
+      </main>
 
       {/* Footer */}
       <footer className="border-t border-white/5 py-4 mt-8 bg-[#07090e] text-xs text-zinc-500">
@@ -428,10 +461,10 @@ export default function Home() {
           <div className="flex items-center gap-2">
             <span className="font-mono text-zinc-400">VernacTriage</span>
             <span>•</span>
-            <span>Cross-Dialect NLP &amp; Deterministic Integrity System</span>
+            <span>Compiler-Inspired Lexical Reconstruction &amp; Deterministic Integrity Pipeline</span>
           </div>
           <div className="text-[11px] font-mono text-zinc-600">
-            MESSY INPUT → AI NLP → STRUCTURED LINGUISTIC DATA → VERIFIED OUTPUT
+            MESSY INPUT → AI NORMALIZATION → DETERMINISTIC SPANS → INTEGRITY AUDIT → ERP DISPATCH
           </div>
         </div>
       </footer>

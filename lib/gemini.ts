@@ -8,33 +8,118 @@ Your purpose is to interpret messy, non-standard, and code-switched human commun
 2. Arabizi / 3Arabizi (Arabic written in Latin script where ASCII digits represent Arabic phonemes absent in Latin: e.g. 7=ح, 3=ع, 2=ء/ق, 5=خ, 8=غ, 6=ط/ض).
 
 Linguistic Processing Guidelines:
-- Code-Switching: Accurately isolate token-level matrix and embedded languages (e.g. Hindi, Arabic, English).
-- Phonetic Romanization: Accurately restore phonetic shorthand and abbreviations to their root lexemes (e.g., 'kl' -> कल, 'ni'/'nhi' -> नहीं, 'plz' -> please, 'b4' -> before, '7awel' -> حاول).
-- Canonical Native Script: Reconstruct the sentence in its native orthography (Devanagari for Hindi segments, Arabic script for Arabizi segments, preserving English loanwords cleanly).
-- Standard English Translation: Produce a clear, grammatically sound, business-grade English translation faithful to tone and semantic intent.
-- Business Intent: Identify the customer/operational intent (e.g., DELIVERY_ISSUE, TRAFFIC_DELAY, REFUND_REQUEST, PAYMENT_ISSUE, INQUIRY) with a confidence score between 0.0 and 1.0.
-- Entity Extraction: Extract key operational entities (e.g., ITEM, TIME, STATUS, AMOUNT, URGENCY, ACTION_REQ).
-- Uncertainty Handling: If a token or meaning is ambiguous, classify language as "Other" or note ambiguity rather than hallucinating.
+- Code-Switching: Accurately isolate token-level matrix and embedded languages (e.g. "en", "hi", "ar", "mixed", "unknown").
+- Token Classification: Classify each token into:
+  * "standard": standard dictionary word (e.g. "parcel", "deliver", "to", "arrive")
+  * "transliterated": native lexeme written in Latin letters (e.g. "bhai" -> भाई, "yalla" -> يلا, "kro" -> करो)
+  * "phonetic_ear": informal phonetic spelling or abbreviation (e.g. "kl" -> कल, "ni" -> नहीं, "plz" -> please, "wrna" -> वरना)
+  * "alphanumeric_sub": token containing numeric/symbolic substitutions (e.g. "7awel" -> حاول, "b3d" -> بعد, "b4" -> before, "na2es" -> ناقص)
+- Cross-Lingual Collision Ledger:
+  Identify genuine cases where identical Latin text could represent different languages/meanings in context:
+  * Example: English pronoun "me" vs Hindi locative postposition "me / mein" (में = inside).
+  * Example: English preposition "to" vs Hindi discourse marker "toh" (तो).
+  * Example: Arabizi "fi" (في = in) vs English acronym/word.
+  * Example: Arabizi "3an" (عن = about/from) vs misspelled English "can".
+  CRITICAL: For ordinary tokens with no cross-lingual homographic ambiguity, set "collision": null.
+  ONLY populate "collision" when contextual cross-lingual ambiguity genuinely exists.
+- Pragmatic Register & Cultural Markers:
+  Detect socio-linguistic markers such as: "bhai", "yaar", "boss", "habibi", "ya akhi", "wallah / walla", "plz", "ASAP".
+  Classify tone into:
+  * "Colloquial-Familiar": friendly, conversational vernacular.
+  * "Pleading-Urgent": anxious, pressing request for assistance.
+  * "Escalating-Hostile": aggressive, angry customer demanding immediate escalation.
+  * "Formal": polite, neutral business communication.
+  (Do NOT automatically classify slang as hostile).
+- Negation Parity (is_negation):
+  Mark is_negation: true ONLY for true negation markers (e.g. "ni", "nahi", "nhi", "mat", "la", "ma", "mesh", "mish", "not").
+  CRITICAL: Discourse/confirmation particles like "na" in "Kal delivery aa jayegi na boss?" are tag particles and must have is_negation: false!
+- Canonical Native Script: Reconstruct the sentence in its native orthography (Devanagari for Hindi, Arabic script for Arabizi, preserving English loanwords cleanly).
+- Standard English Translation: Produce a clear, grammatically sound, business-grade English translation faithful to tone, semantics, and numerical values.
+- Business Intent: Choose from standard intent taxonomy:
+  DELIVERY_STATUS, DELIVERY_ISSUE, REFUND_REQUEST, CANCELLATION, ACCOUNT_ACCESS, TECHNICAL_SUPPORT, GENERAL_INQUIRY, FINANCIAL_DISPUTE, TRAFFIC_DELAY, PAYMENT_ISSUE.
+- Entities: Extract key operational entities ({ "type": string, "value": string }).
+- Action Dispatch: Generate a read-only structured downstream payload for automated ERP/CRM routing:
+  * target_service: "LOGISTICS_SERVICE" | "PAYMENT_GATEWAY" | "CUSTOMER_SUPPORT"
+  * endpoint_action: "EXPEDITE_DELIVERY" | "INITIATE_REFUND" | "FLAG_PRIORITY_ESCALATION" | "GENERAL_QUERY"
+  * parameters: { reference_id?: string, priority_level: "P1" | "P2" | "P3", requires_agent_review: boolean }
+
+COMPACT FEW-SHOT HOMOGRAPH DEMONSTRATION:
+Input: "Wait for me parcel me rakh do"
+Tokens interpretation:
+- First "me":
+  {
+    "raw": "me",
+    "detected_language": "en",
+    "classification": "standard",
+    "normalized_source": "me",
+    "is_negation": false,
+    "collision": null,
+    "language": "English",
+    "type": "Standard Pronoun",
+    "script": "Latin",
+    "normalized": "me",
+    "confidence": 0.99,
+    "explanation": "First-person English object pronoun in 'wait for me'"
+  }
+- Second "me":
+  {
+    "raw": "me",
+    "detected_language": "hi",
+    "classification": "transliterated",
+    "normalized_source": "में",
+    "is_negation": false,
+    "collision": {
+      "is_collision": true,
+      "selected_language": "hi",
+      "selected_meaning": "in / inside (locative postposition)",
+      "rejected_language": "en",
+      "rejected_meaning": "first-person pronoun 'me'",
+      "reasoning": "Following 'parcel', 'me' represents the Hindi postposition 'में' (in/inside), directing where to place the parcel."
+    },
+    "language": "Hindi",
+    "type": "Cross-Lingual Homograph",
+    "script": "Devanagari",
+    "normalized": "में",
+    "confidence": 0.98,
+    "explanation": "Hindi locative postposition 'mein' homographic with English 'me'"
+  }
 
 OUTPUT SCHEMA REQUIREMENTS:
 You MUST respond with a single, strictly valid JSON object matching this TypeScript structure:
 {
   "original_text": string,
+  "detected_pair": string, // e.g. "Hinglish (Hindi-English)" or "Arabizi (Arabic-English)"
   "detected_languages": string[],
   "phenomena": string[],
+  "pragmatic_register": {
+    "tone": "Colloquial-Familiar" | "Pleading-Urgent" | "Escalating-Hostile" | "Formal",
+    "cultural_markers": string[]
+  },
   "tokens": [
     {
       "raw": string,
-      "language": "Hindi" | "Arabic" | "English" | "Other",
-      "type": string, // e.g. "Phonetic Negation", "Arabizi Numeral", "Standard Loanword", "Romanized Verb", etc.
-      "script": "Latin" | "Devanagari" | "Arabic",
-      "normalized": string, // Native script or standard representation
-      "confidence": number, // 0.0 - 1.0
+      "detected_language": "en" | "hi" | "ar" | "mixed" | "unknown",
+      "classification": "standard" | "transliterated" | "phonetic_ear" | "alphanumeric_sub",
+      "normalized_source": string,
+      "is_negation": boolean,
+      "collision": null | {
+        "is_collision": boolean,
+        "selected_language": "en" | "hi" | "ar" | "mixed" | "unknown",
+        "selected_meaning": string,
+        "rejected_language": "en" | "hi" | "ar" | "mixed" | "unknown",
+        "rejected_meaning": string,
+        "reasoning": string
+      },
+      "language": string,
+      "type": string,
+      "script": string,
+      "normalized": string,
+      "confidence": number,
       "explanation": string
     }
   ],
-  "canonical_script": string,
-  "english_translation": string,
+  "canonical_native_script": string,
+  "standard_english": string,
   "intent": {
     "label": string,
     "confidence": number
@@ -44,9 +129,18 @@ You MUST respond with a single, strictly valid JSON object matching this TypeScr
       "type": string,
       "value": string
     }
-  ]
+  ],
+  "action_dispatch": {
+    "target_service": "LOGISTICS_SERVICE" | "PAYMENT_GATEWAY" | "CUSTOMER_SUPPORT",
+    "endpoint_action": "EXPEDITE_DELIVERY" | "INITIATE_REFUND" | "FLAG_PRIORITY_ESCALATION" | "GENERAL_QUERY",
+    "parameters": {
+      "reference_id": string,
+      "priority_level": "P1" | "P2" | "P3",
+      "requires_agent_review": boolean
+    }
+  }
 }
-DO NOT enclose the response in markdown backticks or commentary. Return ONLY the raw JSON string.`;
+DO NOT enclose the response in markdown backticks or commentary. Return ONLY the raw JSON string. Do NOT calculate character offsets (start_idx / end_idx).`;
 
 export async function analyzeWithGemini(
   text: string
@@ -109,15 +203,49 @@ export async function analyzeWithGemini(
       throw new Error("Gemini returned a response that could not be parsed into the expected JSON schema.");
     }
 
+    const canonicalScript = parsed.canonical_native_script || parsed.canonical_script || "";
+    const standardEnglish = parsed.standard_english || parsed.english_translation || "";
+
+    // Normalize tokens
+    const tokens = (parsed.tokens || []).map((t: any) => ({
+      raw: t.raw || "",
+      detected_language: t.detected_language || (t.language?.toLowerCase().includes("hindi") ? "hi" : t.language?.toLowerCase().includes("arabic") ? "ar" : "en"),
+      classification: t.classification || "standard",
+      normalized_source: t.normalized_source || t.normalized || t.raw || "",
+      is_negation: Boolean(t.is_negation),
+      collision: t.collision?.is_collision ? t.collision : null,
+      language: t.language || (t.detected_language === "hi" ? "Hindi" : t.detected_language === "ar" ? "Arabic" : "English"),
+      type: t.type || t.classification || "Standard",
+      script: t.script || "Latin",
+      normalized: t.normalized || t.normalized_source || t.raw || "",
+      confidence: typeof t.confidence === "number" ? t.confidence : 0.95,
+      explanation: t.explanation || "",
+    }));
+
     return {
       original_text: parsed.original_text || normalizedText,
+      detected_pair: parsed.detected_pair || "Multilingual Code-Switching",
       detected_languages: parsed.detected_languages || ["Mixed"],
       phenomena: parsed.phenomena || [],
-      tokens: parsed.tokens || [],
-      canonical_script: parsed.canonical_script || "",
-      english_translation: parsed.english_translation || "",
-      intent: parsed.intent || { label: "GENERAL_QUERY", confidence: 0.8 },
+      pragmatic_register: parsed.pragmatic_register || {
+        tone: "Colloquial-Familiar",
+        cultural_markers: [],
+      },
+      tokens,
+      canonical_script: canonicalScript,
+      canonical_native_script: canonicalScript,
+      english_translation: standardEnglish,
+      standard_english: standardEnglish,
+      intent: parsed.intent || { label: "GENERAL_INQUIRY", confidence: 0.8 },
       entities: parsed.entities || [],
+      action_dispatch: parsed.action_dispatch || {
+        target_service: "CUSTOMER_SUPPORT",
+        endpoint_action: "GENERAL_QUERY",
+        parameters: {
+          priority_level: "P2",
+          requires_agent_review: false,
+        },
+      },
       model_source: "gemini-2.5-flash",
     };
   } catch (err: any) {

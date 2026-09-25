@@ -2,7 +2,7 @@
 
 import React from "react";
 import { DEMO_PRESETS } from "@/data/presets";
-import { Fingerprint, Zap, RotateCcw, Sparkles, Loader2 } from "lucide-react";
+import { Fingerprint, Zap, RotateCcw, Sparkles, Loader2, Crosshair } from "lucide-react";
 
 interface InputPanelProps {
   inputText: string;
@@ -11,6 +11,7 @@ interface InputPanelProps {
   onSelectPreset: (id: string) => void;
   onAnalyze: () => void;
   isAnalyzing: boolean;
+  highlightedSpan?: { start_idx: number; end_idx: number; raw: string } | null;
 }
 
 export function InputPanel({
@@ -20,6 +21,7 @@ export function InputPanel({
   onSelectPreset,
   onAnalyze,
   isAnalyzing,
+  highlightedSpan,
 }: InputPanelProps) {
   const charLimit = 500;
   const isOverLimit = inputText.length > charLimit;
@@ -31,6 +33,13 @@ export function InputPanel({
       }
     }
   };
+
+  const hasValidSpan =
+    highlightedSpan &&
+    typeof highlightedSpan.start_idx === "number" &&
+    typeof highlightedSpan.end_idx === "number" &&
+    highlightedSpan.start_idx >= 0 &&
+    highlightedSpan.end_idx <= inputText.length;
 
   return (
     <div className="glass-panel rounded-2xl p-5 border border-white/10 shadow-xl space-y-4">
@@ -134,6 +143,29 @@ export function InputPanel({
         )}
       </div>
 
+      {/* Character Span Highlight Viewer (Live Alignment Feedback) */}
+      {hasValidSpan && (
+        <div className="p-3 rounded-xl bg-gradient-to-br from-indigo-950/40 to-black/70 border border-indigo-500/40 text-xs space-y-1.5 animate-fadeIn shadow-lg shadow-indigo-500/10">
+          <div className="flex items-center justify-between text-[10px] font-mono text-indigo-300">
+            <span className="font-bold flex items-center gap-1.5">
+              <Crosshair className="w-3.5 h-3.5 text-indigo-400 animate-spin-slow" />
+              RAW CHARACTER SPAN: [{highlightedSpan!.start_idx}..{highlightedSpan!.end_idx}]
+            </span>
+            <span className="text-zinc-400 bg-black/40 px-2 py-0.5 rounded border border-white/5">
+              Token: <strong className="text-amber-300">&ldquo;{highlightedSpan!.raw}&rdquo;</strong>
+            </span>
+          </div>
+
+          <div className="font-mono text-zinc-300 text-xs bg-black/70 p-2.5 rounded-lg border border-white/10 break-words leading-relaxed">
+            <span className="text-zinc-500">{inputText.substring(0, highlightedSpan!.start_idx)}</span>
+            <mark className="bg-amber-400/30 text-amber-200 px-1 py-0.5 rounded border border-amber-400 font-bold shadow-md shadow-amber-500/40">
+              {inputText.substring(highlightedSpan!.start_idx, highlightedSpan!.end_idx)}
+            </mark>
+            <span className="text-zinc-500">{inputText.substring(highlightedSpan!.end_idx)}</span>
+          </div>
+        </div>
+      )}
+
       {/* Action CTA & Clear */}
       <div className="flex items-center gap-3 pt-1">
         <button
@@ -173,17 +205,17 @@ export function InputPanel({
       {/* Target Linguistic Scope Card */}
       <div className="glass-panel-subtle rounded-xl p-4 border border-white/5 space-y-2 text-xs text-zinc-400">
         <span className="font-semibold text-zinc-300 uppercase tracking-wider text-[11px] block">
-          Target Linguistic Challenges
+          Triage Engine Scope
         </span>
-        <ul className="space-y-1 list-disc list-inside text-zinc-400 text-[11px]">
+        <ul className="space-y-1.5 list-disc list-inside text-zinc-400">
           <li>
-            <strong className="text-zinc-200">Code-Switching:</strong> Intra-sentential matrix language alternating (e.g., Hindi + English).
+            <strong className="text-zinc-200">Hinglish:</strong> Matrix Hindi + English loanwords, phonetic spelling (kl, ni, plz, wrna).
           </li>
           <li>
-            <strong className="text-zinc-200">Phonetic Romanization:</strong> Non-standard phonetic Latin spellings (&quot;kl&quot;, &quot;ni&quot;, &quot;plz&quot;, &quot;wrna&quot;).
+            <strong className="text-zinc-200">Arabizi (3rb):</strong> Arabic in Latin script using ASCII numerals (7=ح, 3=ع, 2=ء, 5=خ).
           </li>
           <li>
-            <strong className="text-zinc-200">Arabizi Numerals:</strong> Digits representing phonetic Arabic phonemes (e.g., &apos;7&apos; for ح / Ḥā&apos;, &apos;3&apos; for ع / &apos;Ayn).
+            <strong className="text-zinc-200">Compiler Verification:</strong> Deterministic character spans, homograph collision ledger, and invariant checks.
           </li>
         </ul>
       </div>
