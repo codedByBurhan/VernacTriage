@@ -1,4 +1,4 @@
-import { GoogleGenAI, ThinkingLevel } from "@google/genai";
+import { GoogleGenAI } from "@google/genai";
 import { TriageAnalysisResult } from "./types";
 import { DEMO_PRESETS } from "@/data/presets";
 
@@ -50,7 +50,7 @@ DO NOT enclose the response in markdown backticks or commentary. Return ONLY the
 
 export async function analyzeWithGemini(
   text: string
-): Promise<Omit<TriageAnalysisResult, "verification"> & { model_source: "gemini-3.8-flash" | "demo-fallback" }> {
+): Promise<Omit<TriageAnalysisResult, "verification"> & { model_source: "gemini-2.5-flash" | "demo-fallback" }> {
   const normalizedText = text.trim();
 
   // Check if input matches one of our demo presets (exact or normalized alphanumeric)
@@ -71,8 +71,8 @@ export async function analyzeWithGemini(
     throw new Error("Gemini API key is not configured.");
   }
 
-  // Application model configuration: strictly gemini-3.8-flash
-  const MODEL_ID = "gemini-3.8-flash";
+  // Application model configuration: gemini-2.5-flash for rock-solid stability and low latency
+  const MODEL_ID = "gemini-2.5-flash";
 
   try {
     const ai = new GoogleGenAI({ apiKey });
@@ -87,9 +87,6 @@ export async function analyzeWithGemini(
       config: {
         systemInstruction: SYSTEM_INSTRUCTION,
         responseMimeType: "application/json",
-        thinkingConfig: {
-          thinkingLevel: ThinkingLevel.LOW,
-        },
       },
     });
 
@@ -121,7 +118,7 @@ export async function analyzeWithGemini(
       english_translation: parsed.english_translation || "",
       intent: parsed.intent || { label: "GENERAL_QUERY", confidence: 0.8 },
       entities: parsed.entities || [],
-      model_source: "gemini-3.8-flash",
+      model_source: "gemini-2.5-flash",
     };
   } catch (err: any) {
     console.error("Gemini API error:", err);
@@ -133,6 +130,18 @@ export async function analyzeWithGemini(
         model_source: "demo-fallback",
       };
     }
-    throw err;
+
+    // Extract human-readable error from raw Google GenAI JSON errors
+    let cleanMessage = err?.message || "Gemini analysis request failed.";
+    try {
+      const parsedErr = JSON.parse(cleanMessage);
+      if (parsedErr?.error?.message) {
+        cleanMessage = `Gemini API: ${parsedErr.error.message}`;
+      }
+    } catch {
+      // Keep string as is
+    }
+
+    throw new Error(cleanMessage);
   }
 }

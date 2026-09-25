@@ -238,20 +238,20 @@ export default function Home() {
                   {analysisResult && (
                     <span
                       className={`text-[10px] font-mono px-2 py-0.5 rounded-full border flex items-center gap-1.5 ${
-                        analysisResult.model_source === "gemini-3.8-flash"
+                        analysisResult.model_source === "gemini-2.5-flash"
                           ? "bg-emerald-500/10 text-emerald-400 border-emerald-500/30"
                           : "bg-blue-500/10 text-blue-300 border-blue-500/30"
                       }`}
                     >
                       <span
                         className={`w-1.5 h-1.5 rounded-full ${
-                          analysisResult.model_source === "gemini-3.8-flash"
+                          analysisResult.model_source === "gemini-2.5-flash"
                             ? "bg-emerald-400 animate-pulse"
                             : "bg-blue-400"
                         }`}
                       />
-                      {analysisResult.model_source === "gemini-3.8-flash"
-                        ? "Live Gemini 3.8 Flash"
+                      {analysisResult.model_source === "gemini-2.5-flash"
+                        ? "Live Gemini 2.5 Flash"
                         : "Verified Demo Cache"}
                     </span>
                   )}

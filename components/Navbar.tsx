@@ -34,7 +34,7 @@ export function Navbar() {
           <div className="hidden md:flex items-center space-x-2 px-3 py-1.5 rounded-lg bg-zinc-900/80 border border-white/5 text-xs text-zinc-300">
             <Cpu className="w-3.5 h-3.5 text-indigo-400" />
             <span className="text-zinc-400">Engine:</span>
-            <span className="font-mono text-zinc-200">Gemini 3.8 Flash</span>
+            <span className="font-mono text-zinc-200">Gemini 2.5 Flash</span>
           </div>
 
           <div className="flex items-center space-x-2 px-3 py-1.5 rounded-lg bg-emerald-950/40 border border-emerald-500/20 text-xs text-emerald-300">

@@ -21,7 +21,7 @@ export function PipelineFlow({ currentStage = "idle" }: PipelineFlowProps) {
     {
       id: "nlp",
       label: "AI Interpretation",
-      desc: "Gemini 3.8 Flash Engine",
+      desc: "Gemini 2.5 Flash Engine",
       icon: Cpu,
       color: "text-indigo-400",
       border: "border-indigo-500/30",

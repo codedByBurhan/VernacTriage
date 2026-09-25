@@ -44,7 +44,7 @@ export interface TriageAnalysisResult {
   intent: IntentAnalysis;
   entities: EntityItem[];
   verification: VerificationResult;
-  model_source?: "gemini-3.8-flash" | "demo-fallback";
+  model_source?: "gemini-2.5-flash" | "demo-fallback";
 }
 
 export interface DemoPreset {
