@@ -11,6 +11,7 @@ import {
   Sparkles,
   Braces,
   FileCheck,
+  AlertCircle,
 } from "lucide-react";
 
 export default function Home() {
@@ -33,16 +34,29 @@ export default function Home() {
     setSelectedPresetId(matchingPreset ? matchingPreset.id : null);
   };
 
+  const [analysisError, setAnalysisError] = useState<string | null>(null);
+
   const handleAnalyze = async () => {
     if (!inputText.trim()) return;
     setIsAnalyzing(true);
+    setAnalysisError(null);
 
-    // In Phase 3: Check preset or simulate/prepare for Phase 4 API
     try {
-      const matchingPreset = DEMO_PRESETS.find((p) => p.text === inputText.trim());
-      if (matchingPreset) {
-        setAnalysisResult(matchingPreset.expectedResult);
+      const response = await fetch("/api/analyze", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ text: inputText.trim() }),
+      });
+
+      const data = await response.json();
+      if (!response.ok) {
+        throw new Error(data.error || "Analysis failed.");
       }
+
+      setAnalysisResult(data);
+    } catch (err: any) {
+      console.error("Analysis request failed:", err);
+      setAnalysisError(err.message || "Failed to analyze input.");
     } finally {
       setIsAnalyzing(false);
     }
@@ -122,6 +136,17 @@ export default function Home() {
                   {selectedPresetId ? `Active Preset: ${selectedPresetId}` : "Custom Text"}
                 </span>
               </div>
+
+              {/* Error Banner */}
+              {analysisError && (
+                <div className="p-3.5 rounded-xl bg-rose-950/40 border border-rose-500/30 flex items-start gap-3 text-rose-200 text-xs">
+                  <AlertCircle className="w-4 h-4 text-rose-400 shrink-0 mt-0.5" />
+                  <div className="space-y-1">
+                    <span className="font-semibold block">Analysis Issue Detected</span>
+                    <p className="text-rose-300/90 leading-relaxed">{analysisError}</p>
+                  </div>
+                </div>
+              )}
 
               {/* SECTION A: Token Breakdown Placeholder */}
               <div className="space-y-2.5">
