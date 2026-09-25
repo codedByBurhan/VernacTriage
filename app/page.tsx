@@ -103,8 +103,10 @@ export default function Home() {
         setCacheNotice("Verified Demo Cache active (server fallback mode).");
       }
     } catch (err: any) {
-      console.warn("API request encountered error, checking demo cache:", err);
-      if (matchingPreset) {
+      console.warn("API request encountered error:", err);
+      if (err.message && err.message.includes("Gemini API key is not configured")) {
+        setAnalysisError("Gemini API key is not configured.");
+      } else if (matchingPreset) {
         setAnalysisResult({
           ...matchingPreset.expectedResult,
           model_source: "demo-fallback",

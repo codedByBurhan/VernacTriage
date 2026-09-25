@@ -67,19 +67,11 @@ export async function analyzeWithGemini(
 
   const apiKey = process.env.GEMINI_API_KEY;
 
-  if (!apiKey) {
-    if (matchingPreset) {
-      return {
-        ...matchingPreset.expectedResult,
-        model_source: "demo-fallback",
-      };
-    }
-    throw new Error(
-      "GEMINI_API_KEY is not configured on the server. Please set GEMINI_API_KEY in your .env.local file or select a curated demo preset."
-    );
+  if (!apiKey || apiKey.trim() === "" || apiKey === "YOUR_KEY_HERE") {
+    throw new Error("Gemini API key is not configured.");
   }
 
-  // Model hierarchy: allow override via GEMINI_MODEL or try gemini-2.5-flash / gemini-3.8-flash
+  // Model hierarchy: allow override via GEMINI_MODEL or try gemini-2.5-flash / gemini-2.0-flash
   const modelName = process.env.GEMINI_MODEL || "gemini-2.5-flash";
 
   try {
