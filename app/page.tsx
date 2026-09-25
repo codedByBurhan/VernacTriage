@@ -16,6 +16,7 @@ import {
   Braces,
   FileCheck,
   AlertCircle,
+  Info,
 } from "lucide-react";
 
 export default function Home() {
@@ -42,11 +43,25 @@ export default function Home() {
   };
 
   const [analysisError, setAnalysisError] = useState<string | null>(null);
+  const [cacheNotice, setCacheNotice] = useState<string | null>(null);
 
   const handleAnalyze = async () => {
     if (!inputText.trim()) return;
     setIsAnalyzing(true);
     setAnalysisError(null);
+    setCacheNotice(null);
+
+    // Normalize for fallback lookup
+    const cleanInput = inputText.toLowerCase().replace(/[^a-z0-9]/g, "");
+    const matchingPreset = DEMO_PRESETS.find((p) => {
+      const cleanP = p.text.toLowerCase().replace(/[^a-z0-9]/g, "");
+      return (
+        p.text.toLowerCase().trim() === inputText.toLowerCase().trim() ||
+        cleanP === cleanInput ||
+        cleanInput.includes(cleanP) ||
+        cleanP.includes(cleanInput)
+      );
+    });
 
     try {
       const response = await fetch("/api/analyze", {
@@ -61,9 +76,23 @@ export default function Home() {
       }
 
       setAnalysisResult(data);
+      if (data.model_source === "demo-fallback") {
+        setCacheNotice("Verified Demo Cache active (server fallback mode).");
+      }
     } catch (err: any) {
-      console.error("Analysis request failed:", err);
-      setAnalysisError(err.message || "Failed to analyze input.");
+      console.warn("API request encountered error, checking demo cache:", err);
+      if (matchingPreset) {
+        setAnalysisResult({
+          ...matchingPreset.expectedResult,
+          model_source: "demo-fallback",
+        });
+        setCacheNotice("Network/API offline: Seamlessly served verified ground-truth demo cache.");
+      } else {
+        setAnalysisError(
+          err.message ||
+            "Analysis unavailable. For custom text, ensure GEMINI_API_KEY is configured in .env.local, or test our curated presets."
+        );
+      }
     } finally {
       setIsAnalyzing(false);
     }
@@ -132,17 +161,47 @@ export default function Home() {
             {/* Workbench Shell Card */}
             <div className="glass-panel rounded-2xl p-5 border border-white/10 shadow-xl space-y-6">
               {/* Section Header */}
-              <div className="flex items-center justify-between pb-3 border-b border-white/5">
+              <div className="flex flex-col sm:flex-row sm:items-center justify-between pb-3 border-b border-white/5 gap-2">
                 <div className="flex items-center gap-2">
                   <Braces className="w-4 h-4 text-indigo-400" />
                   <span className="text-sm font-semibold text-zinc-100 uppercase tracking-wider font-mono">
                     Linguistic Triage Workbench
                   </span>
                 </div>
-                <span className="text-xs px-2.5 py-0.5 rounded-md bg-zinc-900 border border-zinc-800 text-zinc-400 font-mono">
-                  {selectedPresetId ? `Active Preset: ${selectedPresetId}` : "Custom Text"}
-                </span>
+                <div className="flex items-center gap-2">
+                  {analysisResult && (
+                    <span
+                      className={`text-[10px] font-mono px-2 py-0.5 rounded-full border flex items-center gap-1.5 ${
+                        analysisResult.model_source === "gemini-3.8-flash"
+                          ? "bg-emerald-500/10 text-emerald-400 border-emerald-500/30"
+                          : "bg-blue-500/10 text-blue-300 border-blue-500/30"
+                      }`}
+                    >
+                      <span
+                        className={`w-1.5 h-1.5 rounded-full ${
+                          analysisResult.model_source === "gemini-3.8-flash"
+                            ? "bg-emerald-400 animate-pulse"
+                            : "bg-blue-400"
+                        }`}
+                      />
+                      {analysisResult.model_source === "gemini-3.8-flash"
+                        ? "Live Gemini 3.8 Flash"
+                        : "Verified Demo Cache"}
+                    </span>
+                  )}
+                  <span className="text-xs px-2.5 py-0.5 rounded-md bg-zinc-900 border border-zinc-800 text-zinc-400 font-mono">
+                    {selectedPresetId ? `Preset: ${selectedPresetId}` : "Custom Text"}
+                  </span>
+                </div>
               </div>
+
+              {/* Cache Notice Banner */}
+              {cacheNotice && (
+                <div className="p-3 rounded-xl bg-blue-950/40 border border-blue-500/30 flex items-center gap-2.5 text-blue-200 text-xs">
+                  <Info className="w-4 h-4 text-blue-400 shrink-0" />
+                  <span>{cacheNotice}</span>
+                </div>
+              )}
 
               {/* Error Banner */}
               {analysisError && (

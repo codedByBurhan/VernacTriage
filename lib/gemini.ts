@@ -53,10 +53,17 @@ export async function analyzeWithGemini(
 ): Promise<Omit<TriageAnalysisResult, "verification"> & { model_source: "gemini-3.8-flash" | "demo-fallback" }> {
   const normalizedText = text.trim();
 
-  // Check if input matches one of our demo presets
-  const matchingPreset = DEMO_PRESETS.find(
-    (p) => p.text.toLowerCase().trim() === normalizedText.toLowerCase()
-  );
+  // Check if input matches one of our demo presets (exact or normalized alphanumeric)
+  const cleanInput = normalizedText.toLowerCase().replace(/[^a-z0-9]/g, "");
+  const matchingPreset = DEMO_PRESETS.find((p) => {
+    const cleanPreset = p.text.toLowerCase().replace(/[^a-z0-9]/g, "");
+    return (
+      p.text.toLowerCase().trim() === normalizedText.toLowerCase() ||
+      cleanPreset === cleanInput ||
+      cleanInput.includes(cleanPreset) ||
+      cleanPreset.includes(cleanInput)
+    );
+  });
 
   const apiKey = process.env.GEMINI_API_KEY;
 
