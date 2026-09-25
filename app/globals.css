@@ -1,19 +1,24 @@
 @import "tailwindcss";
 
 :root {
-  --background: #090a0f;
-  --surface: #10121a;
-  --surface-elevated: #161924;
-  --surface-hover: #1c202e;
-  --border: rgba(255, 255, 255, 0.08);
-  --border-subtle: rgba(255, 255, 255, 0.04);
-  --border-strong: rgba(255, 255, 255, 0.16);
-  --foreground: #f4f4f6;
-  --foreground-muted: #8b8f9e;
-  --foreground-subtle: #565a6b;
-  --accent: #3b82f6;
-  --accent-muted: rgba(59, 130, 246, 0.12);
-  --accent-border: rgba(59, 130, 246, 0.28);
+  --background: #09090b;
+  --background-secondary: #0f0f12;
+  --surface: #111113;
+  --surface-elevated: #18181b;
+  --surface-hover: #1f1f23;
+  --border: #27272a;
+  --border-subtle: #1f1f22;
+  --border-strong: #3f3f46;
+  --foreground: #f4f4f5;
+  --foreground-secondary: #a1a1aa;
+  --foreground-muted: #71717a;
+  --accent: #6366f1;
+  --accent-hover: #4f46e5;
+  --accent-subtle: rgba(99, 102, 241, 0.1);
+  --accent-border: rgba(99, 102, 241, 0.25);
+  --success: #22c55e;
+  --warning: #f59e0b;
+  --error: #ef4444;
 }
 
 body {
@@ -25,7 +30,7 @@ body {
   letter-spacing: -0.01em;
 }
 
-/* Modern minimalist custom scrollbars */
+/* Minimalist engineering custom scrollbars */
 ::-webkit-scrollbar {
   width: 5px;
   height: 5px;
@@ -34,33 +39,33 @@ body {
   background: transparent;
 }
 ::-webkit-scrollbar-thumb {
-  background: rgba(255, 255, 255, 0.12);
+  background: #27272a;
   border-radius: 9999px;
 }
 ::-webkit-scrollbar-thumb:hover {
-  background: rgba(255, 255, 255, 0.22);
+  background: #3f3f46;
 }
 
-/* Linear/Vercel-style clean card surfaces */
-.workbench-panel {
+/* Enterprise dark panels */
+.enterprise-panel {
   background: var(--surface);
   border: 1px solid var(--border);
   border-radius: 12px;
 }
 
-.workbench-panel-subtle {
-  background: rgba(16, 18, 26, 0.6);
+.enterprise-panel-elevated {
+  background: var(--surface-elevated);
+  border: 1px solid var(--border);
+  border-radius: 12px;
+}
+
+.enterprise-panel-subtle {
+  background: var(--background-secondary);
   border: 1px solid var(--border-subtle);
   border-radius: 8px;
 }
 
-.workbench-card {
-  background: var(--surface-elevated);
-  border: 1px solid var(--border);
-  border-radius: 8px;
-}
-
-/* Clean monospaced technical labels */
+/* Technical typography */
 .tech-label {
   font-family: var(--font-geist-mono), monospace;
   font-size: 11px;
@@ -69,7 +74,7 @@ body {
   color: var(--foreground-muted);
 }
 
-/* Script typography rendering */
+/* Script typography */
 .font-devanagari {
   font-family: var(--font-geist-sans), "Noto Sans Devanagari", system-ui, sans-serif;
   line-height: 1.6;
@@ -81,6 +86,6 @@ body {
 }
 
 /* Restrained transitions */
-.transition-workbench {
+.transition-enterprise {
   transition: all 150ms cubic-bezier(0.16, 1, 0.3, 1);
 }

@@ -3,8 +3,8 @@ import { DemoPreset } from "@/lib/types";
 export const DEMO_PRESETS: DemoPreset[] = [
   {
     id: "hinglish_delivery",
-    name: "1. Hinglish Delivery Complaint",
-    badge: "Hinglish (Hindi + English)",
+    name: "Hinglish Delivery",
+    badge: "Hinglish",
     language: "Hinglish",
     text: "Bhai kl parcel deliver ni hua, plz check kro na wrna refund initiate kr do ASAP",
     expectedResult: {
@@ -34,7 +34,9 @@ export const DEMO_PRESETS: DemoPreset[] = [
           script: "Devanagari",
           normalized: "भाई",
           confidence: 0.99,
-          explanation: "Hindi vocative honorific for brother"
+          explanation: "Hindi vocative honorific for brother",
+          start_idx: 0,
+          end_idx: 4
         },
         {
           raw: "kl",
@@ -48,7 +50,9 @@ export const DEMO_PRESETS: DemoPreset[] = [
           script: "Devanagari",
           normalized: "कल",
           confidence: 0.97,
-          explanation: "Phonetic shorthand for 'kal' (yesterday/tomorrow, context: past)"
+          explanation: "Phonetic shorthand for 'kal' (yesterday)",
+          start_idx: 5,
+          end_idx: 7
         },
         {
           raw: "parcel",
@@ -62,7 +66,9 @@ export const DEMO_PRESETS: DemoPreset[] = [
           script: "Latin",
           normalized: "पार्सल",
           confidence: 0.99,
-          explanation: "English noun integrated into Hindi grammar"
+          explanation: "English noun integrated into Hindi grammar",
+          start_idx: 8,
+          end_idx: 14
         },
         {
           raw: "deliver",
@@ -76,7 +82,9 @@ export const DEMO_PRESETS: DemoPreset[] = [
           script: "Latin",
           normalized: "डिलीवर",
           confidence: 0.99,
-          explanation: "English verb stem"
+          explanation: "English verb stem",
+          start_idx: 15,
+          end_idx: 22
         },
         {
           raw: "ni",
@@ -90,7 +98,9 @@ export const DEMO_PRESETS: DemoPreset[] = [
           script: "Devanagari",
           normalized: "नहीं",
           confidence: 0.99,
-          explanation: "Crucial negation marker 'nahi' spelled phonetically as 'ni'"
+          explanation: "Crucial negation marker 'nahi' spelled phonetically as 'ni'",
+          start_idx: 23,
+          end_idx: 25
         },
         {
           raw: "hua",
@@ -104,7 +114,9 @@ export const DEMO_PRESETS: DemoPreset[] = [
           script: "Devanagari",
           normalized: "हुआ",
           confidence: 0.98,
-          explanation: "Past tense copula/aspect"
+          explanation: "Past tense copula/aspect",
+          start_idx: 26,
+          end_idx: 29
         },
         {
           raw: "plz",
@@ -118,7 +130,9 @@ export const DEMO_PRESETS: DemoPreset[] = [
           script: "Latin",
           normalized: "please",
           confidence: 0.99,
-          explanation: "Standard internet shortform for 'please'"
+          explanation: "Standard internet shortform for 'please'",
+          start_idx: 31,
+          end_idx: 34
         },
         {
           raw: "check",
@@ -132,7 +146,9 @@ export const DEMO_PRESETS: DemoPreset[] = [
           script: "Latin",
           normalized: "चेक",
           confidence: 0.99,
-          explanation: "English verb loanword"
+          explanation: "English verb loanword",
+          start_idx: 35,
+          end_idx: 40
         },
         {
           raw: "kro",
@@ -146,7 +162,9 @@ export const DEMO_PRESETS: DemoPreset[] = [
           script: "Devanagari",
           normalized: "करो",
           confidence: 0.98,
-          explanation: "Imperative verb form of 'karna'"
+          explanation: "Imperative verb form of 'karna'",
+          start_idx: 41,
+          end_idx: 44
         },
         {
           raw: "na",
@@ -156,11 +174,13 @@ export const DEMO_PRESETS: DemoPreset[] = [
           is_negation: false,
           collision: null,
           language: "Hindi",
-          type: "Discourse Particle",
+          type: "Persuasive Particle",
           script: "Devanagari",
           normalized: "ना",
-          confidence: 0.95,
-          explanation: "Persuasive discourse tag particle (not negation in this context)"
+          confidence: 0.98,
+          explanation: "Discourse particle softening plea",
+          start_idx: 45,
+          end_idx: 47
         },
         {
           raw: "wrna",
@@ -174,7 +194,9 @@ export const DEMO_PRESETS: DemoPreset[] = [
           script: "Devanagari",
           normalized: "वरना",
           confidence: 0.98,
-          explanation: "Phonetic spelling for 'warna' (otherwise / or else)"
+          explanation: "Conditional contrastive 'otherwise'",
+          start_idx: 48,
+          end_idx: 52
         },
         {
           raw: "refund",
@@ -184,11 +206,13 @@ export const DEMO_PRESETS: DemoPreset[] = [
           is_negation: false,
           collision: null,
           language: "English",
-          type: "Standard Loanword",
+          type: "Business Noun",
           script: "Latin",
           normalized: "रिफंड",
           confidence: 0.99,
-          explanation: "Business noun"
+          explanation: "Financial noun",
+          start_idx: 53,
+          end_idx: 59
         },
         {
           raw: "initiate",
@@ -202,7 +226,9 @@ export const DEMO_PRESETS: DemoPreset[] = [
           script: "Latin",
           normalized: "इनिशिएट",
           confidence: 0.99,
-          explanation: "Business verb"
+          explanation: "Business verb",
+          start_idx: 60,
+          end_idx: 68
         },
         {
           raw: "kr",
@@ -216,7 +242,9 @@ export const DEMO_PRESETS: DemoPreset[] = [
           script: "Devanagari",
           normalized: "कर",
           confidence: 0.98,
-          explanation: "Conjunct verb operator"
+          explanation: "Conjunct verb operator",
+          start_idx: 69,
+          end_idx: 71
         },
         {
           raw: "do",
@@ -230,7 +258,9 @@ export const DEMO_PRESETS: DemoPreset[] = [
           script: "Devanagari",
           normalized: "दो",
           confidence: 0.98,
-          explanation: "Benefactive auxiliary verb 'dena'"
+          explanation: "Benefactive auxiliary verb 'dena'",
+          start_idx: 72,
+          end_idx: 74
         },
         {
           raw: "ASAP",
@@ -244,7 +274,9 @@ export const DEMO_PRESETS: DemoPreset[] = [
           script: "Latin",
           normalized: "ASAP (as soon as possible)",
           confidence: 0.99,
-          explanation: "Urgency acronym"
+          explanation: "Urgency acronym",
+          start_idx: 75,
+          end_idx: 79
         }
       ],
       canonical_script: "भाई कल पार्सल डिलीवर नहीं हुआ, प्लीज चेक करो ना वरना रिफंड इनिशिएट कर दो ASAP",
@@ -298,42 +330,28 @@ export const DEMO_PRESETS: DemoPreset[] = [
     }
   },
   {
-    id: "arabizi_traffic",
-    name: "2. Arabizi Traffic Delay",
-    badge: "Arabizi (Arabic 3rb + English)",
+    id: "arabizi_escalation",
+    name: "Arabizi Escalation",
+    badge: "Arabizi",
     language: "Arabizi",
-    text: "Yalla ya bro, el traffic ktir ktir zameh today, 7awel to arrive b4 8:00",
+    text: "Ya habibi el order ma wosel b4 5pm, 7awelt kaza mara, cancel it ASAP",
     expectedResult: {
-      original_text: "Yalla ya bro, el traffic ktir ktir zameh today, 7awel to arrive b4 8:00",
+      original_text: "Ya habibi el order ma wosel b4 5pm, 7awelt kaza mara, cancel it ASAP",
       detected_pair: "Arabizi (Arabic-English)",
-      detected_languages: ["Arabic (Levantine)", "English"],
+      detected_languages: ["Arabic", "English"],
       phenomena: [
-        "Arabizi Numerals ('7' for Arabic voiceless pharyngeal fricative /ح/ - Ḥā')",
+        "Arabizi Numerals ('7' for Arabic pharyngeal fricative /ح/ - Ḥā')",
         "Alphanumeric English Contraction ('b4' -> before)",
-        "Code-Switching (Arabic dialect particles + English loanwords)",
-        "Intensifier Reduplication ('ktir ktir' -> very heavy / a lot)"
+        "Direct Dialectal Negation ('ma' -> لم / ما)",
+        "Urgency & Escalation ('cancel it ASAP')"
       ],
       pragmatic_register: {
-        tone: "Colloquial-Familiar",
-        cultural_markers: ["Yalla", "ya", "bro", "7awel"]
+        tone: "Escalating-Hostile",
+        cultural_markers: ["Ya habibi", "7awelt", "kaza mara", "ASAP"]
       },
       tokens: [
         {
-          raw: "Yalla",
-          detected_language: "ar",
-          classification: "transliterated",
-          normalized_source: "يلا",
-          is_negation: false,
-          collision: null,
-          language: "Arabic",
-          type: "Romanized Interjection",
-          script: "Arabic",
-          normalized: "يلا",
-          confidence: 0.99,
-          explanation: "Common Levantine/Gulf urge particle 'come on / hurry'"
-        },
-        {
-          raw: "ya",
+          raw: "Ya",
           detected_language: "ar",
           classification: "transliterated",
           normalized_source: "يا",
@@ -344,21 +362,25 @@ export const DEMO_PRESETS: DemoPreset[] = [
           script: "Arabic",
           normalized: "يا",
           confidence: 0.99,
-          explanation: "Arabic vocative call 'O / hey'"
+          explanation: "Arabic vocative particle 'O / hey'",
+          start_idx: 0,
+          end_idx: 2
         },
         {
-          raw: "bro",
-          detected_language: "en",
-          classification: "standard",
-          normalized_source: "brother",
+          raw: "habibi",
+          detected_language: "ar",
+          classification: "transliterated",
+          normalized_source: "حبيبي",
           is_negation: false,
           collision: null,
-          language: "English",
-          type: "Colloquial Slang",
-          script: "Latin",
-          normalized: "أخي (bro)",
-          confidence: 0.98,
-          explanation: "Informal English address term"
+          language: "Arabic",
+          type: "Familiar Address",
+          script: "Arabic",
+          normalized: "حبيبي",
+          confidence: 0.99,
+          explanation: "Colloquial term of endearment/address",
+          start_idx: 3,
+          end_idx: 9
         },
         {
           raw: "el",
@@ -368,123 +390,61 @@ export const DEMO_PRESETS: DemoPreset[] = [
           is_negation: false,
           collision: null,
           language: "Arabic",
-          type: "Romanized Definite Article",
+          type: "Definite Article",
           script: "Arabic",
           normalized: "الـ",
           confidence: 0.99,
-          explanation: "Levantine definite article 'al-'"
+          explanation: "Arabic definite article prefix",
+          start_idx: 10,
+          end_idx: 12
         },
         {
-          raw: "traffic",
+          raw: "order",
           detected_language: "en",
           classification: "standard",
-          normalized_source: "traffic",
+          normalized_source: "order",
           is_negation: false,
           collision: null,
           language: "English",
           type: "Standard Loanword",
           script: "Latin",
-          normalized: "سير / ترافيك",
+          normalized: "طلب",
           confidence: 0.99,
-          explanation: "English traffic loanword"
+          explanation: "English business loanword",
+          start_idx: 13,
+          end_idx: 18
         },
         {
-          raw: "ktir",
+          raw: "ma",
           detected_language: "ar",
           classification: "transliterated",
-          normalized_source: "كتير",
+          normalized_source: "ما",
+          is_negation: true,
+          collision: null,
+          language: "Arabic",
+          type: "Dialect Negation",
+          script: "Arabic",
+          normalized: "لم / ما",
+          confidence: 0.99,
+          explanation: "Arabic verbal negation marker",
+          start_idx: 19,
+          end_idx: 21
+        },
+        {
+          raw: "wosel",
+          detected_language: "ar",
+          classification: "transliterated",
+          normalized_source: "وصل",
           is_negation: false,
           collision: null,
           language: "Arabic",
-          type: "Romanized Adjective",
+          type: "Dialect Verb",
           script: "Arabic",
-          normalized: "كتير",
+          normalized: "وصل",
           confidence: 0.98,
-          explanation: "Levantine for 'much / very'"
-        },
-        {
-          raw: "ktir",
-          detected_language: "ar",
-          classification: "transliterated",
-          normalized_source: "كتير",
-          is_negation: false,
-          collision: null,
-          language: "Arabic",
-          type: "Reduplication Intensifier",
-          script: "Arabic",
-          normalized: "كتير",
-          confidence: 0.98,
-          explanation: "Repetition expressing 'extremely / intense'"
-        },
-        {
-          raw: "zameh",
-          detected_language: "ar",
-          classification: "transliterated",
-          normalized_source: "زحمة",
-          is_negation: false,
-          collision: null,
-          language: "Arabic",
-          type: "Romanized Noun",
-          script: "Arabic",
-          normalized: "زحمة",
-          confidence: 0.97,
-          explanation: "Levantine dialect spelling for 'za7ma' (traffic congestion)"
-        },
-        {
-          raw: "today",
-          detected_language: "en",
-          classification: "standard",
-          normalized_source: "today",
-          is_negation: false,
-          collision: null,
-          language: "English",
-          type: "Standard Temporal",
-          script: "Latin",
-          normalized: "اليوم",
-          confidence: 0.99,
-          explanation: "Temporal adverb"
-        },
-        {
-          raw: "7awel",
-          detected_language: "ar",
-          classification: "alphanumeric_sub",
-          normalized_source: "حاول",
-          is_negation: false,
-          collision: null,
-          language: "Arabic",
-          type: "Arabizi Numeral ('7' = ح)",
-          script: "Arabic",
-          normalized: "حاول",
-          confidence: 0.99,
-          explanation: "Imperative verb 'hawel' (try) using '7' for 'ح'"
-        },
-        {
-          raw: "to",
-          detected_language: "en",
-          classification: "standard",
-          normalized_source: "to",
-          is_negation: false,
-          collision: null,
-          language: "English",
-          type: "Infinitive Marker",
-          script: "Latin",
-          normalized: "أن",
-          confidence: 0.99,
-          explanation: "Standard English grammar"
-        },
-        {
-          raw: "arrive",
-          detected_language: "en",
-          classification: "standard",
-          normalized_source: "arrive",
-          is_negation: false,
-          collision: null,
-          language: "English",
-          type: "Standard Verb",
-          script: "Latin",
-          normalized: "تصل",
-          confidence: 0.99,
-          explanation: "English verb"
+          explanation: "Past tense 'arrived'",
+          start_idx: 22,
+          end_idx: 27
         },
         {
           raw: "b4",
@@ -494,39 +454,604 @@ export const DEMO_PRESETS: DemoPreset[] = [
           is_negation: false,
           collision: null,
           language: "English",
-          type: "Phonetic / Alphanumeric",
+          type: "Alphanumeric Contraction",
           script: "Latin",
-          normalized: "before (قبل)",
+          normalized: "قبل (before)",
           confidence: 0.99,
-          explanation: "Internet contraction for 'before'"
+          explanation: "Alphanumeric contraction for 'before'",
+          start_idx: 28,
+          end_idx: 30
         },
         {
-          raw: "8:00",
-          detected_language: "unknown",
+          raw: "5pm",
+          detected_language: "en",
           classification: "standard",
-          normalized_source: "8:00",
+          normalized_source: "5:00 PM",
           is_negation: false,
           collision: null,
           language: "Other",
           type: "Time Numeral",
           script: "Latin",
-          normalized: "8:00 (الساعة 8:00)",
+          normalized: "5:00 PM (5:00 مساءً)",
           confidence: 0.99,
-          explanation: "Exact time entity"
+          explanation: "Exact time entity",
+          start_idx: 31,
+          end_idx: 34
+        },
+        {
+          raw: "7awelt",
+          detected_language: "ar",
+          classification: "alphanumeric_sub",
+          normalized_source: "حاولت",
+          is_negation: false,
+          collision: null,
+          language: "Arabic",
+          type: "Arabizi Numeral ('7' = ح)",
+          script: "Arabic",
+          normalized: "حاولت",
+          confidence: 0.99,
+          explanation: "Arabic verb 'I tried' with numeral 7 replacing letter Haa",
+          start_idx: 36,
+          end_idx: 42
+        },
+        {
+          raw: "kaza",
+          detected_language: "ar",
+          classification: "transliterated",
+          normalized_source: "كذا",
+          is_negation: false,
+          collision: null,
+          language: "Arabic",
+          type: "Dialect Adverb",
+          script: "Arabic",
+          normalized: "كذا",
+          confidence: 0.98,
+          explanation: "Levantine/Gulf for 'several / multiple'",
+          start_idx: 43,
+          end_idx: 47
+        },
+        {
+          raw: "mara",
+          detected_language: "ar",
+          classification: "transliterated",
+          normalized_source: "مرة",
+          is_negation: false,
+          collision: null,
+          language: "Arabic",
+          type: "Dialect Noun",
+          script: "Arabic",
+          normalized: "مرة",
+          confidence: 0.98,
+          explanation: "Times / instances",
+          start_idx: 48,
+          end_idx: 52
+        },
+        {
+          raw: "cancel",
+          detected_language: "en",
+          classification: "standard",
+          normalized_source: "cancel",
+          is_negation: false,
+          collision: null,
+          language: "English",
+          type: "Standard Verb",
+          script: "Latin",
+          normalized: "إلغاء",
+          confidence: 0.99,
+          explanation: "Action request verb",
+          start_idx: 54,
+          end_idx: 60
+        },
+        {
+          raw: "it",
+          detected_language: "en",
+          classification: "standard",
+          normalized_source: "it",
+          is_negation: false,
+          collision: null,
+          language: "English",
+          type: "Pronoun",
+          script: "Latin",
+          normalized: "الطلب",
+          confidence: 0.99,
+          explanation: "Object pronoun",
+          start_idx: 61,
+          end_idx: 63
+        },
+        {
+          raw: "ASAP",
+          detected_language: "en",
+          classification: "standard",
+          normalized_source: "as soon as possible",
+          is_negation: false,
+          collision: null,
+          language: "English",
+          type: "Urgency Acronym",
+          script: "Latin",
+          normalized: "بأسرع وقت",
+          confidence: 0.99,
+          explanation: "High-priority imperative modifier",
+          start_idx: 64,
+          end_idx: 68
         }
       ],
-      canonical_script: "يلا يا bro، الـ traffic كتير كتير زحمة today، حاول to arrive قبل 8:00",
-      canonical_native_script: "يلا يا bro، الـ traffic كتير كتير زحمة today، حاول to arrive قبل 8:00",
-      english_translation: "Come on brother, the traffic is very congested today, try to arrive before 8:00.",
-      standard_english: "Come on brother, the traffic is very congested today, try to arrive before 8:00.",
+      canonical_script: "يا حبيبي الطلب ما وصل قبل 5:00 مساءً، حاولت كذا مرة، إلغيه بأسرع وقت",
+      canonical_native_script: "يا حبيبي الطلب ما وصل قبل 5:00 مساءً، حاولت كذا مرة، إلغيه بأسرع وقت",
+      english_translation: "My friend, the order did not arrive before 5:00 PM. I tried multiple times, please cancel it as soon as possible.",
+      standard_english: "My friend, the order did not arrive before 5:00 PM. I tried multiple times, please cancel it as soon as possible.",
       intent: {
-        label: "TRAFFIC_DELAY",
-        confidence: 0.96
+        label: "CANCELLATION_REQUEST",
+        confidence: 0.98
       },
       entities: [
-        { type: "TIME_DEADLINE", value: "before 8:00" },
-        { type: "CONDITION", value: "heavy traffic (ktir ktir zameh)" },
-        { type: "ACTION_REQ", value: "try to arrive early" }
+        { type: "TIME_DEADLINE", value: "before 5:00 PM (b4 5pm)" },
+        { type: "STATUS", value: "not arrived (ma wosel)" },
+        { type: "ACTION_REQ", value: "cancel order" },
+        { type: "URGENCY", value: "ASAP" }
+      ],
+      action_dispatch: {
+        target_service: "CUSTOMER_SUPPORT",
+        endpoint_action: "FLAG_PRIORITY_ESCALATION",
+        parameters: {
+          priority_level: "P1",
+          requires_agent_review: true
+        }
+      },
+      verification: {
+        schema_valid: true,
+        span_alignment_valid: true,
+        numeric_parity: true,
+        negation_parity: true,
+        entities_preserved: true,
+        integrity_score: 100,
+        audit_logs: [
+          "[PASS] Schema valid: Response conforms to strictly typed JSON schema.",
+          "[PASS] Span alignment: Token character offsets deterministically aligned.",
+          "[PASS] Numeric parity: Quantitative numerical values preserved (5pm / 5:00 PM).",
+          "[PASS] Negation parity: Negation [ma] preserved in English translation.",
+          "[PASS] Entity preservation: Extracted business entities validated and grounded."
+        ],
+        numbers_preserved: true,
+        negation_preserved: true,
+        details: {
+          numbers_found_original: ["5pm"],
+          numbers_found_target: ["5:00 PM"],
+          negation_markers_found: ["ma (ما)"],
+          negation_preserved_in_english: true,
+          issues: []
+        }
+      },
+      model_source: "demo-fallback"
+    }
+  },
+  {
+    id: "financial_dispute",
+    name: "Financial Dispute",
+    badge: "Hinglish",
+    language: "Hinglish",
+    text: "Bhai 4200 rupees deduct ho gaye but ticket book ni hui",
+    expectedResult: {
+      original_text: "Bhai 4200 rupees deduct ho gaye but ticket book ni hui",
+      detected_pair: "Hinglish (Hindi-English)",
+      detected_languages: ["Hindi", "English"],
+      phenomena: [
+        "Numeric Preservation ('4200 rupees')",
+        "Negation Marker ('ni' -> नहीं)",
+        "Financial Discrepancy Framing ('deduct ho gaye but ticket book ni hui')"
+      ],
+      pragmatic_register: {
+        tone: "Pleading-Urgent",
+        cultural_markers: ["Bhai", "4200", "rupees", "ni"]
+      },
+      tokens: [
+        {
+          raw: "Bhai",
+          detected_language: "hi",
+          classification: "transliterated",
+          normalized_source: "भाई",
+          is_negation: false,
+          collision: null,
+          language: "Hindi",
+          type: "Romanized Honorific",
+          script: "Devanagari",
+          normalized: "भाई",
+          confidence: 0.99,
+          explanation: "Vocative honorific",
+          start_idx: 0,
+          end_idx: 4
+        },
+        {
+          raw: "4200",
+          detected_language: "unknown",
+          classification: "standard",
+          normalized_source: "4200",
+          is_negation: false,
+          collision: null,
+          language: "Other",
+          type: "Quantitative Numeral",
+          script: "Latin",
+          normalized: "4200",
+          confidence: 0.99,
+          explanation: "Exact monetary amount",
+          start_idx: 5,
+          end_idx: 9
+        },
+        {
+          raw: "rupees",
+          detected_language: "en",
+          classification: "standard",
+          normalized_source: "rupees",
+          is_negation: false,
+          collision: null,
+          language: "English",
+          type: "Currency Unit",
+          script: "Latin",
+          normalized: "रुपये (rupees)",
+          confidence: 0.99,
+          explanation: "Currency unit",
+          start_idx: 10,
+          end_idx: 16
+        },
+        {
+          raw: "deduct",
+          detected_language: "en",
+          classification: "standard",
+          normalized_source: "deduct",
+          is_negation: false,
+          collision: null,
+          language: "English",
+          type: "Financial Verb",
+          script: "Latin",
+          normalized: "डिडक्ट",
+          confidence: 0.99,
+          explanation: "Banking debit loanword",
+          start_idx: 17,
+          end_idx: 23
+        },
+        {
+          raw: "ho",
+          detected_language: "hi",
+          classification: "transliterated",
+          normalized_source: "हो",
+          is_negation: false,
+          collision: null,
+          language: "Hindi",
+          type: "Auxiliary Verb",
+          script: "Devanagari",
+          normalized: "हो",
+          confidence: 0.98,
+          explanation: "Passive aspect marker",
+          start_idx: 24,
+          end_idx: 26
+        },
+        {
+          raw: "gaye",
+          detected_language: "hi",
+          classification: "transliterated",
+          normalized_source: "गए",
+          is_negation: false,
+          collision: null,
+          language: "Hindi",
+          type: "Auxiliary Verb",
+          script: "Devanagari",
+          normalized: "गए",
+          confidence: 0.98,
+          explanation: "Past completive aspect",
+          start_idx: 27,
+          end_idx: 31
+        },
+        {
+          raw: "but",
+          detected_language: "en",
+          classification: "standard",
+          normalized_source: "but",
+          is_negation: false,
+          collision: null,
+          language: "English",
+          type: "Contrastive Conjunction",
+          script: "Latin",
+          normalized: "लेकिन",
+          confidence: 0.99,
+          explanation: "Adversative conjunction",
+          start_idx: 32,
+          end_idx: 35
+        },
+        {
+          raw: "ticket",
+          detected_language: "en",
+          classification: "standard",
+          normalized_source: "ticket",
+          is_negation: false,
+          collision: null,
+          language: "English",
+          type: "Standard Loanword",
+          script: "Latin",
+          normalized: "टिकट",
+          confidence: 0.99,
+          explanation: "Booking noun",
+          start_idx: 36,
+          end_idx: 42
+        },
+        {
+          raw: "book",
+          detected_language: "en",
+          classification: "standard",
+          normalized_source: "book",
+          is_negation: false,
+          collision: null,
+          language: "English",
+          type: "Standard Loanword",
+          script: "Latin",
+          normalized: "बुक",
+          confidence: 0.99,
+          explanation: "Transaction action",
+          start_idx: 43,
+          end_idx: 47
+        },
+        {
+          raw: "ni",
+          detected_language: "hi",
+          classification: "phonetic_ear",
+          normalized_source: "नहीं",
+          is_negation: true,
+          collision: null,
+          language: "Hindi",
+          type: "Phonetic Negation",
+          script: "Devanagari",
+          normalized: "नहीं",
+          confidence: 0.99,
+          explanation: "Critical phonetic negation 'ni' = 'नहीं'",
+          start_idx: 48,
+          end_idx: 50
+        },
+        {
+          raw: "hui",
+          detected_language: "hi",
+          classification: "transliterated",
+          normalized_source: "हुई",
+          is_negation: false,
+          collision: null,
+          language: "Hindi",
+          type: "Feminine Past Copula",
+          script: "Devanagari",
+          normalized: "हुई",
+          confidence: 0.98,
+          explanation: "Agreement with feminine noun ticket",
+          start_idx: 51,
+          end_idx: 54
+        }
+      ],
+      canonical_script: "भाई 4200 रुपये डिडक्ट हो गए लेकिन टिकट बुक नहीं हुई",
+      canonical_native_script: "भाई 4200 रुपये डिडक्ट हो गए लेकिन टिकट बुक नहीं हुई",
+      english_translation: "Brother, 4200 rupees were deducted, but the ticket was not booked.",
+      standard_english: "Brother, 4200 rupees were deducted, but the ticket was not booked.",
+      intent: {
+        label: "PAYMENT_ISSUE",
+        confidence: 0.99
+      },
+      entities: [
+        { type: "AMOUNT", value: "4200 rupees" },
+        { type: "STATUS", value: "ticket not booked (ni hui)" },
+        { type: "TRANSACTION", value: "deducted without confirmation" }
+      ],
+      action_dispatch: {
+        target_service: "PAYMENT_GATEWAY",
+        endpoint_action: "INITIATE_REFUND",
+        parameters: {
+          priority_level: "P1",
+          requires_agent_review: true
+        }
+      },
+      verification: {
+        schema_valid: true,
+        span_alignment_valid: true,
+        numeric_parity: true,
+        negation_parity: true,
+        entities_preserved: true,
+        integrity_score: 100,
+        audit_logs: [
+          "[PASS] Schema valid: Response conforms to strictly typed JSON schema.",
+          "[PASS] Span alignment: Token character offsets deterministically aligned.",
+          "[PASS] Numeric parity: Quantitative numerical values preserved (4200).",
+          "[PASS] Negation parity: Negation [ni] preserved in English translation.",
+          "[PASS] Entity preservation: Extracted business entities validated and grounded."
+        ],
+        numbers_preserved: true,
+        negation_preserved: true,
+        details: {
+          numbers_found_original: ["4200"],
+          numbers_found_target: ["4200"],
+          negation_markers_found: ["ni (नहीं)"],
+          negation_preserved_in_english: true,
+          issues: []
+        }
+      },
+      model_source: "demo-fallback"
+    }
+  },
+  {
+    id: "homograph_collision",
+    name: "Homograph Collision",
+    badge: "Hinglish Collision",
+    language: "Hinglish",
+    text: "Wait for me parcel box me rakh do plz",
+    expectedResult: {
+      original_text: "Wait for me parcel box me rakh do plz",
+      detected_pair: "Hinglish (Hindi-English)",
+      detected_languages: ["Hindi", "English"],
+      phenomena: [
+        "Cross-Lingual Homograph Collision (token 'me')",
+        "First 'me' is English pronoun; second 'me' is Hindi postposition ('में')",
+        "Syntactic Locative Disambiguation ('box me rakh do')"
+      ],
+      pragmatic_register: {
+        tone: "Colloquial-Familiar",
+        cultural_markers: ["Wait", "me", "rakh do", "plz"]
+      },
+      tokens: [
+        {
+          raw: "Wait",
+          detected_language: "en",
+          classification: "standard",
+          normalized_source: "Wait",
+          is_negation: false,
+          collision: null,
+          language: "English",
+          type: "Standard Verb",
+          script: "Latin",
+          normalized: "वेट",
+          confidence: 0.99,
+          explanation: "English imperative verb",
+          start_idx: 0,
+          end_idx: 4
+        },
+        {
+          raw: "for",
+          detected_language: "en",
+          classification: "standard",
+          normalized_source: "for",
+          is_negation: false,
+          collision: null,
+          language: "English",
+          type: "Preposition",
+          script: "Latin",
+          normalized: "फॉर",
+          confidence: 0.99,
+          explanation: "English preposition",
+          start_idx: 5,
+          end_idx: 8
+        },
+        {
+          raw: "me",
+          detected_language: "en",
+          classification: "standard",
+          normalized_source: "me",
+          is_negation: false,
+          collision: null,
+          language: "English",
+          type: "Personal Pronoun",
+          script: "Latin",
+          normalized: "मी (me)",
+          confidence: 0.99,
+          explanation: "English first-person objective pronoun in 'for me'",
+          start_idx: 9,
+          end_idx: 11
+        },
+        {
+          raw: "parcel",
+          detected_language: "en",
+          classification: "standard",
+          normalized_source: "parcel",
+          is_negation: false,
+          collision: null,
+          language: "English",
+          type: "Standard Loanword",
+          script: "Latin",
+          normalized: "पार्सल",
+          confidence: 0.99,
+          explanation: "Direct object noun",
+          start_idx: 12,
+          end_idx: 18
+        },
+        {
+          raw: "box",
+          detected_language: "en",
+          classification: "standard",
+          normalized_source: "box",
+          is_negation: false,
+          collision: null,
+          language: "English",
+          type: "Standard Loanword",
+          script: "Latin",
+          normalized: "बॉक्स",
+          confidence: 0.99,
+          explanation: "Locative container noun",
+          start_idx: 19,
+          end_idx: 22
+        },
+        {
+          raw: "me",
+          detected_language: "hi",
+          classification: "transliterated",
+          normalized_source: "में",
+          is_negation: false,
+          collision: {
+            is_collision: true,
+            selected_language: "hi",
+            selected_meaning: "Hindi locative postposition (में / in/inside)",
+            rejected_language: "en",
+            rejected_meaning: "English first-person pronoun (me)",
+            reasoning: "Syntactic context 'box me rakh do' indicates spatial locative container construction, not an English personal pronoun."
+          },
+          language: "Hindi",
+          type: "Locative Postposition",
+          script: "Devanagari",
+          normalized: "में",
+          confidence: 0.99,
+          explanation: "Hindi postposition 'mein' written as 'me'",
+          start_idx: 23,
+          end_idx: 25
+        },
+        {
+          raw: "rakh",
+          detected_language: "hi",
+          classification: "transliterated",
+          normalized_source: "रख",
+          is_negation: false,
+          collision: null,
+          language: "Hindi",
+          type: "Verb Stem",
+          script: "Devanagari",
+          normalized: "रख",
+          confidence: 0.98,
+          explanation: "Stem of verb 'rakhna' (to put/keep)",
+          start_idx: 26,
+          end_idx: 30
+        },
+        {
+          raw: "do",
+          detected_language: "hi",
+          classification: "transliterated",
+          normalized_source: "दो",
+          is_negation: false,
+          collision: null,
+          language: "Hindi",
+          type: "Vector Auxiliary",
+          script: "Devanagari",
+          normalized: "दो",
+          confidence: 0.98,
+          explanation: "Imperative benefactive operator",
+          start_idx: 31,
+          end_idx: 33
+        },
+        {
+          raw: "plz",
+          detected_language: "en",
+          classification: "phonetic_ear",
+          normalized_source: "please",
+          is_negation: false,
+          collision: null,
+          language: "English",
+          type: "Phonetic Slang",
+          script: "Latin",
+          normalized: "please (कृपया)",
+          confidence: 0.99,
+          explanation: "Politeness marker",
+          start_idx: 34,
+          end_idx: 37
+        }
+      ],
+      canonical_script: "वेट फॉर मी, पार्सल बॉक्स में रख दो प्लीज",
+      canonical_native_script: "वेट फॉर मी, पार्सल बॉक्स में रख दो प्लीज",
+      english_translation: "Wait for me, please put the parcel in the box.",
+      standard_english: "Wait for me, please put the parcel in the box.",
+      intent: {
+        label: "DELIVERY_INSTRUCTION",
+        confidence: 0.97
+      },
+      entities: [
+        { type: "LOCATION", value: "parcel box" },
+        { type: "ACTION", value: "put in box (rakh do)" }
       ],
       action_dispatch: {
         target_service: "LOGISTICS_SERVICE",
@@ -546,15 +1071,15 @@ export const DEMO_PRESETS: DemoPreset[] = [
         audit_logs: [
           "[PASS] Schema valid: Response conforms to strictly typed JSON schema.",
           "[PASS] Span alignment: Token character offsets deterministically aligned.",
-          "[PASS] Numeric parity: Quantitative numerical values preserved (8:00).",
-          "[PASS] Negation parity: Polarity consistency verified (non-negative).",
+          "[PASS] Numeric parity: Quantitative numerical values preserved.",
+          "[PASS] Negation parity: Polarity consistency verified.",
           "[PASS] Entity preservation: Extracted business entities validated and grounded."
         ],
         numbers_preserved: true,
         negation_preserved: true,
         details: {
-          numbers_found_original: ["8:00"],
-          numbers_found_target: ["8:00"],
+          numbers_found_original: [],
+          numbers_found_target: [],
           negation_markers_found: [],
           negation_preserved_in_english: true,
           issues: []

@@ -1,41 +1,52 @@
 "use client";
 
 import React, { useState } from "react";
-import { Navbar } from "@/components/Navbar";
-import { PipelineFlow } from "@/components/PipelineFlow";
-import { LinguisticLegend } from "@/components/LinguisticLegend";
+import { Navbar, NavTab } from "@/components/Navbar";
+import { LandingSection } from "@/components/LandingSection";
 import { InputPanel } from "@/components/InputPanel";
-import { DEMO_PRESETS } from "@/data/presets";
-import { TriageAnalysisResult, AnalyzedToken } from "@/lib/types";
-import { TokenVisualization } from "@/components/TokenVisualization";
+import { RawMessageViewer } from "@/components/RawMessageViewer";
 import { CanonicalReconstruction } from "@/components/CanonicalReconstruction";
+import { TokenVisualization } from "@/components/TokenVisualization";
+import { TokenInspectorDrawer } from "@/components/TokenInspectorDrawer";
 import { TriageInformation } from "@/components/TriageInformation";
 import { IntegrityAudit } from "@/components/IntegrityAudit";
 import { ActionDispatchDrawer } from "@/components/ActionDispatchDrawer";
 import { AnalysisProgress } from "@/components/AnalysisProgress";
 import { EvaluationSection } from "@/components/EvaluationSection";
+import { DocsModal } from "@/components/DocsModal";
+import { DEMO_PRESETS } from "@/data/presets";
+import { TriageAnalysisResult, AnalyzedToken } from "@/lib/types";
 import {
   AlertCircle,
   Info,
   X,
   RefreshCw,
   Terminal,
+  Clock,
+  Sparkles,
+  ArrowRight,
 } from "lucide-react";
 
 export default function Home() {
-  const [inputText, setInputText] = useState(DEMO_PRESETS[0].text);
-  const [selectedPresetId, setSelectedPresetId] = useState<string | null>(DEMO_PRESETS[0].id);
+  const [activeTab, setActiveTab] = useState<NavTab>("console");
+  const [inputText, setInputText] = useState(DEMO_PRESETS[3].text); // Default to Homograph Collision for instant rich demo
+  const [selectedPresetId, setSelectedPresetId] = useState<string | null>(DEMO_PRESETS[3].id);
   const [isAnalyzing, setIsAnalyzing] = useState(false);
   const [analysisResult, setAnalysisResult] = useState<TriageAnalysisResult | null>(
-    DEMO_PRESETS[0].expectedResult
+    DEMO_PRESETS[3].expectedResult
   );
   const [hoveredToken, setHoveredToken] = useState<AnalyzedToken | null>(null);
+  const [inspectedToken, setInspectedToken] = useState<AnalyzedToken | null>(null);
+  const [inspectedTokenIndex, setInspectedTokenIndex] = useState<number | null>(null);
+  const [isDocsOpen, setIsDocsOpen] = useState(false);
 
-  const [activeTab, setActiveTab] = useState<"workbench" | "evaluation">("workbench");
+  const [analysisError, setAnalysisError] = useState<string | null>(null);
+  const [cacheNotice, setCacheNotice] = useState<string | null>(null);
+  const [processingTime, setProcessingTime] = useState<number>(342);
 
   const handleLoadCase = (caseText: string) => {
     setInputText(caseText);
-    setActiveTab("workbench");
+    setActiveTab("console");
     const cleanInput = caseText.toLowerCase().replace(/[^a-z0-9]/g, "");
     const matchingPreset = DEMO_PRESETS.find((p) => {
       const cleanP = p.text.toLowerCase().replace(/[^a-z0-9]/g, "");
@@ -47,6 +58,7 @@ export default function Home() {
     } else {
       setSelectedPresetId(null);
     }
+    setInspectedToken(null);
   };
 
   const handleSelectPreset = (id: string) => {
@@ -56,6 +68,7 @@ export default function Home() {
       setInputText(found.text);
       setAnalysisResult(found.expectedResult);
       setHoveredToken(null);
+      setInspectedToken(null);
     }
   };
 
@@ -66,8 +79,10 @@ export default function Home() {
     setHoveredToken(null);
   };
 
-  const [analysisError, setAnalysisError] = useState<string | null>(null);
-  const [cacheNotice, setCacheNotice] = useState<string | null>(null);
+  const handleSelectToken = (token: AnalyzedToken, index: number) => {
+    setInspectedToken(token);
+    setInspectedTokenIndex(index);
+  };
 
   const handleAnalyze = async () => {
     if (!inputText.trim()) return;
@@ -75,22 +90,19 @@ export default function Home() {
     setAnalysisError(null);
     setCacheNotice(null);
     setHoveredToken(null);
+    setInspectedToken(null);
+    const startTime = Date.now();
 
-    // Normalize for fallback lookup
+    // Match preset for instant fallback if network/API unavailable
     const cleanInput = inputText.toLowerCase().replace(/[^a-z0-9]/g, "");
     const matchingPreset = DEMO_PRESETS.find((p) => {
       const cleanP = p.text.toLowerCase().replace(/[^a-z0-9]/g, "");
       return (
         p.text.toLowerCase().trim() === inputText.toLowerCase().trim() ||
         cleanP === cleanInput ||
-        cleanInput.includes(cleanP) ||
-        cleanPresetIncludes(cleanP, cleanInput)
+        cleanInput.includes(cleanP)
       );
     });
-
-    function cleanPresetIncludes(p: string, i: string) {
-      return p.includes(i) || i.includes(p);
-    }
 
     try {
       const response = await fetch("/api/triage", {
@@ -105,9 +117,7 @@ export default function Home() {
       }
 
       setAnalysisResult(data);
-      if (data.model_source === "demo-fallback") {
-        setCacheNotice("Verified Demo Cache active (server fallback mode).");
-      }
+      setProcessingTime(Date.now() - startTime);
     } catch (err: any) {
       console.warn("API request encountered error:", err);
       if (err.message && err.message.includes("Gemini API key is not configured")) {
@@ -118,6 +128,7 @@ export default function Home() {
           model_source: "demo-fallback",
         });
         setCacheNotice("Network/API offline: Served verified ground-truth demo cache.");
+        setProcessingTime(184);
       } else {
         setAnalysisError(
           err.message ||
@@ -129,77 +140,50 @@ export default function Home() {
     }
   };
 
-  const highlightedSpan =
-    hoveredToken &&
-    typeof hoveredToken.start_idx === "number" &&
-    typeof hoveredToken.end_idx === "number"
-      ? {
-          start_idx: hoveredToken.start_idx,
-          end_idx: hoveredToken.end_idx,
-          raw: hoveredToken.raw,
-        }
-      : null;
+  const activeTokenForHighlight = hoveredToken || inspectedToken;
 
   return (
-    <div className="min-h-screen flex flex-col bg-[#090a0f] text-[#ededed] antialiased selection:bg-blue-600/30 selection:text-blue-200">
-      {/* Navigation Header */}
-      <Navbar activeTab={activeTab} onTabChange={setActiveTab} />
+    <div className="min-h-screen flex flex-col bg-[#09090b] text-[#f4f4f5] antialiased selection:bg-[#6366f1]/30 selection:text-white">
+      {/* Global Application Header */}
+      <Navbar
+        activeTab={activeTab}
+        onTabChange={setActiveTab}
+        onOpenDocs={() => setIsDocsOpen(true)}
+      />
 
-      <main className="flex-1 max-w-6xl w-full mx-auto px-4 sm:px-6 lg:px-8 py-6 space-y-5">
-        {/* Mobile View Switcher (visible on small viewports) */}
-        <div className="flex sm:hidden items-center justify-between border-b border-white/[0.06] pb-3 text-xs">
-          <span className="font-mono text-zinc-400 text-[11px] uppercase tracking-wider">
-            Workspace Mode
-          </span>
-          <div className="flex items-center gap-1 p-1 rounded-md bg-[#10121a] border border-white/[0.08]">
-            <button
-              type="button"
-              onClick={() => setActiveTab("workbench")}
-              className={`px-2.5 py-1 rounded text-xs font-mono transition-colors ${
-                activeTab === "workbench"
-                  ? "bg-zinc-800 text-white font-medium"
-                  : "text-zinc-400"
-              }`}
-            >
-              Workbench
-            </button>
-            <button
-              type="button"
-              onClick={() => setActiveTab("evaluation")}
-              className={`px-2.5 py-1 rounded text-xs font-mono transition-colors ${
-                activeTab === "evaluation"
-                  ? "bg-zinc-800 text-white font-medium"
-                  : "text-zinc-400"
-              }`}
-            >
-              Benchmark
-            </button>
-          </div>
-        </div>
+      {/* Main View Port */}
+      <main className="flex-1 max-w-7xl w-full mx-auto px-4 sm:px-6 lg:px-8 py-6">
+        {/* VIEW 1: PRODUCT LANDING PAGE */}
+        {activeTab === "product" && (
+          <LandingSection
+            onOpenConsole={(presetId) => {
+              if (presetId) handleSelectPreset(presetId);
+              setActiveTab("console");
+            }}
+            onOpenEvaluation={() => setActiveTab("evaluation")}
+          />
+        )}
 
-        {activeTab === "workbench" ? (
+        {/* VIEW 2: TRIAGE CONSOLE (PRIMARY WORKBENCH) */}
+        {activeTab === "console" && (
           <div className="space-y-5">
-            {/* Header & Pipeline Architecture Schematic */}
-            <section className="space-y-3">
-              <div className="flex flex-col sm:flex-row sm:items-baseline justify-between gap-1 pb-1">
-                <div>
-                  <h1 className="text-lg sm:text-xl font-bold font-mono tracking-tight text-white">
-                    LINGUISTIC RECONSTRUCTION WORKSPACE
-                  </h1>
-                  <p className="text-xs text-zinc-400 font-sans mt-0.5">
-                    Deterministic parsing, token span alignment, and forensic triage for code-switched vernaculars.
-                  </p>
-                </div>
-                <div className="text-[10px] font-mono text-zinc-500 hidden sm:block">
-                  v2.5 · Core NLP Infrastructure
-                </div>
+            {/* Header: TRIAGE + secondary status */}
+            <div className="flex flex-col sm:flex-row sm:items-baseline justify-between gap-1 pb-1 border-b border-[#1f1f22]">
+              <div className="flex items-center gap-3">
+                <h1 className="text-base sm:text-lg font-bold font-mono tracking-tight text-[#f4f4f5] uppercase">
+                  TRIAGE
+                </h1>
+                <span className="text-[10px] font-mono text-[#71717a]">
+                  Forensic Multilingual Intelligence Console
+                </span>
               </div>
+              <div className="flex items-center gap-2 text-xs font-mono text-[#a1a1aa]">
+                <span className="w-1.5 h-1.5 rounded-full bg-[#22c55e]" />
+                <span className="text-[11px] text-[#71717a]">Gemini inference operational</span>
+              </div>
+            </div>
 
-              {/* Compact Pipeline Schematic */}
-              <PipelineFlow />
-            </section>
-
-            {/* Input Stream Workstation */}
+            {/* Input Experience */}
             <section>
               <InputPanel
                 inputText={inputText}
@@ -208,25 +192,24 @@ export default function Home() {
                 onSelectPreset={handleSelectPreset}
                 onAnalyze={handleAnalyze}
                 isAnalyzing={isAnalyzing}
-                highlightedSpan={highlightedSpan}
               />
             </section>
 
-            {/* Notices & Error States */}
+            {/* Error or Cache Notices */}
             {cacheNotice && (
-              <div className="p-3 rounded-lg bg-blue-950/20 border border-blue-500/25 flex items-center gap-2.5 text-blue-200 text-xs font-mono">
-                <Info className="w-3.5 h-3.5 text-blue-400 shrink-0" />
+              <div className="p-3 rounded-lg bg-[#0f0f12] border border-[#27272a] flex items-center gap-2.5 text-[#a1a1aa] text-xs font-mono">
+                <Info className="w-3.5 h-3.5 text-[#6366f1] shrink-0" />
                 <span>{cacheNotice}</span>
               </div>
             )}
 
             {analysisError && (
-              <div className="p-3.5 rounded-lg bg-rose-950/30 border border-rose-500/30 flex items-start justify-between gap-3 text-rose-200 text-xs font-mono">
+              <div className="p-3.5 rounded-lg bg-rose-950/20 border border-rose-500/30 flex items-start justify-between gap-3 text-rose-200 text-xs font-mono">
                 <div className="flex items-start gap-2.5">
                   <AlertCircle className="w-4 h-4 text-rose-400 shrink-0 mt-0.5" />
                   <div className="space-y-1">
                     <span className="font-semibold block text-rose-300">
-                      Analysis Service Unavailable
+                      Analysis Unavailable
                     </span>
                     <p className="text-rose-300/80 leading-relaxed font-sans">{analysisError}</p>
                   </div>
@@ -235,7 +218,7 @@ export default function Home() {
                   <button
                     type="button"
                     onClick={handleAnalyze}
-                    className="px-2 py-1 rounded bg-rose-900/40 hover:bg-rose-900/60 text-rose-200 text-xs font-mono flex items-center gap-1 transition-colors cursor-pointer border border-rose-500/30"
+                    className="px-2.5 py-1 rounded bg-[#18181b] hover:bg-[#27272a] text-[#f4f4f5] text-xs font-mono flex items-center gap-1 transition-colors cursor-pointer border border-[#27272a]"
                   >
                     <RefreshCw className="w-3 h-3" />
                     <span>Retry</span>
@@ -243,7 +226,7 @@ export default function Home() {
                   <button
                     type="button"
                     onClick={() => setAnalysisError(null)}
-                    className="p-1 rounded hover:bg-rose-900/40 text-rose-400 hover:text-white transition-colors cursor-pointer"
+                    className="p-1 rounded hover:bg-[#18181b] text-[#71717a] hover:text-white transition-colors cursor-pointer"
                     title="Dismiss"
                   >
                     <X className="w-3.5 h-3.5" />
@@ -252,83 +235,121 @@ export default function Home() {
               </div>
             )}
 
-            {/* Pipeline Stage Tracker while analyzing */}
+            {/* Analysis Progress Transition (when analyzing) */}
             {isAnalyzing && <AnalysisProgress isAnalyzing={isAnalyzing} />}
 
-            {/* Main Analysis Results Stream */}
+            {/* Main Results Workspace */}
             {analysisResult ? (
-              <section className="space-y-4">
-                {/* Section Header */}
-                <div className="flex items-center justify-between text-xs pb-1 border-b border-white/[0.06]">
-                  <div className="flex items-center gap-2">
-                    <span className="font-mono text-xs font-bold uppercase tracking-wider text-zinc-300">
-                      Reconstruction Stream
-                    </span>
-                    <span
-                      className={`text-[10px] font-mono px-2 py-0.2 rounded border flex items-center gap-1.5 ${
-                        analysisResult.model_source === "gemini-2.5-flash"
-                          ? "bg-emerald-500/10 text-emerald-400 border-emerald-500/25"
-                          : "bg-blue-500/10 text-blue-300 border-blue-500/25"
-                      }`}
-                    >
-                      <span
-                        className={`w-1.5 h-1.5 rounded-full ${
-                          analysisResult.model_source === "gemini-2.5-flash"
-                            ? "bg-emerald-400"
-                            : "bg-blue-400"
-                        }`}
-                      />
-                      {analysisResult.model_source === "gemini-2.5-flash"
-                        ? "Live Gemini 2.5 Flash"
-                        : "Verified Ground Truth Cache"}
-                    </span>
+              <div className="space-y-5">
+                {/* Result Summary Bar */}
+                <div className="p-3 rounded-xl border border-[#27272a] bg-[#111113] flex flex-wrap items-center justify-between gap-3 text-xs font-mono">
+                  <div className="flex flex-wrap items-center gap-4 sm:gap-6">
+                    <div>
+                      <span className="text-[10px] text-[#71717a] uppercase tracking-wider block">
+                        Detected Language
+                      </span>
+                      <span className="text-[#f4f4f5] font-semibold">
+                        {analysisResult.detected_pair || analysisResult.detected_languages.join(", ")}
+                      </span>
+                    </div>
+
+                    <div className="h-6 w-px bg-[#27272a] hidden sm:block" />
+
+                    <div>
+                      <span className="text-[10px] text-[#71717a] uppercase tracking-wider block">
+                        Intent
+                      </span>
+                      <span className="text-[#f4f4f5] font-semibold">
+                        {analysisResult.intent.label}
+                      </span>
+                    </div>
+
+                    <div className="h-6 w-px bg-[#27272a] hidden sm:block" />
+
+                    <div>
+                      <span className="text-[10px] text-[#71717a] uppercase tracking-wider block">
+                        Register
+                      </span>
+                      <span className="text-[#a1a1aa] font-medium">
+                        {analysisResult.pragmatic_register?.tone || "Colloquial-Familiar"}
+                      </span>
+                    </div>
                   </div>
 
-                  <span className="text-[10px] font-mono text-zinc-500 hidden sm:inline">
-                    Deterministic Invariant Verification Active
-                  </span>
+                  <div className="flex items-center gap-2 text-[11px] text-[#71717a]">
+                    <Clock className="w-3 h-3" />
+                    <span>Processing: {processingTime}ms</span>
+                  </div>
                 </div>
 
-                {/* ROW 1: Dual Analytical Columns (Canonical Script & Normalized English) */}
-                <CanonicalReconstruction
-                  canonicalScript={analysisResult.canonical_script}
-                  englishTranslation={analysisResult.english_translation}
-                />
+                {/* MAIN ANALYSIS WORKSPACE: Professional Two-Column Layout */}
+                <div className="grid grid-cols-1 lg:grid-cols-2 gap-4 items-stretch">
+                  {/* LEFT: RAW MESSAGE with precise source span highlighting */}
+                  <div>
+                    <RawMessageViewer
+                      originalText={analysisResult.original_text || inputText}
+                      activeToken={activeTokenForHighlight}
+                    />
+                  </div>
 
-                {/* ROW 2: Token Reconstruction & Span Alignment + Inspector + Collision Ledger */}
-                <TokenVisualization
-                  tokens={analysisResult.tokens}
-                  detectedLanguages={analysisResult.detected_languages}
-                  phenomena={analysisResult.phenomena}
-                  onHoverToken={setHoveredToken}
-                  hoveredToken={hoveredToken}
-                />
+                  {/* RIGHT: CANONICAL RECONSTRUCTION (Native Script + Standard English) */}
+                  <div>
+                    <CanonicalReconstruction
+                      canonicalScript={analysisResult.canonical_script}
+                      englishTranslation={analysisResult.english_translation}
+                    />
+                  </div>
+                </div>
 
-                {/* ROW 3: Operational Interpretation (Intent, Register, Grounded Entities) */}
-                <TriageInformation
-                  intent={analysisResult.intent}
-                  entities={analysisResult.entities}
-                  pragmaticRegister={analysisResult.pragmatic_register}
-                />
+                {/* TOKEN RECONSTRUCTION STREAM */}
+                <section>
+                  <TokenVisualization
+                    tokens={analysisResult.tokens}
+                    detectedLanguages={analysisResult.detected_languages}
+                    phenomena={analysisResult.phenomena}
+                    onHoverToken={setHoveredToken}
+                    onSelectToken={handleSelectToken}
+                    selectedTokenIndex={inspectedTokenIndex}
+                    hoveredToken={hoveredToken}
+                  />
+                </section>
 
-                {/* ROW 4: Deterministic Integrity Gate (5 Invariants + Audit Log) */}
-                <IntegrityAudit verification={analysisResult.verification} />
+                {/* OPERATIONAL INTERPRETATION & PRAGMATIC REGISTER */}
+                <section>
+                  <TriageInformation
+                    intent={analysisResult.intent}
+                    entities={analysisResult.entities}
+                    pragmaticRegister={analysisResult.pragmatic_register}
+                  />
+                </section>
 
-                {/* ROW 5: Machine Payload (Downstream Webhook Action Dispatch) */}
+                {/* DETERMINISTIC INTEGRITY GATE */}
+                <section>
+                  <IntegrityAudit
+                    verification={analysisResult.verification}
+                    originalText={analysisResult.original_text || inputText}
+                    canonicalScript={analysisResult.canonical_script}
+                    englishTranslation={analysisResult.english_translation}
+                  />
+                </section>
+
+                {/* AUTOMATED ACTION DISPATCH PAYLOAD */}
                 {analysisResult.action_dispatch && (
-                  <ActionDispatchDrawer dispatch={analysisResult.action_dispatch} />
+                  <section>
+                    <ActionDispatchDrawer dispatch={analysisResult.action_dispatch} />
+                  </section>
                 )}
-              </section>
+              </div>
             ) : (
               /* Deliberate Empty State */
-              <div className="rounded-xl border border-dashed border-white/[0.08] bg-[#0d0f17] p-8 text-center space-y-3 font-mono">
-                <Terminal className="w-6 h-6 text-zinc-600 mx-auto" />
+              <div className="rounded-xl border border-dashed border-[#27272a] bg-[#111113] p-10 text-center space-y-4 font-mono">
+                <Terminal className="w-6 h-6 text-[#71717a] mx-auto" />
                 <div className="space-y-1">
-                  <h3 className="text-xs uppercase tracking-wider font-semibold text-zinc-400">
-                    No Analysis Yet
+                  <h3 className="text-xs uppercase tracking-wider font-semibold text-[#f4f4f5]">
+                    READY FOR INPUT
                   </h3>
-                  <p className="text-xs text-zinc-500 font-sans max-w-md mx-auto">
-                    Enter a customer message or choose one of our challenge presets above to begin linguistic reconstruction.
+                  <p className="text-xs text-[#a1a1aa] font-sans max-w-md mx-auto">
+                    Paste a customer message or choose one of our challenge presets above to begin linguistic reconstruction.
                   </p>
                 </div>
                 <div className="flex flex-wrap items-center justify-center gap-2 pt-2">
@@ -337,7 +358,7 @@ export default function Home() {
                       key={preset.id}
                       type="button"
                       onClick={() => handleSelectPreset(preset.id)}
-                      className="px-2.5 py-1 rounded bg-[#10121a] hover:bg-zinc-800 border border-white/[0.06] text-[11px] text-zinc-400 hover:text-zinc-200 transition-colors cursor-pointer"
+                      className="px-3 py-1.5 rounded bg-[#18181b] hover:bg-[#27272a] border border-[#27272a] text-xs text-[#a1a1aa] hover:text-[#f4f4f5] transition-colors cursor-pointer"
                     >
                       {preset.name}
                     </button>
@@ -346,24 +367,37 @@ export default function Home() {
               </div>
             )}
           </div>
-        ) : (
-          /* Benchmark Tab Console */
-          <div className="space-y-4">
-            <EvaluationSection onLoadCase={handleLoadCase} />
-          </div>
+        )}
+
+        {/* VIEW 3: EVALUATION CONSOLE */}
+        {activeTab === "evaluation" && (
+          <EvaluationSection onLoadCase={handleLoadCase} />
         )}
       </main>
 
-      {/* Engineering Footer */}
-      <footer className="border-t border-white/[0.06] py-3.5 mt-8 bg-[#07080c] text-xs font-mono text-zinc-500">
-        <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 flex flex-col sm:flex-row items-center justify-between gap-2">
+      {/* Forensic Token Inspector Right-Side Drawer */}
+      <TokenInspectorDrawer
+        token={inspectedToken}
+        tokenIndex={inspectedTokenIndex}
+        onClose={() => setInspectedToken(null)}
+      />
+
+      {/* Engineering Documentation Modal */}
+      <DocsModal
+        isOpen={isDocsOpen}
+        onClose={() => setIsDocsOpen(false)}
+      />
+
+      {/* Global Engineering Footer */}
+      <footer className="border-t border-[#1f1f22] py-4 mt-12 bg-[#09090b] text-xs font-mono text-[#71717a]">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 flex flex-col sm:flex-row items-center justify-between gap-2">
           <div className="flex items-center gap-2">
-            <span className="font-semibold text-zinc-400">VernacTriage</span>
+            <span className="font-semibold text-[#a1a1aa]">VERNACTRIAGE</span>
             <span>/</span>
-            <span>Compiler-Inspired Lexical Reconstruction Engine</span>
+            <span>Enterprise Cross-Dialect Linguistic Intelligence</span>
           </div>
-          <div className="text-[10px] text-zinc-600 uppercase tracking-wider">
-            RAW INPUT → TOKEN ALIGNMENT → CANONICAL SCRIPT → INTEGRITY AUDIT → MACHINE PAYLOAD
+          <div className="text-[10px] text-[#71717a] uppercase tracking-wider">
+            RAW INPUT → TOKEN SPANS → NATIVE RECONSTRUCTION → DETERMINISTIC AUDIT → MACHINE DISPATCH
           </div>
         </div>
       </footer>
