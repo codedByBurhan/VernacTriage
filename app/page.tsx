@@ -8,6 +8,7 @@ import { InputPanel } from "@/components/InputPanel";
 import { DEMO_PRESETS } from "@/data/presets";
 import { TriageAnalysisResult } from "@/lib/types";
 import { TokenVisualization } from "@/components/TokenVisualization";
+import { CanonicalReconstruction } from "@/components/CanonicalReconstruction";
 import {
   Sparkles,
   Braces,
@@ -177,35 +178,43 @@ export default function Home() {
               </div>
 
               {/* SECTION B: Canonical Dual-Script Reconstruction */}
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
-                <div className="rounded-xl bg-black/40 border border-white/5 p-4 space-y-2">
-                  <div className="flex items-center justify-between text-xs">
-                    <span className="font-semibold text-zinc-300">
-                      Native Script Reconstruction
-                    </span>
-                    <span className="text-[10px] text-amber-400/80 font-mono">
-                      Devanagari / Arabic
-                    </span>
+              {analysisResult ? (
+                <CanonicalReconstruction
+                  originalText={analysisResult.original_text}
+                  canonicalScript={analysisResult.canonical_script}
+                  englishTranslation={analysisResult.english_translation}
+                />
+              ) : (
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
+                  <div className="rounded-xl bg-black/40 border border-white/5 p-4 space-y-2">
+                    <div className="flex items-center justify-between text-xs">
+                      <span className="font-semibold text-zinc-300">
+                        Native Script Reconstruction
+                      </span>
+                      <span className="text-[10px] text-amber-400/80 font-mono">
+                        Devanagari / Arabic
+                      </span>
+                    </div>
+                    <div className="h-14 flex items-center text-xs text-zinc-500 italic">
+                      Awaiting pipeline analysis...
+                    </div>
                   </div>
-                  <div className="h-14 flex items-center text-xs text-zinc-500 italic">
-                    Awaiting pipeline analysis...
-                  </div>
-                </div>
 
-                <div className="rounded-xl bg-black/40 border border-white/5 p-4 space-y-2">
-                  <div className="flex items-center justify-between text-xs">
-                    <span className="font-semibold text-zinc-300">
-                      Standard English Translation
-                    </span>
-                    <span className="text-[10px] text-blue-400/80 font-mono">
-                      Business Canonical
-                    </span>
-                  </div>
-                  <div className="h-14 flex items-center text-xs text-zinc-500 italic">
-                    Awaiting pipeline analysis...
+                  <div className="rounded-xl bg-black/40 border border-white/5 p-4 space-y-2">
+                    <div className="flex items-center justify-between text-xs">
+                      <span className="font-semibold text-zinc-300">
+                        Standard English Translation
+                      </span>
+                      <span className="text-[10px] text-blue-400/80 font-mono">
+                        Business Canonical
+                      </span>
+                    </div>
+                    <div className="h-14 flex items-center text-xs text-zinc-500 italic">
+                      Awaiting pipeline analysis...
+                    </div>
                   </div>
                 </div>
-              </div>
+              )}
 
               {/* SECTION C: Business Intent & Entities */}
               <div className="rounded-xl bg-black/40 border border-white/5 p-4 space-y-2">
