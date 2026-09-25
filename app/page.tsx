@@ -7,6 +7,7 @@ import { LinguisticLegend } from "@/components/LinguisticLegend";
 import { InputPanel } from "@/components/InputPanel";
 import { DEMO_PRESETS } from "@/data/presets";
 import { TriageAnalysisResult } from "@/lib/types";
+import { TokenVisualization } from "@/components/TokenVisualization";
 import {
   Sparkles,
   Braces,
@@ -18,13 +19,16 @@ export default function Home() {
   const [inputText, setInputText] = useState(DEMO_PRESETS[0].text);
   const [selectedPresetId, setSelectedPresetId] = useState<string | null>(DEMO_PRESETS[0].id);
   const [isAnalyzing, setIsAnalyzing] = useState(false);
-  const [analysisResult, setAnalysisResult] = useState<TriageAnalysisResult | null>(null);
+  const [analysisResult, setAnalysisResult] = useState<TriageAnalysisResult | null>(
+    DEMO_PRESETS[0].expectedResult
+  );
 
   const handleSelectPreset = (id: string) => {
     const found = DEMO_PRESETS.find((p) => p.id === id);
     if (found) {
       setSelectedPresetId(id);
       setInputText(found.text);
+      setAnalysisResult(found.expectedResult);
     }
   };
 
@@ -148,19 +152,28 @@ export default function Home() {
                 </div>
               )}
 
-              {/* SECTION A: Token Breakdown Placeholder */}
+              {/* SECTION A: Token Breakdown */}
               <div className="space-y-2.5">
                 <div className="flex items-center justify-between">
                   <span className="text-xs font-semibold text-zinc-300 uppercase tracking-wider">
                     Section A — Token Analysis &amp; Classification
                   </span>
-                  <span className="text-[10px] text-zinc-500 font-mono">Interactive Pills</span>
-                </div>
-                <div className="min-h-[70px] rounded-xl bg-black/40 border border-dashed border-white/10 p-3.5 flex flex-wrap items-center gap-2">
-                  <span className="text-xs text-zinc-500 italic">
-                    Presets connected. Click &quot;Analyze Input&quot; or select a preset to feed the pipeline.
+                  <span className="text-[10px] text-zinc-500 font-mono">
+                    {analysisResult ? `${analysisResult.tokens.length} Classified Tokens` : "Interactive Pills"}
                   </span>
                 </div>
+
+                {analysisResult ? (
+                  <TokenVisualization
+                    tokens={analysisResult.tokens}
+                    detectedLanguages={analysisResult.detected_languages}
+                    phenomena={analysisResult.phenomena}
+                  />
+                ) : (
+                  <div className="min-h-[80px] rounded-xl bg-black/40 border border-dashed border-white/10 p-4 flex items-center justify-center text-xs text-zinc-500 italic">
+                    Load a preset or click &quot;Analyze Input&quot; to inspect token-level language identification, phonetic types, and normalized native forms.
+                  </div>
+                )}
               </div>
 
               {/* SECTION B: Canonical Dual-Script Reconstruction */}
