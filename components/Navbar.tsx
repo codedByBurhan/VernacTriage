@@ -1,48 +1,77 @@
 "use client";
 
 import React from "react";
-import { Sparkles, Terminal, ShieldCheck, Cpu } from "lucide-react";
+import { ShieldCheck, Cpu } from "lucide-react";
 
-export function Navbar() {
+interface NavbarProps {
+  activeTab?: "workbench" | "evaluation";
+  onTabChange?: (tab: "workbench" | "evaluation") => void;
+}
+
+export function Navbar({ activeTab = "workbench", onTabChange }: NavbarProps) {
   return (
-    <header className="w-full border-b border-white/10 bg-[#0b0e17]/80 backdrop-blur-md sticky top-0 z-50">
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-16 flex items-center justify-between">
-        {/* Brand & Subtitle */}
-        <div className="flex items-center space-x-3">
-          <div className="h-10 w-10 rounded-xl bg-gradient-to-br from-blue-500 via-indigo-600 to-purple-600 p-[1px] shadow-lg shadow-blue-500/20 flex items-center justify-center">
-            <div className="h-full w-full bg-[#0d111d] rounded-[11px] flex items-center justify-center">
-              <Terminal className="w-5 h-5 text-blue-400" />
+    <header className="w-full border-b border-white/[0.08] bg-[#090a0f]/90 backdrop-blur-md sticky top-0 z-50">
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-14 flex items-center justify-between">
+        {/* Brand & Tabs */}
+        <div className="flex items-center space-x-6">
+          <div className="flex items-center space-x-2.5">
+            <div className="h-7 w-7 rounded-lg bg-zinc-900 border border-white/10 flex items-center justify-center font-mono font-bold text-xs text-blue-400">
+              VT
             </div>
-          </div>
-          <div>
-            <div className="flex items-center space-x-2">
-              <span className="font-extrabold tracking-wider text-lg text-white font-mono">
-                VERNAC<span className="text-blue-400">TRIAGE</span>
+            <div className="flex items-baseline space-x-2">
+              <span className="font-semibold text-sm tracking-tight text-white font-mono">
+                VernacTriage
               </span>
-              <span className="text-[10px] font-semibold tracking-wider uppercase px-2 py-0.5 rounded-full bg-blue-500/10 text-blue-300 border border-blue-500/30">
-                MVP Engine
+              <span className="text-[10px] font-mono text-zinc-500 uppercase tracking-wider">
+                Lexical Engine
               </span>
             </div>
-            <p className="text-xs text-zinc-400 font-sans hidden sm:block">
-              Decode the way people actually communicate.
-            </p>
           </div>
+
+          {/* Nav Tabs */}
+          {onTabChange && (
+            <nav className="hidden sm:flex items-center space-x-1 border-l border-white/[0.08] pl-5">
+              <button
+                type="button"
+                onClick={() => onTabChange("workbench")}
+                className={`px-3 py-1.5 rounded-md text-xs font-medium transition-colors cursor-pointer ${
+                  activeTab === "workbench"
+                    ? "bg-zinc-800 text-white border border-white/10"
+                    : "text-zinc-400 hover:text-zinc-200"
+                }`}
+              >
+                Triage Workspace
+              </button>
+              <button
+                type="button"
+                onClick={() => onTabChange("evaluation")}
+                className={`px-3 py-1.5 rounded-md text-xs font-medium transition-colors cursor-pointer flex items-center gap-1.5 ${
+                  activeTab === "evaluation"
+                    ? "bg-zinc-800 text-white border border-white/10"
+                    : "text-zinc-400 hover:text-zinc-200"
+                }`}
+              >
+                <span>Benchmark Matrix</span>
+                <span className="text-[10px] font-mono px-1.5 py-0.2 rounded bg-zinc-900 border border-white/10 text-zinc-400">
+                  36
+                </span>
+              </button>
+            </nav>
+          )}
         </div>
 
-        {/* Status Indicators */}
-        <div className="flex items-center space-x-3">
-          <div className="hidden md:flex items-center space-x-2 px-3 py-1.5 rounded-lg bg-zinc-900/80 border border-white/5 text-xs text-zinc-300">
-            <Cpu className="w-3.5 h-3.5 text-indigo-400" />
-            <span className="text-zinc-400">Engine:</span>
-            <span className="font-mono text-zinc-200">Gemini 2.5 Flash</span>
+        {/* Engine Status Indicators */}
+        <div className="flex items-center space-x-2.5 text-xs font-mono">
+          <div className="flex items-center space-x-1.5 px-2.5 py-1 rounded-md bg-zinc-900/90 border border-white/[0.06] text-zinc-300">
+            <span className="w-1.5 h-1.5 rounded-full bg-emerald-400" />
+            <span className="text-zinc-400 hidden sm:inline">Engine:</span>
+            <span className="text-zinc-200">Gemini 2.5 Flash</span>
           </div>
 
-          <div className="flex items-center space-x-2 px-3 py-1.5 rounded-lg bg-emerald-950/40 border border-emerald-500/20 text-xs text-emerald-300">
-            <span className="w-2 h-2 rounded-full bg-emerald-400 animate-pulse" />
-            <span className="font-medium hidden sm:inline">Verification Layer:</span>
-            <span className="font-mono text-emerald-400 flex items-center gap-1">
-              <ShieldCheck className="w-3 h-3 inline" /> Active
-            </span>
+          <div className="flex items-center space-x-1.5 px-2.5 py-1 rounded-md bg-zinc-900/90 border border-white/[0.06] text-zinc-300">
+            <ShieldCheck className="w-3.5 h-3.5 text-emerald-400" />
+            <span className="text-zinc-400 hidden md:inline">Audit:</span>
+            <span className="text-emerald-400">Active</span>
           </div>
         </div>
       </div>

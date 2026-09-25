@@ -1,17 +1,19 @@
 @import "tailwindcss";
 
 :root {
-  --background: #090a10;
-  --foreground: #f3f4f8;
-  --card-bg: rgba(17, 20, 29, 0.75);
-  --card-border: rgba(255, 255, 255, 0.08);
-  --card-border-hover: rgba(255, 255, 255, 0.16);
-  --accent-cyan: #06b6d4;
-  --accent-purple: #a855f7;
-  --accent-orange: #f97316;
-  --accent-blue: #3b82f6;
-  --accent-rose: #f43f5e;
-  --accent-emerald: #10b981;
+  --background: #090a0f;
+  --surface: #10121a;
+  --surface-elevated: #161924;
+  --surface-hover: #1c202e;
+  --border: rgba(255, 255, 255, 0.08);
+  --border-subtle: rgba(255, 255, 255, 0.04);
+  --border-strong: rgba(255, 255, 255, 0.16);
+  --foreground: #f4f4f6;
+  --foreground-muted: #8b8f9e;
+  --foreground-subtle: #565a6b;
+  --accent: #3b82f6;
+  --accent-muted: rgba(59, 130, 246, 0.12);
+  --accent-border: rgba(59, 130, 246, 0.28);
 }
 
 body {
@@ -20,54 +22,65 @@ body {
   font-family: var(--font-geist-sans), -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
   overflow-x: hidden;
   min-height: 100vh;
-  background-image: 
-    radial-gradient(at 10% 15%, rgba(59, 130, 246, 0.07) 0px, transparent 50%),
-    radial-gradient(at 90% 10%, rgba(168, 85, 247, 0.06) 0px, transparent 40%),
-    radial-gradient(at 50% 90%, rgba(6, 182, 212, 0.04) 0px, transparent 50%);
-  background-attachment: fixed;
+  letter-spacing: -0.01em;
 }
 
-/* Custom scrollbar */
+/* Modern minimalist custom scrollbars */
 ::-webkit-scrollbar {
-  width: 7px;
-  height: 7px;
+  width: 5px;
+  height: 5px;
 }
 ::-webkit-scrollbar-track {
-  background: #0d0f17;
+  background: transparent;
 }
 ::-webkit-scrollbar-thumb {
-  background: #272c3d;
-  border-radius: 4px;
+  background: rgba(255, 255, 255, 0.12);
+  border-radius: 9999px;
 }
 ::-webkit-scrollbar-thumb:hover {
-  background: #3b425b;
+  background: rgba(255, 255, 255, 0.22);
 }
 
-/* Subtle glass and border helpers */
-.glass-panel {
-  background: rgba(15, 18, 27, 0.7);
-  backdrop-filter: blur(12px);
-  -webkit-backdrop-filter: blur(12px);
-  border: 1px solid rgba(255, 255, 255, 0.08);
+/* Linear/Vercel-style clean card surfaces */
+.workbench-panel {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 12px;
 }
 
-.glass-panel-subtle {
-  background: rgba(20, 24, 37, 0.5);
-  backdrop-filter: blur(8px);
-  -webkit-backdrop-filter: blur(8px);
-  border: 1px solid rgba(255, 255, 255, 0.06);
+.workbench-panel-subtle {
+  background: rgba(16, 18, 26, 0.6);
+  border: 1px solid var(--border-subtle);
+  border-radius: 8px;
 }
 
-.glow-border {
-  box-shadow: 0 0 15px -3px rgba(59, 130, 246, 0.15);
+.workbench-card {
+  background: var(--surface-elevated);
+  border: 1px solid var(--border);
+  border-radius: 8px;
 }
 
-/* Pulsing dot animation */
-@keyframes pulse-subtle {
-  0%, 100% { opacity: 1; transform: scale(1); }
-  50% { opacity: 0.6; transform: scale(0.96); }
+/* Clean monospaced technical labels */
+.tech-label {
+  font-family: var(--font-geist-mono), monospace;
+  font-size: 11px;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  color: var(--foreground-muted);
 }
 
-.animate-pulse-subtle {
-  animation: pulse-subtle 2.5s cubic-bezier(0.4, 0, 0.6, 1) infinite;
+/* Script typography rendering */
+.font-devanagari {
+  font-family: var(--font-geist-sans), "Noto Sans Devanagari", system-ui, sans-serif;
+  line-height: 1.6;
+}
+
+.font-arabic {
+  font-family: var(--font-geist-sans), "Noto Sans Arabic", system-ui, sans-serif;
+  line-height: 1.7;
+}
+
+/* Restrained transitions */
+.transition-workbench {
+  transition: all 150ms cubic-bezier(0.16, 1, 0.3, 1);
 }

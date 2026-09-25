@@ -2,7 +2,7 @@
 
 import React from "react";
 import { DEMO_PRESETS } from "@/data/presets";
-import { Fingerprint, Zap, RotateCcw, Sparkles, Loader2, Crosshair } from "lucide-react";
+import { ArrowRight, RotateCcw, Loader2, Crosshair } from "lucide-react";
 
 interface InputPanelProps {
   inputText: string;
@@ -42,78 +42,57 @@ export function InputPanel({
     highlightedSpan.end_idx <= inputText.length;
 
   return (
-    <div className="glass-panel rounded-2xl p-5 border border-white/10 shadow-xl space-y-4">
-      {/* Top Header */}
-      <div className="flex items-center justify-between pb-3 border-b border-white/5">
-        <div className="flex items-center gap-2">
-          <Fingerprint className="w-4 h-4 text-blue-400" />
-          <span className="text-sm font-semibold text-zinc-100 uppercase tracking-wider font-mono">
-            Messy Input Stream
+    <div className="workbench-panel p-5 space-y-4">
+      {/* Header Bar */}
+      <div className="flex items-center justify-between pb-3 border-b border-white/[0.06]">
+        <div className="flex items-center space-x-2">
+          <span className="h-2 w-2 rounded-full bg-blue-400" />
+          <span className="tech-label font-bold text-zinc-200">
+            Raw Input Stream
           </span>
         </div>
-        <div className="flex items-center gap-2">
+        <div className="flex items-center space-x-2 text-[11px] font-mono">
           <span
-            className={`text-[11px] font-mono ${
-              isOverLimit ? "text-rose-400 font-bold" : "text-zinc-400"
-            }`}
+            className={isOverLimit ? "text-rose-400 font-semibold" : "text-zinc-500"}
           >
-            {inputText.length} / {charLimit} chars
+            {inputText.length} / {charLimit}
           </span>
         </div>
       </div>
 
       {/* Preset Quick Selectors */}
-      <div className="space-y-2">
-        <div className="flex items-center justify-between">
-          <span className="text-xs font-semibold text-zinc-300 flex items-center gap-1.5">
-            <Sparkles className="w-3.5 h-3.5 text-blue-400" />
-            Curated Problem Presets:
+      <div className="space-y-1.5">
+        <div className="flex items-center justify-between text-[11px] text-zinc-400">
+          <span className="font-mono uppercase text-[10px] text-zinc-500 tracking-wider">
+            Evaluation Presets
           </span>
-          <span className="text-[10px] text-zinc-500 font-mono">
-            Instant 1-Click Load
-          </span>
+          <span className="text-zinc-500 text-[10px] font-mono">1-Click Load</span>
         </div>
 
-        <div className="grid grid-cols-1 sm:grid-cols-2 gap-2.5">
+        <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
           {DEMO_PRESETS.map((preset) => {
             const isSelected = selectedPresetId === preset.id;
-            const isHinglish = preset.id.includes("hinglish");
-
             return (
               <button
                 key={preset.id}
                 type="button"
                 onClick={() => onSelectPreset(preset.id)}
-                className={`text-left p-3 rounded-xl border transition-all cursor-pointer relative group ${
+                className={`text-left p-2.5 rounded-lg border transition-workbench cursor-pointer text-xs ${
                   isSelected
-                    ? isHinglish
-                      ? "bg-amber-950/30 border-amber-500/60 ring-1 ring-amber-500/40"
-                      : "bg-purple-950/30 border-purple-500/60 ring-1 ring-purple-500/40"
-                    : isHinglish
-                    ? "bg-zinc-900/60 border-amber-500/20 hover:border-amber-500/40 hover:bg-zinc-900/90"
-                    : "bg-zinc-900/60 border-purple-500/20 hover:border-purple-500/40 hover:bg-zinc-900/90"
+                    ? "bg-zinc-800 border-white/20 text-white"
+                    : "bg-zinc-900/60 border-white/[0.06] text-zinc-300 hover:border-white/15 hover:bg-zinc-900"
                 }`}
               >
-                <div className="flex items-center justify-between gap-1 mb-1">
-                  <span
-                    className={`text-xs font-bold ${
-                      isHinglish ? "text-amber-300" : "text-purple-300"
-                    }`}
-                  >
+                <div className="flex items-center justify-between mb-1">
+                  <span className="font-semibold text-zinc-200 text-xs">
                     {preset.name}
                   </span>
-                  <span
-                    className={`text-[9px] font-mono uppercase px-1.5 py-0.5 rounded border ${
-                      isHinglish
-                        ? "bg-amber-500/10 text-amber-400 border-amber-500/20"
-                        : "bg-purple-500/10 text-purple-400 border-purple-500/20"
-                    }`}
-                  >
-                    {isHinglish ? "Devanagari" : "Arabizi 3rb"}
+                  <span className="text-[10px] font-mono text-zinc-400">
+                    {preset.language}
                   </span>
                 </div>
-                <p className="text-[11px] text-zinc-400 line-clamp-2 leading-relaxed">
-                  &ldquo;{preset.text}&rdquo;
+                <p className="text-[11px] text-zinc-400 line-clamp-1 font-mono">
+                  {preset.text}
                 </p>
               </button>
             );
@@ -124,41 +103,39 @@ export function InputPanel({
       {/* Main Textarea */}
       <div className="relative">
         <textarea
-          rows={5}
+          rows={4}
           value={inputText}
-          onChange={(e) => {
-            setInputText(e.target.value);
-          }}
+          onChange={(e) => setInputText(e.target.value)}
           onKeyDown={handleKeyDown}
-          placeholder="Paste or type messy multilingual text (e.g. Hinglish code-switching or Arabizi with numbers like 7awel, 3ala, etc.). Press Ctrl+Enter to analyze."
-          className="w-full rounded-xl bg-black/50 border border-white/10 px-3.5 py-3 text-sm text-zinc-100 placeholder:text-zinc-600 focus:outline-none focus:ring-1 focus:ring-blue-500 focus:border-blue-500/50 font-sans resize-none transition-all leading-relaxed"
+          placeholder="Paste or type multilingual input (Hinglish or Arabizi with 3/7/5 numerals)..."
+          className="w-full rounded-lg bg-[#0a0c12] border border-white/[0.08] px-3.5 py-3 text-sm text-zinc-100 placeholder:text-zinc-600 focus:outline-none focus:border-blue-500/60 font-mono resize-none transition-workbench leading-relaxed"
         />
         {isAnalyzing && (
-          <div className="absolute inset-0 bg-black/40 backdrop-blur-[1px] rounded-xl flex items-center justify-center pointer-events-none">
-            <span className="text-xs font-mono text-blue-300 flex items-center gap-2 bg-black/80 px-3 py-1.5 rounded-lg border border-blue-500/30">
+          <div className="absolute inset-0 bg-[#090a0f]/80 backdrop-blur-[1px] rounded-lg flex items-center justify-center pointer-events-none">
+            <span className="text-xs font-mono text-zinc-300 flex items-center gap-2 bg-zinc-900 px-3 py-1.5 rounded-md border border-white/10">
               <Loader2 className="w-3.5 h-3.5 animate-spin text-blue-400" />
-              Processing linguistic stream...
+              Analyzing linguistic structure…
             </span>
           </div>
         )}
       </div>
 
-      {/* Character Span Highlight Viewer (Live Alignment Feedback) */}
+      {/* Live Character Span Alignment Visualizer */}
       {hasValidSpan && (
-        <div className="p-3 rounded-xl bg-gradient-to-br from-indigo-950/40 to-black/70 border border-indigo-500/40 text-xs space-y-1.5 animate-fadeIn shadow-lg shadow-indigo-500/10">
-          <div className="flex items-center justify-between text-[10px] font-mono text-indigo-300">
-            <span className="font-bold flex items-center gap-1.5">
-              <Crosshair className="w-3.5 h-3.5 text-indigo-400 animate-spin-slow" />
-              RAW CHARACTER SPAN: [{highlightedSpan!.start_idx}..{highlightedSpan!.end_idx}]
+        <div className="p-3 rounded-lg bg-[#0c0e17] border border-blue-500/30 text-xs space-y-1.5 transition-workbench">
+          <div className="flex items-center justify-between text-[10px] font-mono text-blue-300">
+            <span className="flex items-center gap-1.5 font-bold uppercase tracking-wider">
+              <Crosshair className="w-3 h-3 text-blue-400" />
+              Verified Character Span [{highlightedSpan!.start_idx}..{highlightedSpan!.end_idx}]
             </span>
-            <span className="text-zinc-400 bg-black/40 px-2 py-0.5 rounded border border-white/5">
-              Token: <strong className="text-amber-300">&ldquo;{highlightedSpan!.raw}&rdquo;</strong>
+            <span className="text-zinc-400 bg-zinc-900 px-2 py-0.5 rounded border border-white/[0.06]">
+              Token: <strong className="text-white">&ldquo;{highlightedSpan!.raw}&rdquo;</strong>
             </span>
           </div>
 
-          <div className="font-mono text-zinc-300 text-xs bg-black/70 p-2.5 rounded-lg border border-white/10 break-words leading-relaxed">
+          <div className="font-mono text-xs bg-black/60 p-2.5 rounded border border-white/[0.04] break-words leading-relaxed text-zinc-300">
             <span className="text-zinc-500">{inputText.substring(0, highlightedSpan!.start_idx)}</span>
-            <mark className="bg-amber-400/30 text-amber-200 px-1 py-0.5 rounded border border-amber-400 font-bold shadow-md shadow-amber-500/40">
+            <mark className="bg-blue-500/30 text-blue-100 px-1 py-0.5 rounded border border-blue-400/80 font-bold">
               {inputText.substring(highlightedSpan!.start_idx, highlightedSpan!.end_idx)}
             </mark>
             <span className="text-zinc-500">{inputText.substring(highlightedSpan!.end_idx)}</span>
@@ -166,25 +143,25 @@ export function InputPanel({
         </div>
       )}
 
-      {/* Action CTA & Clear */}
-      <div className="flex items-center gap-3 pt-1">
+      {/* Bottom CTA Row */}
+      <div className="flex items-center gap-2 pt-1">
         <button
           type="button"
           onClick={onAnalyze}
           disabled={!inputText.trim() || isAnalyzing || isOverLimit}
-          className="flex-1 py-2.5 px-4 rounded-xl bg-gradient-to-r from-blue-600 via-indigo-600 to-purple-600 hover:from-blue-500 hover:to-purple-500 disabled:opacity-40 disabled:cursor-not-allowed text-white font-medium text-sm flex items-center justify-center gap-2 shadow-lg shadow-blue-500/20 active:scale-[0.99] transition-all cursor-pointer"
+          className="flex-1 py-2 px-4 rounded-lg bg-zinc-100 hover:bg-white text-zinc-950 disabled:opacity-30 disabled:cursor-not-allowed font-medium text-xs flex items-center justify-center gap-2 transition-workbench cursor-pointer font-mono"
         >
           {isAnalyzing ? (
             <>
-              <Loader2 className="w-4 h-4 animate-spin text-blue-200" />
-              <span>Analyzing Dialect Patterns...</span>
+              <Loader2 className="w-3.5 h-3.5 animate-spin text-zinc-950" />
+              <span>Analyzing…</span>
             </>
           ) : (
             <>
-              <Zap className="w-4 h-4 text-blue-200" />
-              <span>Analyze Input</span>
-              <kbd className="hidden sm:inline-block ml-1 px-1.5 py-0.5 text-[10px] font-mono bg-black/30 rounded border border-white/20 text-zinc-300">
-                Ctrl+↵
+              <span>Run Triage Pipeline</span>
+              <ArrowRight className="w-3.5 h-3.5 text-zinc-600" />
+              <kbd className="hidden sm:inline-block text-[10px] bg-zinc-200 px-1.5 py-0.2 rounded text-zinc-700">
+                ⌘↵
               </kbd>
             </>
           )}
@@ -194,30 +171,12 @@ export function InputPanel({
           <button
             type="button"
             onClick={() => setInputText("")}
-            className="p-2.5 rounded-xl bg-zinc-900/80 hover:bg-zinc-800 border border-white/10 text-zinc-400 hover:text-zinc-200 transition-colors cursor-pointer"
-            title="Clear text"
+            className="p-2 rounded-lg bg-zinc-900 hover:bg-zinc-800 border border-white/10 text-zinc-400 hover:text-zinc-200 transition-workbench cursor-pointer"
+            title="Reset input"
           >
-            <RotateCcw className="w-4 h-4" />
+            <RotateCcw className="w-3.5 h-3.5" />
           </button>
         )}
-      </div>
-
-      {/* Target Linguistic Scope Card */}
-      <div className="glass-panel-subtle rounded-xl p-4 border border-white/5 space-y-2 text-xs text-zinc-400">
-        <span className="font-semibold text-zinc-300 uppercase tracking-wider text-[11px] block">
-          Triage Engine Scope
-        </span>
-        <ul className="space-y-1.5 list-disc list-inside text-zinc-400">
-          <li>
-            <strong className="text-zinc-200">Hinglish:</strong> Matrix Hindi + English loanwords, phonetic spelling (kl, ni, plz, wrna).
-          </li>
-          <li>
-            <strong className="text-zinc-200">Arabizi (3rb):</strong> Arabic in Latin script using ASCII numerals (7=ح, 3=ع, 2=ء, 5=خ).
-          </li>
-          <li>
-            <strong className="text-zinc-200">Compiler Verification:</strong> Deterministic character spans, homograph collision ledger, and invariant checks.
-          </li>
-        </ul>
       </div>
     </div>
   );
