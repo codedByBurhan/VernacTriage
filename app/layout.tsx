@@ -13,12 +13,12 @@ const geistMono = Geist_Mono({
 });
 
 export const metadata: Metadata = {
-  title: "VernacTriage | Enterprise Linguistic Intelligence Platform",
-  description: "Deterministic linguistic reconstruction of code-switched, phonetically spelled, and Latin-script vernacular into canonical orthography, standard English, and operational dispatch payloads.",
+  title: "VernacTriage | The Lexical Compiler for the Unwritten Internet",
+  description: "Reconstruct code-switched, phonetic, and Latin-script vernacular into canonical language, structured intent, and auditable enterprise payloads with deterministic verification.",
   icons: {
-    icon: "/brand/vernactriage-mark.png",
-    shortcut: "/brand/vernactriage-mark.png",
-    apple: "/brand/vernactriage-mark.png",
+    icon: "/assets/vernactriage-mark.png",
+    shortcut: "/assets/vernactriage-mark.png",
+    apple: "/assets/vernactriage-mark.png",
   },
 };
 
@@ -30,9 +30,9 @@ export default function RootLayout({
   return (
     <html
       lang="en"
-      className={`${geistSans.variable} ${geistMono.variable} dark h-full antialiased`}
+      className={`${geistSans.variable} ${geistMono.variable} dark h-full antialiased scroll-smooth`}
     >
-      <body className="min-h-full flex flex-col bg-[#09090b] text-[#f4f4f5]">
+      <body className="min-h-full flex flex-col bg-[#09090b] text-[#fafafa]">
         {children}
       </body>
     </html>
