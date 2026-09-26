@@ -538,7 +538,13 @@ export function InteractiveCompiler({
               <div className="rounded-xl border border-[#27272a] bg-[#09090b] p-3.5 space-y-2.5">
                 <div className="flex items-center justify-between text-xs font-mono text-[#71717a] pb-1.5 border-b border-[#27272a]/60">
                   <div className="flex items-center gap-2">
-                    <Layers className="w-3.5 h-3.5 text-[#10b981]" />
+                    <Image
+                      src="/assets/icon-phonetic-ear-spelling.png"
+                      alt="Phonetic Lexical Map"
+                      width={16}
+                      height={16}
+                      className="h-3.5 w-auto object-contain"
+                    />
                     <span className="text-[#fafafa] font-semibold text-[11px] uppercase tracking-wider">
                       Interactive Lexical Map
                     </span>
