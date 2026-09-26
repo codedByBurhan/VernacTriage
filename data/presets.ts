@@ -1,4 +1,4 @@
-import { DemoPreset } from "@/lib/types";
+import type { DemoPreset } from "@/lib/types";
 
 export const DEMO_PRESETS: DemoPreset[] = [
   {
@@ -1052,6 +1052,193 @@ export const DEMO_PRESETS: DemoPreset[] = [
       entities: [
         { type: "LOCATION", value: "parcel box" },
         { type: "ACTION", value: "put in box (rakh do)" }
+      ],
+      action_dispatch: {
+        target_service: "LOGISTICS_SERVICE",
+        endpoint_action: "EXPEDITE_DELIVERY",
+        parameters: {
+          priority_level: "P2",
+          requires_agent_review: false
+        }
+      },
+      verification: {
+        schema_valid: true,
+        span_alignment_valid: true,
+        numeric_parity: true,
+        negation_parity: true,
+        entities_preserved: true,
+        integrity_score: 100,
+        audit_logs: [
+          "[PASS] Schema valid: Response conforms to strictly typed JSON schema.",
+          "[PASS] Span alignment: Token character offsets deterministically aligned.",
+          "[PASS] Numeric parity: Quantitative numerical values preserved.",
+          "[PASS] Negation parity: Polarity consistency verified.",
+          "[PASS] Entity preservation: Extracted business entities validated and grounded."
+        ],
+        numbers_preserved: true,
+        negation_preserved: true,
+        details: {
+          numbers_found_original: [],
+          numbers_found_target: [],
+          negation_markers_found: [],
+          negation_preserved_in_english: true,
+          issues: []
+        }
+      },
+      model_source: "demo-fallback"
+    }
+  },
+  {
+    id: "homograph_collision_hero",
+    name: "Homograph Collision (Direct)",
+    badge: "Hinglish Collision",
+    language: "Hinglish",
+    text: "Wait for me parcel me rakh do",
+    expectedResult: {
+      original_text: "Wait for me parcel me rakh do",
+      detected_pair: "Hinglish (Hindi-English)",
+      detected_languages: ["Hindi", "English"],
+      phenomena: [
+        "Cross-Lingual Homograph Collision (token 'me')",
+        "First 'me' is English pronoun; second 'me' is Hindi postposition ('में')",
+        "Syntactic Locative Disambiguation ('parcel me rakh do')"
+      ],
+      pragmatic_register: {
+        tone: "Colloquial-Familiar",
+        cultural_markers: ["Wait", "me", "rakh do"]
+      },
+      tokens: [
+        {
+          raw: "Wait",
+          detected_language: "en",
+          classification: "standard",
+          normalized_source: "Wait",
+          is_negation: false,
+          collision: null,
+          language: "English",
+          type: "Standard Verb",
+          script: "Latin",
+          normalized: "वेट",
+          confidence: 0.99,
+          explanation: "English imperative verb",
+          start_idx: 0,
+          end_idx: 4
+        },
+        {
+          raw: "for",
+          detected_language: "en",
+          classification: "standard",
+          normalized_source: "for",
+          is_negation: false,
+          collision: null,
+          language: "English",
+          type: "Preposition",
+          script: "Latin",
+          normalized: "फॉर",
+          confidence: 0.99,
+          explanation: "English preposition",
+          start_idx: 5,
+          end_idx: 8
+        },
+        {
+          raw: "me",
+          detected_language: "en",
+          classification: "standard",
+          normalized_source: "me",
+          is_negation: false,
+          collision: null,
+          language: "English",
+          type: "Personal Pronoun",
+          script: "Latin",
+          normalized: "मी (me)",
+          confidence: 0.99,
+          explanation: "English first-person objective pronoun in 'for me'",
+          start_idx: 9,
+          end_idx: 11
+        },
+        {
+          raw: "parcel",
+          detected_language: "en",
+          classification: "standard",
+          normalized_source: "parcel",
+          is_negation: false,
+          collision: null,
+          language: "English",
+          type: "Standard Loanword",
+          script: "Latin",
+          normalized: "पार्सल",
+          confidence: 0.99,
+          explanation: "Direct object noun",
+          start_idx: 12,
+          end_idx: 18
+        },
+        {
+          raw: "me",
+          detected_language: "hi",
+          classification: "transliterated",
+          normalized_source: "में",
+          is_negation: false,
+          collision: {
+            is_collision: true,
+            selected_language: "hi",
+            selected_meaning: "Hindi locative postposition (में / in/inside)",
+            rejected_language: "en",
+            rejected_meaning: "English first-person pronoun (me)",
+            reasoning: "Syntactic context 'parcel me rakh do' indicates spatial locative construction (put inside parcel), not an English personal pronoun."
+          },
+          language: "Hindi",
+          type: "Locative Postposition",
+          script: "Devanagari",
+          normalized: "में",
+          confidence: 0.99,
+          explanation: "Hindi postposition 'mein' written as 'me'",
+          start_idx: 19,
+          end_idx: 21
+        },
+        {
+          raw: "rakh",
+          detected_language: "hi",
+          classification: "transliterated",
+          normalized_source: "रख",
+          is_negation: false,
+          collision: null,
+          language: "Hindi",
+          type: "Verb Stem",
+          script: "Devanagari",
+          normalized: "रख",
+          confidence: 0.98,
+          explanation: "Stem of verb 'rakhna' (to put/keep)",
+          start_idx: 22,
+          end_idx: 26
+        },
+        {
+          raw: "do",
+          detected_language: "hi",
+          classification: "transliterated",
+          normalized_source: "दो",
+          is_negation: false,
+          collision: null,
+          language: "Hindi",
+          type: "Vector Auxiliary",
+          script: "Devanagari",
+          normalized: "दो",
+          confidence: 0.98,
+          explanation: "Imperative benefactive operator",
+          start_idx: 27,
+          end_idx: 29
+        }
+      ],
+      canonical_script: "वेट फॉर मी, पार्सल में रख दो",
+      canonical_native_script: "वेट फॉर मी, पार्सल में रख दो",
+      english_translation: "Wait for me, put it in the parcel.",
+      standard_english: "Wait for me, put it in the parcel.",
+      intent: {
+        label: "DELIVERY_INSTRUCTION",
+        confidence: 0.97
+      },
+      entities: [
+        { type: "LOCATION", value: "parcel" },
+        { type: "ACTION", value: "put in parcel (rakh do)" }
       ],
       action_dispatch: {
         target_service: "LOGISTICS_SERVICE",
