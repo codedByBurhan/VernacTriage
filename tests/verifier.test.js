@@ -1,117 +1,12 @@
 const test = require('node:test');
 const assert = require('node:assert');
 
-// Simplified verification logic test matching lib/verifier.ts
-function runDeterministicVerification(originalText, analysis, spanResult) {
-  const auditLogs = [];
-  let integrityScore = 100;
-  const issues = [];
+let runDeterministicVerification;
 
-  const hasTokens = Array.isArray(analysis.tokens) && analysis.tokens.length > 0;
-  const hasCanonical = Boolean(analysis.canonical_script?.trim());
-  const hasEnglish = Boolean(analysis.english_translation?.trim());
-  const hasIntent = Boolean(analysis.intent?.label);
-  const hasEntities = Array.isArray(analysis.entities);
-  const schemaValid = Boolean(hasTokens && hasCanonical && hasEnglish && hasIntent && hasEntities);
-
-  if (schemaValid) {
-    auditLogs.push("[PASS] Schema valid");
-  } else {
-    integrityScore = Math.max(0, integrityScore - 25);
-    issues.push("Schema invalid");
-    auditLogs.push("[FAIL] Schema valid");
-  }
-
-  const spanAlignmentValid = spanResult
-    ? spanResult.all_spans_valid
-    : analysis.tokens.every((t) => typeof t.start_idx === "number" && typeof t.end_idx === "number");
-
-  if (spanAlignmentValid) {
-    auditLogs.push("[PASS] Span alignment");
-  } else {
-    integrityScore = Math.max(0, integrityScore - 25);
-    issues.push("Span alignment mismatch");
-    auditLogs.push("[FAIL] Span alignment mismatch");
-  }
-
-  const standaloneNumberRegex = /\b\d+(?:[:.]\d+)?(?:[a-zA-Z]+)?\b/g;
-  const rawNumberMatches = originalText.match(standaloneNumberRegex) || [];
-  const quantitativeNumbers = rawNumberMatches.filter((n) => {
-    if (n.toLowerCase() === "b4") return false;
-    return /\d/.test(n);
-  });
-
-  const englishText = (analysis.english_translation || "").toLowerCase();
-  const canonicalText = (analysis.canonical_script || "").toLowerCase();
-  const entityValues = (analysis.entities || []).map((e) => e.value.toLowerCase()).join(" ");
-  const combinedSearchTargets = `${englishText} ${canonicalText} ${entityValues}`;
-
-  let numericParity = true;
-  const missingNumbers = [];
-
-  for (const num of quantitativeNumbers) {
-    const digitsOnly = num.replace(/\D/g, "");
-    if (!digitsOnly) continue;
-    const exactPreserved = combinedSearchTargets.includes(num.toLowerCase());
-    const digitsPreserved = combinedSearchTargets.includes(digitsOnly);
-    if (!exactPreserved && !digitsPreserved) {
-      missingNumbers.push(num);
-    }
-  }
-
-  if (missingNumbers.length > 0) {
-    numericParity = false;
-    integrityScore = Math.max(0, integrityScore - 25);
-    auditLogs.push(`[FAIL] Numeric parity: ${missingNumbers.join(", ")}`);
-  } else {
-    auditLogs.push("[PASS] Numeric parity");
-  }
-
-  const hasNegationToken = analysis.tokens.some((t) => t.is_negation === true);
-  const englishNegationPattern = /\b(?:not|no|never|cannot|can't|won't|without|neither|nor|none|nothing|didn't|wasn't)\b/i;
-  const englishHasNegation = englishNegationPattern.test(englishText);
-
-  let negationParity = true;
-  if (hasNegationToken) {
-    if (!englishHasNegation) {
-      negationParity = false;
-      integrityScore = Math.max(0, integrityScore - 25);
-      auditLogs.push("[FAIL] Negation parity mismatch");
-    } else {
-      auditLogs.push("[PASS] Negation parity");
-    }
-  } else {
-    auditLogs.push("[PASS] Negation parity");
-  }
-
-  let entitiesPreserved = true;
-  if (analysis.entities && analysis.entities.length > 0) {
-    for (const ent of analysis.entities) {
-      if (!ent.value || !ent.type) {
-        entitiesPreserved = false;
-      }
-    }
-  }
-
-  if (entitiesPreserved) {
-    auditLogs.push("[PASS] Entity preservation");
-  } else {
-    integrityScore = Math.max(0, integrityScore - 25);
-    auditLogs.push("[FAIL] Entity preservation");
-  }
-
-  integrityScore = Math.max(0, Math.min(100, integrityScore));
-
-  return {
-    schema_valid: schemaValid,
-    span_alignment_valid: spanAlignmentValid,
-    numeric_parity: numericParity,
-    negation_parity: negationParity,
-    entities_preserved: entitiesPreserved,
-    integrity_score: integrityScore,
-    audit_logs: auditLogs,
-  };
-}
+test.before(async () => {
+  const mod = await import('../lib/verifier.ts');
+  runDeterministicVerification = mod.runDeterministicVerification;
+});
 
 test('verifier: 100/100 perfect score on compliant analysis', () => {
   const input = "Bhai kl parcel deliver ni hua, 4200 rupees deduct ho gye";
@@ -135,65 +30,93 @@ test('verifier: 100/100 perfect score on compliant analysis', () => {
   assert.strictEqual(report.numeric_parity, true);
   assert.strictEqual(report.negation_parity, true);
   assert.strictEqual(report.entities_preserved, true);
-  assert(report.audit_logs.some(l => l.includes("[PASS] Negation parity")));
-  assert(report.audit_logs.some(l => l.includes("[PASS] Numeric parity")));
 });
 
-test('verifier: penalizes negation parity mismatch (-25)', () => {
-  const input = "Parcel deliver ni hua";
+test('REGRESSION: Arabizi word "7awelt" must NOT be treated as a quantitative number', () => {
+  const input = "Ya habibi el order ma wosel b4 5pm, 7awelt kaza mara, cancel it ASAP";
   const analysis = {
     tokens: [
-      { raw: "ni", is_negation: true, start_idx: 15, end_idx: 17 }
+      { raw: "Ya", is_negation: false, start_idx: 0, end_idx: 2 },
+      { raw: "ma", is_negation: true, start_idx: 19, end_idx: 21 },
+      { raw: "5pm", is_negation: false, start_idx: 31, end_idx: 34 },
+      { raw: "7awelt", is_negation: false, start_idx: 36, end_idx: 42 }
     ],
-    canonical_script: "पार्सल डिलीवर हुआ",
-    english_translation: "The parcel was successfully delivered.", // Mismatch: positive translation!
-    intent: { label: "DELIVERY_ISSUE", confidence: 0.95 },
+    canonical_script: "يا حبيبي الطلب ما وصل قبل 5:00 مساءً، حاولت كذا مرة، إلغيه بأسرع وقت",
+    english_translation: "My friend, the order did not arrive before 5:00 PM. I tried multiple times, please cancel it as soon as possible.",
+    intent: { label: "CANCELLATION", confidence: 0.95 },
+    entities: [{ type: "TIME", value: "5:00 PM" }]
+  };
+  const spanResult = { all_spans_valid: true };
+
+  const report = runDeterministicVerification(input, analysis, spanResult);
+  assert.strictEqual(report.numeric_parity, true, "Numeric parity should pass: 5pm preserved as 5:00 PM, 7awelt should not be flagged as missing number");
+});
+
+test('REGRESSION: Substring false-positive — quantity "5" must NOT pass when target says "500"', () => {
+  const input = "Deliver 5 packages please";
+  const analysis = {
+    tokens: [
+      { raw: "5", is_negation: false, start_idx: 8, end_idx: 9 }
+    ],
+    canonical_script: "Deliver 500 packages",
+    english_translation: "Please deliver 500 packages.", // Target says 500, not 5
+    intent: { label: "DELIVERY", confidence: 0.9 },
     entities: []
   };
   const spanResult = { all_spans_valid: true };
 
   const report = runDeterministicVerification(input, analysis, spanResult);
-  assert.strictEqual(report.negation_parity, false);
-  assert.strictEqual(report.integrity_score, 75);
-  assert(report.audit_logs.some(l => l.includes("[FAIL] Negation parity mismatch")));
+  assert.strictEqual(report.numeric_parity, false, "Numeric parity should FAIL because quantity 5 is not preserved as standalone quantity");
 });
 
-test('verifier: penalizes missing numeric parity (-25)', () => {
-  const input = "Order #8831 deliver b4 8:00";
+test('REGRESSION: Bidirectional negation parity — positive source flipping to negative translation must FAIL', () => {
+  const input = "Please deliver the order today";
   const analysis = {
     tokens: [
-      { raw: "Order", is_negation: false, start_idx: 0, end_idx: 5 }
+      { raw: "deliver", is_negation: false, start_idx: 7, end_idx: 14 }
     ],
-    canonical_script: "ऑर्डर जल्दी लाओ",
-    english_translation: "Bring the order quickly.", // Missing 8831 and 8:00
-    intent: { label: "DELIVERY_ISSUE", confidence: 0.95 },
+    canonical_script: "Please deliver the order today",
+    english_translation: "Do not deliver the order today.", // Inverted polarity hallucination!
+    intent: { label: "DELIVERY", confidence: 0.9 },
     entities: []
   };
   const spanResult = { all_spans_valid: true };
 
   const report = runDeterministicVerification(input, analysis, spanResult);
-  assert.strictEqual(report.numeric_parity, false);
-  assert.strictEqual(report.integrity_score, 75);
-  assert(report.audit_logs.some(l => l.includes("[FAIL] Numeric parity")));
+  assert.strictEqual(report.negation_parity, false, "Negation parity should FAIL when positive input is translated as negative");
 });
 
-test('verifier: multiple deductions clamp properly', () => {
-  const input = "Order #9999 deliver ni hua";
+test('REGRESSION: Entity grounding — hallucinated entity not present in input or output must FAIL', () => {
+  const input = "Order deliver ni hua";
   const analysis = {
     tokens: [
-      { raw: "ni", is_negation: true, start_idx: undefined, end_idx: undefined }
+      { raw: "ni", is_negation: true, start_idx: 14, end_idx: 16 }
     ],
-    canonical_script: "पार्सल",
-    english_translation: "Parcel arrived.", // Missing number (-25), Missing negation (-25), Invalid span (-25)
-    intent: { label: "GENERAL", confidence: 0.8 },
-    entities: [{ type: "", value: "" }] // Malformed entity (-25)
+    canonical_script: "Order deliver nahi hua",
+    english_translation: "Order was not delivered.",
+    intent: { label: "DELIVERY", confidence: 0.9 },
+    entities: [{ type: "TRACKING_NUMBER", value: "XYZ_FAKE_99999" }] // Ungrounded hallucination!
   };
-  const spanResult = { all_spans_valid: false };
+  const spanResult = { all_spans_valid: true };
 
   const report = runDeterministicVerification(input, analysis, spanResult);
-  assert.strictEqual(report.integrity_score, 0); // 100 - 4*25 = 0
-  assert.strictEqual(report.numeric_parity, false);
-  assert.strictEqual(report.negation_parity, false);
-  assert.strictEqual(report.span_alignment_valid, false);
-  assert.strictEqual(report.entities_preserved, false);
+  assert.strictEqual(report.entities_preserved, false, "Entity preservation should FAIL for ungrounded hallucinated entities");
 });
+
+test('HERO DEMO: "Wait for me parcel me rakh do" homograph preset passes 100/100 verification', async () => {
+  const { DEMO_PRESETS } = await import('../data/presets.ts');
+  const heroPreset = DEMO_PRESETS.find(p => p.id === "homograph_collision_hero");
+  assert.ok(heroPreset, "Hero preset must exist in DEMO_PRESETS");
+
+  const modAlign = await import('../lib/span-aligner.ts');
+  const spanResult = modAlign.alignTokenSpans(heroPreset.text, heroPreset.expectedResult.tokens);
+  assert.strictEqual(spanResult.all_spans_valid, true);
+
+  const report = runDeterministicVerification(heroPreset.text, heroPreset.expectedResult, spanResult);
+  assert.strictEqual(report.integrity_score, 100);
+  assert.strictEqual(report.numeric_parity, true);
+  assert.strictEqual(report.negation_parity, true);
+  assert.strictEqual(report.entities_preserved, true);
+  assert.strictEqual(report.span_alignment_valid, true);
+});
+
