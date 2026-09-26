@@ -13,7 +13,6 @@ import {
   AlertCircle,
   Loader2,
   Trash2,
-  Sparkles,
   ShieldCheck,
 } from "lucide-react";
 
@@ -66,7 +65,10 @@ export function ApiKeyModal() {
     try {
       const res = await fetch("/api/validate-key", {
         method: "POST",
-        headers: { "Content-Type": "application/json" },
+        headers: {
+          "Content-Type": "application/json",
+          "x-gemini-api-key": cleanKey,
+        },
         body: JSON.stringify({ apiKey: cleanKey }),
       });
 
@@ -253,7 +255,7 @@ export function ApiKeyModal() {
           {/* Privacy Note */}
           <div className="pt-3 border-t border-[#27272a]/60 flex items-center gap-2 text-[10px] text-[#71717a]">
             <ShieldCheck className="w-3.5 h-3.5 text-[#10b981] shrink-0" />
-            <span>Encrypted client-side storage • Zero server logging</span>
+            <span>Plaintext browser localStorage • Zero server persistence</span>
           </div>
         </motion.div>
       </div>
