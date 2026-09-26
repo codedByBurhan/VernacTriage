@@ -8,15 +8,22 @@ export function Footer() {
     <footer className="border-t border-[#27272a] bg-[#09090b] text-xs font-mono text-[#71717a] py-12">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 space-y-8">
         <div className="flex flex-col md:flex-row items-start md:items-center justify-between gap-6">
-          {/* Left: Brand logo & tagline */}
+          {/* Left: Brand visual logo & bold text with tagline */}
           <div className="space-y-2">
-            <Image
-              src="/assets/vernactriage-logo.png"
-              alt="VernacTriage"
-              width={140}
-              height={32}
-              className="h-7 w-auto object-contain"
-            />
+            <div className="flex items-center gap-3">
+              <div className="relative h-8 w-auto aspect-[345/246] flex items-center justify-center shrink-0">
+                <Image
+                  src="/assets/vernactriage-visual-logo.png"
+                  alt="VernacTriage Visual Mark"
+                  width={42}
+                  height={30}
+                  className="h-full w-auto object-contain filter drop-shadow-[0_0_10px_rgba(34,211,238,0.25)]"
+                />
+              </div>
+              <span className="font-bold text-lg tracking-tight text-[#fafafa]">
+                VernacTriage
+              </span>
+            </div>
             <p className="text-xs text-[#a1a1aa] max-w-sm">
               The Lexical Compiler for the Unwritten Internet.
             </p>

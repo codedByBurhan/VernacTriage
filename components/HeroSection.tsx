@@ -1,77 +1,83 @@
 "use client";
 
 import React, { useState } from "react";
-import { ArrowRight, Terminal, ShieldCheck, Sparkles, FileText, CheckCircle2, Zap, ArrowDown } from "lucide-react";
+import Image from "next/image";
+import { motion, AnimatePresence } from "framer-motion";
+import {
+  ArrowRight,
+  FileText,
+  Zap,
+  CheckCircle2,
+  Code2,
+  Terminal,
+  Sparkles,
+  Layers,
+  ArrowDown,
+} from "lucide-react";
 
 interface HeroSectionProps {
   onOpenDocs: () => void;
 }
 
 export function HeroSection({ onOpenDocs }: HeroSectionProps) {
-  const [activeTab, setActiveTab] = useState<"collision" | "arabizi" | "hinglish">("collision");
+  const [viewMode, setViewMode] = useState<"schematic" | "code">("schematic");
+  const [activePreset, setActivePreset] = useState<"collision" | "arabizi" | "hinglish">("collision");
 
-  const examples = {
+  const presetData = {
     collision: {
-      name: "Cross-Lingual Collision",
-      pair: "Hinglish (Hindi-English)",
-      rawWords: [
-        { text: "Wait for", type: "plain" },
-        { text: "me", type: "en_pronoun", note: "English Pronoun [9..11]" },
-        { text: "parcel box", type: "plain" },
-        { text: "me", type: "hi_locative", note: "Hindi 'में' [23..25]" },
-        { text: "rakh do plz", type: "plain" },
+      name: "Homograph Collision",
+      dialect: "Hinglish (Devanagari-Latn)",
+      rawInput: "Wait for me parcel box me rakh do plz",
+      annotations: [
+        { token: "me [1st]", label: "English Pronoun (me)", color: "text-[#fafafa] bg-[#18181b] border-[#3f3f46]" },
+        { token: "me [2nd]", label: "Hindi Locative (में / in)", color: "text-[#22d3ee] bg-[#22d3ee]/15 border-[#22d3ee]/40" },
       ],
-      disambiguation: "Resolves 2nd 'me' as Hindi locative postposition (में / inside box) instead of pronoun duplicate.",
-      canonical: "वेट फॉर मी, पार्सल बॉक्स में रख दो प्लीज",
-      english: "Wait for me, please put the parcel in the box.",
-      json: {
+      canonicalScript: "वेट फॉर मी, पार्सल बॉक्स में रख दो प्लीज",
+      englishTranslation: "Wait for me, please put the parcel in the box.",
+      actionDispatch: {
         intent: "DELIVERY_INSTRUCTION",
         target: "LOGISTICS_SERVICE",
         action: "UPDATE_DELIVERY_NOTES",
       },
+      insight: "Syntactically disambiguates homographic 'me' tokens into English pronoun vs Hindi locative postposition 'में'.",
     },
     arabizi: {
       name: "Arabizi Escalation",
-      pair: "Arabizi (Arabic-English)",
-      rawWords: [
-        { text: "Ya habibi el order", type: "plain" },
-        { text: "ma wosel", type: "hi_locative", note: "Arabic Negation 'ما وصل'" },
-        { text: "b4", type: "en_pronoun", note: "Alphanumeric 'before'" },
-        { text: "5pm,", type: "plain" },
-        { text: "7awelt", type: "hi_locative", note: "7 = Hā' / 'حاولت'" },
-        { text: "cancel it ASAP", type: "en_pronoun", note: "Urgent Imperative" },
+      dialect: "Arabizi (Arabic-Latn)",
+      rawInput: "Ya habibi el order ma wosel b4 5pm, 7awelt, cancel it ASAP",
+      annotations: [
+        { token: "7awelt", label: "7 = Hā' / 'حاولت'", color: "text-[#22d3ee] bg-[#22d3ee]/15 border-[#22d3ee]/40" },
+        { token: "b4 5pm", label: "Contraction 'before 5pm'", color: "text-[#fafafa] bg-[#18181b] border-[#3f3f46]" },
       ],
-      disambiguation: "Substitutes Arabizi digits (7→ح) and English phonetics (b4→before) with negation parity intact.",
-      canonical: "يا حبيبي الطلب ما وصل قبل 5:00 مساءً، حاولت، إلغيه بأسرع وقت",
-      english: "My friend, the order did not arrive before 5:00 PM. I tried, please cancel it ASAP.",
-      json: {
+      canonicalScript: "يا حبيبي الطلب ما وصل قبل 5:00 مساءً، حاولت، إلغيه بأسرع وقت",
+      englishTranslation: "My friend, the order did not arrive before 5:00 PM. I tried, please cancel it ASAP.",
+      actionDispatch: {
         intent: "CANCELLATION_REQUEST",
         target: "CUSTOMER_SUPPORT",
         priority: "P1",
       },
+      insight: "Reconstructs ASCII numeral phonetic substitutions (7→ح) with negation parity and urgency grounding intact.",
     },
     hinglish: {
       name: "Hinglish Logistics",
-      pair: "Hinglish (Hindi-English)",
-      rawWords: [
-        { text: "Bhai", type: "plain" },
-        { text: "kl", type: "en_pronoun", note: "Phonetic 'कल' (yesterday)" },
-        { text: "parcel deliver", type: "plain" },
-        { text: "ni hua,", type: "hi_locative", note: "Negation 'नहीं हुआ'" },
-        { text: "plz refund initiate kr do", type: "plain" },
+      dialect: "Hinglish (Hindi-English)",
+      rawInput: "Bhai kl parcel deliver ni hua, plz refund initiate kr do ASAP",
+      annotations: [
+        { token: "kl", label: "Phonetic 'कल' (yesterday)", color: "text-[#fafafa] bg-[#18181b] border-[#3f3f46]" },
+        { token: "ni hua", label: "Negation 'नहीं हुआ'", color: "text-[#10b981] bg-[#10b981]/15 border-[#10b981]/40" },
       ],
-      disambiguation: "Locks phonetic negation ('ni' → नहीं) to prevent customer dispute misrouting.",
-      canonical: "भाई कल पार्सल डिलीवर नहीं हुआ, प्लीज रिफंड इनिशिएट कर दो",
-      english: "Brother, the parcel was not delivered yesterday. Please initiate the refund.",
-      json: {
+      canonicalScript: "भाई कल पार्सल डिलीवर नहीं हुआ, प्लीज रिफंड इनिशिएट कर दो ASAP",
+      englishTranslation: "Brother, the parcel was not delivered yesterday. Please initiate the refund as soon as possible.",
+      actionDispatch: {
         intent: "DELIVERY_ISSUE",
         target: "LOGISTICS_SERVICE",
         action: "INITIATE_REFUND",
       },
+      insight: "Enforces strict negation parity ('ni' → नहीं) to prevent customer dispute misrouting.",
     },
   };
 
-  const current = examples[activeTab];
+  const current = presetData[activePreset];
 
   return (
     <section className="relative pt-24 pb-16 sm:pt-32 sm:pb-20 overflow-hidden">
@@ -128,7 +134,7 @@ export function HeroSection({ onOpenDocs }: HeroSectionProps) {
           </div>
         </div>
 
-        {/* Refined Live Transformation Visual Terminal */}
+        {/* Hero Visual: Transformation Terminal with vernactriage-transformation.png centerpiece */}
         <div className="max-w-5xl mx-auto">
           <div className="rounded-2xl border border-[#27272a] bg-[#0f0f12] shadow-2xl overflow-hidden">
             {/* Minimalist Top Window Chrome */}
@@ -144,142 +150,230 @@ export function HeroSection({ onOpenDocs }: HeroSectionProps) {
                 </span>
               </div>
 
-              {/* Sample Switcher Tabs */}
-              <div className="flex items-center gap-1.5">
+              {/* View Mode Toggle (Schematic Graphic vs Code Stream) */}
+              <div className="flex items-center p-0.5 rounded-lg border border-[#27272a] bg-[#0f0f12]">
+                <button
+                  type="button"
+                  onClick={() => setViewMode("schematic")}
+                  className={`px-2.5 py-1 rounded-md text-[11px] font-mono transition-all flex items-center gap-1.5 cursor-pointer ${
+                    viewMode === "schematic"
+                      ? "bg-[#18181b] text-[#fafafa] font-semibold shadow-xs"
+                      : "text-[#71717a] hover:text-[#a1a1aa]"
+                  }`}
+                >
+                  <Sparkles className="w-3 h-3 text-[#10b981]" />
+                  <span>Schematic View</span>
+                </button>
+
+                <button
+                  type="button"
+                  onClick={() => setViewMode("code")}
+                  className={`px-2.5 py-1 rounded-md text-[11px] font-mono transition-all flex items-center gap-1.5 cursor-pointer ${
+                    viewMode === "code"
+                      ? "bg-[#18181b] text-[#fafafa] font-semibold shadow-xs"
+                      : "text-[#71717a] hover:text-[#a1a1aa]"
+                  }`}
+                >
+                  <Code2 className="w-3 h-3 text-[#22d3ee]" />
+                  <span>Code Stream</span>
+                </button>
+              </div>
+
+              {/* Preset Selector */}
+              <div className="flex items-center gap-1">
                 {(["collision", "arabizi", "hinglish"] as const).map((tab) => (
                   <button
                     key={tab}
                     type="button"
-                    onClick={() => setActiveTab(tab)}
-                    className={`px-2.5 py-1 rounded-md text-[11px] font-mono transition-all cursor-pointer ${
-                      activeTab === tab
-                        ? "bg-[#18181b] border border-[#3f3f46] text-[#fafafa] font-semibold"
+                    onClick={() => setActivePreset(tab)}
+                    className={`px-2 py-0.5 rounded text-[11px] font-mono transition-all cursor-pointer ${
+                      activePreset === tab
+                        ? "bg-[#18181b] border border-[#3f3f46] text-[#fafafa]"
                         : "text-[#71717a] hover:text-[#a1a1aa]"
                     }`}
                   >
-                    {tab === "collision"
-                      ? "Homograph Collision"
-                      : tab === "arabizi"
-                      ? "Arabizi Escalation"
-                      : "Hinglish Logistics"}
+                    {tab === "collision" ? "Collision" : tab === "arabizi" ? "Arabizi" : "Hinglish"}
                   </button>
                 ))}
               </div>
-
-              <div className="hidden md:flex items-center gap-1.5 text-[11px] text-[#10b981]">
-                <CheckCircle2 className="w-3.5 h-3.5" />
-                <span>AST Traceability: 100%</span>
-              </div>
             </div>
 
-            {/* Main Visual Workspace: Left Input -> Middle Engine -> Right Output */}
-            <div className="grid grid-cols-1 lg:grid-cols-12 divide-y lg:divide-y-0 lg:divide-x divide-[#27272a] p-4 sm:p-6 bg-[#09090b]/40 gap-6 lg:gap-0">
-              {/* Left Column: Raw Ingest & Disambiguation Details (5 cols) */}
-              <div className="lg:col-span-5 flex flex-col justify-between space-y-4 lg:pr-6">
-                <div className="space-y-3">
-                  <div className="flex items-center justify-between text-xs font-mono">
-                    <span className="text-[#71717a] uppercase text-[10px] tracking-wider">
-                      Input Stream [Raw Vernacular]
-                    </span>
-                    <span className="px-2 py-0.5 rounded bg-[#18181b] border border-[#27272a] text-[#22d3ee] text-[10px] font-mono">
-                      {current.pair}
-                    </span>
-                  </div>
+            {/* Smoothly Transitioning Content Container */}
+            <div className="p-5 sm:p-7 bg-[#09090b]/50">
+              <AnimatePresence mode="wait">
+                {viewMode === "schematic" ? (
+                  /* MODE 1: VISUAL SCHEMATIC WITH CLEAR ASSET DISPLAY */
+                  <motion.div
+                    key="schematic"
+                    initial={{ opacity: 0, y: 8 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    exit={{ opacity: 0, y: -8 }}
+                    transition={{ duration: 0.22, ease: "easeOut" }}
+                    className="space-y-6"
+                  >
+                    {/* Centered Graphic Showcase with Rich Multi-Stop Gradient Backdrop */}
+                    <div className="relative rounded-2xl border border-[#27272a] bg-[#09090b] p-6 sm:p-10 flex flex-col items-center justify-center overflow-hidden shadow-2xl">
+                      {/* Rich Dual-Zone Aurora Gradient Atmosphere: Emerald on left, Cyan on right */}
+                      <div
+                        aria-hidden="true"
+                        className="pointer-events-none absolute inset-0 bg-[radial-gradient(circle_at_28%_48%,rgba(16,185,129,0.28),transparent_60%),radial-gradient(circle_at_72%_48%,rgba(34,211,238,0.30),transparent_60%),radial-gradient(ellipse_70%_50%_at_50%_50%,rgba(6,182,212,0.18),transparent_75%)]"
+                      />
+                      {/* Central vertical ambient compiler beam */}
+                      <div
+                        aria-hidden="true"
+                        className="pointer-events-none absolute top-0 bottom-0 left-1/2 -translate-x-1/2 w-64 bg-gradient-to-b from-transparent via-[#22d3ee]/18 to-transparent blur-2xl"
+                      />
+                      {/* Subtle ambient horizontal horizon glow */}
+                      <div
+                        aria-hidden="true"
+                        className="pointer-events-none absolute top-1/2 left-0 right-0 -translate-y-1/2 h-[1px] bg-gradient-to-r from-transparent via-[#22d3ee]/25 to-transparent blur-[1px]"
+                      />
 
-                  {/* Raw Text with Token Highlight Cards */}
-                  <div className="p-4 rounded-xl border border-[#27272a] bg-[#09090b] space-y-3">
-                    <div className="font-mono text-sm sm:text-base text-[#fafafa] leading-relaxed flex flex-wrap items-center gap-1.5">
-                      {current.rawWords.map((w, idx) => {
-                        if (w.type === "en_pronoun") {
-                          return (
-                            <span
-                              key={idx}
-                              className="px-2 py-0.5 rounded bg-[#18181b] border border-[#3f3f46] text-[#fafafa] font-bold inline-block"
-                              title={w.note}
-                            >
-                              {w.text}
-                            </span>
-                          );
-                        }
-                        if (w.type === "hi_locative") {
-                          return (
-                            <span
-                              key={idx}
-                              className="px-2 py-0.5 rounded bg-[#22d3ee]/15 border border-[#22d3ee] text-[#22d3ee] font-bold inline-block"
-                              title={w.note}
-                            >
-                              {w.text}
-                            </span>
-                          );
-                        }
-                        return <span key={idx}>{w.text}</span>;
-                      })}
+                      {/* Header Sub-caption */}
+                      <div className="w-full relative z-10 flex items-center justify-between text-[11px] font-mono text-[#71717a] mb-6">
+                        <span className="flex items-center gap-1.5 text-[#10b981]">
+                          <span className="w-1.5 h-1.5 rounded-full bg-[#10b981]" />
+                          STAGE 01: RAW UNWRITTEN STREAM
+                        </span>
+                        <span className="hidden sm:inline text-[#a1a1aa] font-semibold">
+                          ISOMETRIC LINGUISTIC RECONSTRUCTION
+                        </span>
+                        <span className="flex items-center gap-1.5 text-[#22d3ee]">
+                          STAGE 05: CANONICAL SCRIPT
+                          <span className="w-1.5 h-1.5 rounded-full bg-[#22d3ee]" />
+                        </span>
+                      </div>
+
+                      {/* The Brand Asset: Rendered significantly BIGGER and seamlessly blended into the gradient without borders */}
+                      <div className="relative z-10 w-full flex items-center justify-center py-6 sm:py-8">
+                        <Image
+                          src="/assets/vernactriage-transformation.png"
+                          alt="VernacTriage Transformation Schematic: Left wing shows code-switched alphanumeric stream; central pillar represents compiler gate; right wing shows canonical Devanagari and Arabic reconstruction"
+                          width={952}
+                          height={552}
+                          className="w-full max-w-[480px] sm:max-w-[600px] md:max-w-[700px] lg:max-w-[760px] h-auto object-contain filter drop-shadow-[0_25px_60px_rgba(0,0,0,0.95)] drop-shadow-[0_0_40px_rgba(34,211,238,0.20)] transition-transform duration-300 hover:scale-[1.02] select-none"
+                          priority
+                        />
+                      </div>
+
+                      {/* Crosshair indicators - Clean, technical, NO emoji */}
+                      <div className="w-full relative z-10 mt-6 flex items-center justify-between text-[11px] font-mono text-[#71717a]">
+                        <span>[+] Matrix Code-Switching Ingest</span>
+                        <span className="text-[#a1a1aa] font-medium tracking-wide">[ Contextual Disambiguation Engine ]</span>
+                        <span>[+] Canonical Orthography Output</span>
+                      </div>
                     </div>
 
-                    {/* Token Annotation Pills */}
-                    <div className="pt-2 border-t border-[#27272a]/60 space-y-1.5 text-[11px] font-mono">
-                      {current.rawWords
-                        .filter((w) => w.note)
-                        .map((w, idx) => (
-                          <div key={idx} className="flex items-center gap-2 text-[#a1a1aa]">
-                            <span className="text-[#10b981]">●</span>
-                            <span className="text-[#fafafa] font-semibold">{w.text}:</span>
-                            <span className="text-[#71717a]">{w.note}</span>
+                    {/* Flanking Live Context Comparison for the Active Preset */}
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4 text-xs font-mono">
+                      {/* Left: Raw Dialect Stream */}
+                      <div className="p-4 rounded-xl border border-[#27272a] bg-[#0f0f12] space-y-2.5">
+                        <div className="flex items-center justify-between">
+                          <span className="text-[10px] text-[#71717a] uppercase tracking-wider">
+                            Source Input [{current.dialect}]
+                          </span>
+                          <span className="px-1.5 py-0.2 rounded bg-[#18181b] border border-[#27272a] text-[10px] text-[#22d3ee]">
+                            Raw Buffer
+                          </span>
+                        </div>
+                        <p className="text-sm font-mono text-[#fafafa] leading-relaxed">
+                          &quot;{current.rawInput}&quot;
+                        </p>
+                        <div className="flex flex-wrap gap-2 pt-1">
+                          {current.annotations.map((ann, idx) => (
+                            <span
+                              key={idx}
+                              className={`px-2 py-0.5 rounded border text-[11px] font-medium ${ann.color}`}
+                            >
+                              {ann.token} → {ann.label}
+                            </span>
+                          ))}
+                        </div>
+                      </div>
+
+                      {/* Right: Canonical & Target Resolution */}
+                      <div className="p-4 rounded-xl border border-[#27272a] bg-[#0f0f12] space-y-2.5">
+                        <div className="flex items-center justify-between">
+                          <span className="text-[10px] text-[#71717a] uppercase tracking-wider">
+                            Compiled Enterprise Target
+                          </span>
+                          <span className="px-1.5 py-0.2 rounded bg-[#10b981]/10 border border-[#10b981]/30 text-[10px] text-[#10b981] font-semibold">
+                            100/100 Verified
+                          </span>
+                        </div>
+                        <p className="text-base font-devanagari text-[#fafafa]">
+                          {current.canonicalScript}
+                        </p>
+                        <p className="text-xs font-sans text-[#a1a1aa]">
+                          &quot;{current.englishTranslation}&quot;
+                        </p>
+                      </div>
+                    </div>
+                  </motion.div>
+                ) : (
+                  /* MODE 2: DEEP CODE STREAM VIEW (JSON & PIPELINE TELEMETRY) */
+                  <motion.div
+                    key="code"
+                    initial={{ opacity: 0, y: 8 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    exit={{ opacity: 0, y: -8 }}
+                    transition={{ duration: 0.22, ease: "easeOut" }}
+                    className="grid grid-cols-1 lg:grid-cols-12 gap-5 text-xs font-mono"
+                  >
+                    {/* Left: Token Analysis Breakdown (5 cols) */}
+                    <div className="lg:col-span-5 space-y-3.5">
+                      <div className="p-4 rounded-xl border border-[#27272a] bg-[#0f0f12] space-y-3">
+                        <span className="text-[10px] text-[#71717a] uppercase tracking-wider block">
+                          Ingestion Stream Details
+                        </span>
+                        <div className="p-2.5 rounded bg-[#09090b] border border-[#27272a] text-[#fafafa] font-mono text-sm">
+                          {current.rawInput}
+                        </div>
+                        <div className="p-3 rounded-lg border border-[#27272a] bg-[#09090b] text-[11px] text-[#a1a1aa] flex items-start gap-2">
+                          <Zap className="w-3.5 h-3.5 text-[#22d3ee] shrink-0 mt-0.5" />
+                          <p>{current.insight}</p>
+                        </div>
+                      </div>
+
+                      <div className="p-3.5 rounded-xl border border-[#27272a] bg-[#0f0f12] space-y-2">
+                        <span className="text-[10px] text-[#71717a] uppercase tracking-wider block">
+                          Deterministic Invariants
+                        </span>
+                        <div className="grid grid-cols-2 gap-2 text-[11px]">
+                          <div className="p-2 rounded bg-[#09090b] border border-[#27272a] text-[#10b981]">
+                            ✓ Numeric Parity: PASS
                           </div>
-                        ))}
+                          <div className="p-2 rounded bg-[#09090b] border border-[#27272a] text-[#10b981]">
+                            ✓ Negation Parity: PASS
+                          </div>
+                        </div>
+                      </div>
                     </div>
-                  </div>
-                </div>
 
-                {/* Linguistic Logic Banner */}
-                <div className="p-3 rounded-lg border border-[#27272a] bg-[#0f0f12] text-xs font-mono text-[#a1a1aa] flex items-start gap-2.5">
-                  <Zap className="w-4 h-4 text-[#22d3ee] shrink-0 mt-0.5" />
-                  <p className="leading-relaxed text-[11px]">{current.disambiguation}</p>
-                </div>
-              </div>
+                    {/* Right: Typed JSON Machine Payload (7 cols) */}
+                    <div className="lg:col-span-7 space-y-3">
+                      <div className="p-4 rounded-xl border border-[#27272a] bg-[#0f0f12] space-y-2">
+                        <div className="flex items-center justify-between text-[10px] uppercase text-[#71717a]">
+                          <span>Structured Enterprise Dispatch</span>
+                          <span className="text-[#22d3ee] font-semibold">JSON CONTRACT</span>
+                        </div>
+                        <pre className="p-3 rounded-lg bg-[#09090b] border border-[#27272a] text-[11px] text-[#22d3ee] overflow-x-auto leading-relaxed">
+                          {JSON.stringify(current.actionDispatch, null, 2)}
+                        </pre>
+                      </div>
 
-              {/* Right Column: 3-Layer Enterprise Reconstruction (7 cols) */}
-              <div className="lg:col-span-7 flex flex-col space-y-3.5 lg:pl-6">
-                <div className="flex items-center justify-between text-xs font-mono">
-                  <span className="text-[#71717a] uppercase text-[10px] tracking-wider">
-                    Compiled Output [Canonical &amp; Typed Enterprise]
-                  </span>
-                  <span className="text-[#10b981] text-[10px] font-mono font-semibold">
-                    100/100 Invariant Score
-                  </span>
-                </div>
-
-                {/* Layer 1: Canonical Native Script */}
-                <div className="p-3.5 rounded-xl border border-[#27272a] bg-[#09090b] space-y-1">
-                  <span className="text-[10px] font-mono uppercase text-[#71717a] block tracking-wider">
-                    Layer 1: Canonical Native Script
-                  </span>
-                  <p className="text-base sm:text-lg font-devanagari text-[#fafafa] leading-snug">
-                    {current.canonical}
-                  </p>
-                </div>
-
-                {/* Layer 2: Business English */}
-                <div className="p-3.5 rounded-xl border border-[#27272a] bg-[#09090b] space-y-1">
-                  <span className="text-[10px] font-mono uppercase text-[#71717a] block tracking-wider">
-                    Layer 2: Standardized Business English
-                  </span>
-                  <p className="text-sm font-sans text-[#fafafa] font-medium leading-relaxed">
-                    &quot;{current.english}&quot;
-                  </p>
-                </div>
-
-                {/* Layer 3: Machine Action Payload */}
-                <div className="p-3.5 rounded-xl border border-[#27272a] bg-[#09090b] space-y-1.5">
-                  <div className="flex items-center justify-between text-[10px] font-mono uppercase text-[#71717a]">
-                    <span>Layer 3: Typed Enterprise Action Payload</span>
-                    <span className="text-[#22d3ee] font-semibold">JSON CONTRACT</span>
-                  </div>
-                  <pre className="p-2.5 rounded-lg bg-[#0f0f12] border border-[#27272a]/70 text-[11px] font-mono text-[#22d3ee] overflow-x-auto leading-relaxed">
-                    {JSON.stringify(current.json, null, 2)}
-                  </pre>
-                </div>
-              </div>
+                      <div className="p-3.5 rounded-xl border border-[#27272a] bg-[#0f0f12] space-y-1.5">
+                        <span className="text-[10px] text-[#71717a] uppercase tracking-wider block">
+                          Canonical Script Layer
+                        </span>
+                        <p className="text-base font-devanagari text-[#fafafa]">
+                          {current.canonicalScript}
+                        </p>
+                      </div>
+                    </div>
+                  </motion.div>
+                )}
+              </AnimatePresence>
             </div>
 
             {/* Bottom Footer Caption */}

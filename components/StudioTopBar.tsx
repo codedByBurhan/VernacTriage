@@ -30,17 +30,19 @@ export function StudioTopBar({
 }: StudioTopBarProps) {
   return (
     <header className="h-[48px] px-3.5 rounded-xl border border-[#1f1f23] bg-[#0c0c0f]/80 backdrop-blur-md flex items-center justify-between gap-3 shrink-0 shadow-lg relative z-20">
-      {/* Left: Brand Logo & Title with Active Pulse Dot */}
+      {/* Left: Brand Visual Logo & Bold Title with Active Pulse Dot */}
       <div className="flex items-center gap-3">
-        <div className="flex items-center gap-2">
-          <Image
-            src="/assets/vernactriage-mark.png"
-            alt="VernacTriage Logo"
-            width={26}
-            height={26}
-            className="rounded-md object-contain shrink-0"
-            priority
-          />
+        <div className="flex items-center gap-2.5">
+          <div className="relative h-7 w-auto aspect-[345/246] flex items-center justify-center shrink-0">
+            <Image
+              src="/assets/vernactriage-visual-logo.png"
+              alt="VernacTriage Visual Mark"
+              width={38}
+              height={27}
+              className="h-full w-auto object-contain filter drop-shadow-[0_0_8px_rgba(34,211,238,0.25)]"
+              priority
+            />
+          </div>
           <div className="flex items-center gap-2">
             <span className="font-mono font-bold text-sm text-[#fafafa] tracking-tight">
               VernacTriage

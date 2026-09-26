@@ -73,14 +73,16 @@ export function Sidebar({
               className="mx-auto block cursor-pointer transition-transform hover:scale-105"
               title="VernacTriage"
             >
-              <Image
-                src="/brand/vernactriage-mark.png"
-                alt="VernacTriage V Monogram"
-                width={32}
-                height={32}
-                className="rounded-lg object-contain"
-                priority
-              />
+              <div className="relative h-7 w-auto aspect-[345/246] flex items-center justify-center">
+                <Image
+                  src="/brand/vernactriage-visual-logo.png"
+                  alt="VernacTriage Visual Mark"
+                  width={34}
+                  height={24}
+                  className="h-full w-auto object-contain filter drop-shadow-[0_0_8px_rgba(34,211,238,0.25)]"
+                  priority
+                />
+              </div>
             </button>
           ) : (
             <button
@@ -88,16 +90,19 @@ export function Sidebar({
               onClick={() => onTabChange("analyze")}
               className="flex items-center gap-2.5 text-left cursor-pointer group py-1"
             >
-              <div className="relative h-8 w-auto flex items-center">
+              <div className="relative h-7 w-auto aspect-[345/246] flex items-center justify-center shrink-0">
                 <Image
-                  src="/brand/vernactriage-logo.png"
-                  alt="VernacTriage"
-                  width={140}
-                  height={32}
-                  className="h-7 w-auto object-contain transition-opacity group-hover:opacity-90"
+                  src="/brand/vernactriage-visual-logo.png"
+                  alt="VernacTriage Visual Mark"
+                  width={38}
+                  height={27}
+                  className="h-full w-auto object-contain filter drop-shadow-[0_0_8px_rgba(34,211,238,0.25)]"
                   priority
                 />
               </div>
+              <span className="font-bold text-base tracking-tight text-white group-hover:text-white transition-colors">
+                VernacTriage
+              </span>
             </button>
           )}
         </div>

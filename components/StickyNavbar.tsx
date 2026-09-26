@@ -57,23 +57,30 @@ export function StickyNavbar({ onOpenDocs }: StickyNavbarProps) {
       }`}
     >
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-16 flex items-center justify-between gap-4">
-        {/* Left: Brand Logo & Wordmark */}
+        {/* Left: Brand Visual Logo & Bold Text */}
         <div className="flex items-center gap-3 shrink-0">
           <a
             href="#"
-            className="flex items-center gap-2.5 text-left cursor-pointer group"
+            className="flex items-center gap-3 text-left cursor-pointer group"
           >
-            <Image
-              src="/assets/vernactriage-logo.png"
-              alt="VernacTriage"
-              width={140}
-              height={32}
-              className="h-7 w-auto object-contain transition-opacity group-hover:opacity-90"
-              priority
-            />
-            <span className="hidden xl:inline-block font-mono text-[10px] text-[#71717a] px-1.5 py-0.5 rounded border border-[#27272a] bg-[#121215]">
-              v1.4 Enterprise
-            </span>
+            <div className="relative h-8 sm:h-9 w-auto aspect-[345/246] flex items-center justify-center shrink-0">
+              <Image
+                src="/assets/vernactriage-visual-logo.png"
+                alt="VernacTriage Visual Mark"
+                width={48}
+                height={34}
+                className="h-full w-auto object-contain filter drop-shadow-[0_0_12px_rgba(34,211,238,0.25)] transition-transform duration-200 group-hover:scale-105"
+                priority
+              />
+            </div>
+            <div className="flex items-baseline gap-2">
+              <span className="font-bold text-lg sm:text-xl tracking-tight text-[#fafafa] group-hover:text-white transition-colors">
+                VernacTriage
+              </span>
+              <span className="hidden xl:inline-block font-mono text-[10px] text-[#71717a] px-1.5 py-0.5 rounded border border-[#27272a] bg-[#121215]">
+                v1.4 Enterprise
+              </span>
+            </div>
           </a>
         </div>
 
