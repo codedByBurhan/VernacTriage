@@ -2,7 +2,7 @@
 
 import React, { useState } from "react";
 import { ActionDispatch } from "@/lib/types";
-import { ChevronDown, ChevronUp, Copy, Check, Server } from "lucide-react";
+import { ChevronDown, ChevronUp, Copy, Check, Terminal } from "lucide-react";
 
 interface ActionDispatchDrawerProps {
   dispatch?: ActionDispatch;
@@ -34,7 +34,7 @@ export function ActionDispatchDrawer({ dispatch }: ActionDispatchDrawerProps) {
   };
 
   return (
-    <div className="rounded-xl border border-[#27272a] bg-[#111113] overflow-hidden text-xs">
+    <div className="rounded-xl border border-[#27272a] bg-[#111114] overflow-hidden text-xs">
       {/* Drawer Toggle Header */}
       <button
         type="button"
@@ -42,17 +42,14 @@ export function ActionDispatchDrawer({ dispatch }: ActionDispatchDrawerProps) {
         className="w-full px-4 py-3 flex items-center justify-between hover:bg-[#18181b]/50 transition-colors cursor-pointer text-left"
       >
         <div className="flex items-center gap-2.5 flex-wrap">
-          <Server className="w-3.5 h-3.5 text-[#a1a1aa]" />
-          <span className="font-mono text-[#f4f4f5] font-semibold tracking-wider uppercase text-[11px]">
-            Automated Action Dispatch
+          <Terminal className="w-3.5 h-3.5 text-[#00e5a0]" />
+          <span className="font-mono text-[#fafafa] font-semibold tracking-wider uppercase text-[11px]">
+            ACTION DISPATCH
           </span>
-          <span className="text-[11px] text-[#71717a] font-sans hidden sm:inline">
-            — Structured downstream webhook
-          </span>
-          <span className="text-[10px] font-mono px-2 py-0.5 rounded border bg-[#09090b] border-[#27272a] text-[#a1a1aa]">
+          <span className="text-[10px] font-mono px-2 py-0.5 rounded border bg-[#09090b] border-[#27272a] text-[#00b8ff]">
             {dispatch.target_service}
           </span>
-          <span className="text-[10px] font-mono px-2 py-0.5 rounded border bg-[#09090b] border-[#27272a] text-[#71717a] hidden sm:inline">
+          <span className="text-[10px] font-mono px-2 py-0.5 rounded border bg-[#09090b] border-[#27272a] text-[#fafafa]">
             {dispatch.endpoint_action}
           </span>
           <span
@@ -72,20 +69,20 @@ export function ActionDispatchDrawer({ dispatch }: ActionDispatchDrawerProps) {
 
       {/* Collapsible Content */}
       {isOpen && (
-        <div className="p-4 border-t border-[#1f1f22] bg-[#09090b] space-y-2.5">
+        <div className="p-4 border-t border-[#1f1f23] bg-[#09090b] space-y-2.5">
           <div className="flex items-center justify-between text-[11px] text-[#a1a1aa]">
             <span className="font-mono text-[#71717a] text-[10px] uppercase tracking-wider">
-              Serialized JSON Webhook Object
+              Serialized Machine Dispatch Payload
             </span>
             <button
               type="button"
               onClick={handleCopy}
-              className="px-2.5 py-1 rounded bg-[#18181b] hover:bg-[#27272a] text-[#f4f4f5] text-xs font-mono flex items-center gap-1.5 transition-colors cursor-pointer border border-[#27272a]"
+              className="px-2.5 py-1 rounded bg-[#18181b] hover:bg-[#27272a] text-[#fafafa] text-xs font-mono flex items-center gap-1.5 transition-colors cursor-pointer border border-[#27272a]"
             >
               {copied ? (
                 <>
-                  <Check className="w-3 h-3 text-[#22c55e]" />
-                  <span className="text-[#22c55e]">Copied</span>
+                  <Check className="w-3 h-3 text-[#00e5a0]" />
+                  <span className="text-[#00e5a0]">Copied</span>
                 </>
               ) : (
                 <>
@@ -96,7 +93,7 @@ export function ActionDispatchDrawer({ dispatch }: ActionDispatchDrawerProps) {
             </button>
           </div>
 
-          <pre className="p-3.5 rounded-lg bg-[#06070a] border border-[#1f1f22] font-mono text-[11px] text-[#f4f4f5] overflow-x-auto leading-relaxed selection:bg-[#27272a]">
+          <pre className="p-3.5 rounded-lg bg-[#06070a] border border-[#1f1f23] font-mono text-[11px] text-[#fafafa] overflow-x-auto leading-relaxed selection:bg-[#27272a]">
             {jsonString}
           </pre>
         </div>

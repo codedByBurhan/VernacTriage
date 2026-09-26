@@ -31,7 +31,7 @@ export function DocsModal({ isOpen, onClose }: DocsModalProps) {
         {/* Header */}
         <div className="px-6 py-4 border-b border-[#1f1f22] flex items-center justify-between bg-[#0f0f12]">
           <div className="flex items-center gap-2.5">
-            <BookOpen className="w-4 h-4 text-[#6366f1]" />
+            <BookOpen className="w-4 h-4 text-[#00e5a0]" />
             <h2 className="font-mono text-sm font-bold uppercase tracking-wider text-[#f4f4f5]">
               VernacTriage Engineering Documentation
             </h2>

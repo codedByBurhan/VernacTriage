@@ -13,8 +13,13 @@ const geistMono = Geist_Mono({
 });
 
 export const metadata: Metadata = {
-  title: "VernacTriage | AI Multi-dialect & Code-Switching Linguistic Intelligence",
-  description: "Decode the way people actually communicate. AI-powered interpretation of code-switched, phonetically spelled, and romanized language with deterministic verification.",
+  title: "VernacTriage | Enterprise Linguistic Intelligence Platform",
+  description: "Deterministic linguistic reconstruction of code-switched, phonetically spelled, and Latin-script vernacular into canonical orthography, standard English, and operational dispatch payloads.",
+  icons: {
+    icon: "/brand/vernactriage-mark.png",
+    shortcut: "/brand/vernactriage-mark.png",
+    apple: "/brand/vernactriage-mark.png",
+  },
 };
 
 export default function RootLayout({

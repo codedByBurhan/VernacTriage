@@ -1,24 +1,44 @@
 @import "tailwindcss";
 
 :root {
+  /* Core Color System */
   --background: #09090b;
-  --background-secondary: #0f0f12;
-  --surface: #111113;
-  --surface-elevated: #18181b;
-  --surface-hover: #1f1f23;
+  --surface-0: #09090b;
+  --surface-1: #0d0d10;
+  --surface-2: #111114;
+  --surface-3: #151518;
+  --surface-4: #18181b;
+  --surface-5: #1f1f23;
+  --surface-6: #27272a;
+
+  /* Legacy variable mapping to new surface tokens */
+  --background-secondary: #0d0d10;
+  --surface: #111114;
+  --surface-elevated: #151518;
+  --surface-hover: #18181b;
   --border: #27272a;
-  --border-subtle: #1f1f22;
+  --border-subtle: #1f1f23;
   --border-strong: #3f3f46;
-  --foreground: #f4f4f5;
+
+  /* Typography */
+  --foreground: #fafafa;
   --foreground-secondary: #a1a1aa;
   --foreground-muted: #71717a;
-  --accent: #6366f1;
-  --accent-hover: #4f46e5;
-  --accent-subtle: rgba(99, 102, 241, 0.1);
-  --accent-border: rgba(99, 102, 241, 0.25);
-  --success: #22c55e;
+
+  /* Brand Signal Colors (Restrained accents) */
+  --brand-emerald: #00e5a0;
+  --brand-cyan: #00b8ff;
+  --accent: #00e5a0;
+  --accent-hover: #00c78b;
+  --accent-subtle: rgba(0, 229, 160, 0.08);
+  --accent-border: rgba(0, 229, 160, 0.22);
+  --cyan-subtle: rgba(0, 184, 255, 0.08);
+  --cyan-border: rgba(0, 184, 255, 0.22);
+
+  /* Status Colors */
+  --success: #00e5a0;
   --warning: #f59e0b;
-  --error: #ef4444;
+  --error: #f43f5e;
 }
 
 body {

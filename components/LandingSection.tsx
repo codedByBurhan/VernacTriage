@@ -31,7 +31,7 @@ export function LandingSection({
       {/* HERO SECTION */}
       <section className="text-center max-w-4xl mx-auto space-y-6 pt-6">
         <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-[#18181b] border border-[#27272a] text-[#a1a1aa] text-xs font-mono">
-          <span className="w-1.5 h-1.5 rounded-full bg-[#6366f1]" />
+          <span className="w-1.5 h-1.5 rounded-full bg-[#00e5a0]" />
           Enterprise Cross-Dialect Linguistic Intelligence
         </div>
 
@@ -197,7 +197,7 @@ export function LandingSection({
         <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
           {/* 01 Reconstruct */}
           <div className="rounded-xl border border-[#27272a] bg-[#111113] p-5 space-y-3">
-            <span className="font-mono text-xs font-bold text-[#6366f1]">01</span>
+            <span className="font-mono text-xs font-bold text-[#00e5a0]">01</span>
             <h3 className="text-base font-semibold text-[#f4f4f5]">Reconstruct</h3>
             <p className="text-xs text-[#a1a1aa] leading-relaxed font-sans">
               Morphological decomposition of code-switched vernaculars. Resolves
@@ -268,7 +268,7 @@ export function LandingSection({
             <button
               type="button"
               onClick={() => onOpenConsole("hinglish_collision")}
-              className="text-xs text-[#6366f1] hover:text-[#818cf8] font-mono flex items-center gap-1 transition-colors cursor-pointer"
+              className="text-xs text-[#00e5a0] hover:text-[#00c78b] font-mono flex items-center gap-1 transition-colors cursor-pointer"
             >
               <span>Test this case</span>
               <ArrowRight className="w-3 h-3" />
@@ -302,7 +302,7 @@ export function LandingSection({
             <button
               type="button"
               onClick={() => onOpenConsole("arabizi_escalation")}
-              className="text-xs text-[#6366f1] hover:text-[#818cf8] font-mono flex items-center gap-1 transition-colors cursor-pointer"
+              className="text-xs text-[#00e5a0] hover:text-[#00c78b] font-mono flex items-center gap-1 transition-colors cursor-pointer"
             >
               <span>Test this case</span>
               <ArrowRight className="w-3 h-3" />
@@ -324,7 +324,7 @@ export function LandingSection({
 
         <div className="grid grid-cols-2 md:grid-cols-4 gap-3 text-xs">
           <div className="p-4 rounded-xl border border-[#27272a] bg-[#111113] space-y-2">
-            <Crosshair className="w-4 h-4 text-[#6366f1]" />
+            <Crosshair className="w-4 h-4 text-[#00e5a0]" />
             <h4 className="font-semibold text-[#f4f4f5]">Span Alignment</h4>
             <p className="text-[11px] text-[#71717a] font-sans leading-relaxed">
               Rolling cursor calculates exact start and end byte offsets on raw customer input.
