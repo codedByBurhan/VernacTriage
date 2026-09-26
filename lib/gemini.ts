@@ -204,7 +204,6 @@ export async function analyzeWithGemini(
       const cleanJson = rawResponseText.replace(/^```json\s*/i, "").replace(/```$/, "").trim();
       parsed = JSON.parse(cleanJson);
     } catch (parseErr) {
-      console.error("Failed to parse Gemini response as JSON:", rawResponseText);
       if (!bypassPresetFallback && matchingPreset) {
         return {
           ...matchingPreset.expectedResult,
@@ -260,8 +259,6 @@ export async function analyzeWithGemini(
       model_source: "gemini-2.5-flash",
     };
   } catch (err: any) {
-    console.error("Gemini API error:", err);
-
     // Check if error is quota exceeded (status 429, RESOURCE_EXHAUSTED, quota)
     const errStr = (err?.message || "").toLowerCase() + " " + JSON.stringify(err || {}).toLowerCase();
     const isQuota =
@@ -281,7 +278,6 @@ export async function analyzeWithGemini(
 
     // Graceful fallback for presets if API error or rate-limiting occurs
     if (!bypassPresetFallback && matchingPreset) {
-      console.warn("Using preset fallback due to API error");
       return {
         ...matchingPreset.expectedResult,
         model_source: "demo-fallback",

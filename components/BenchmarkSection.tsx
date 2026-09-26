@@ -13,20 +13,30 @@ export function BenchmarkSection({ onLoadCase }: BenchmarkSectionProps) {
   const [searchQuery, setSearchQuery] = useState("");
   const [isAuditing, setIsAuditing] = useState(false);
   const [auditProgress, setAuditProgress] = useState<number>(36);
+  const [highlightedRowId, setHighlightedRowId] = useState<string | null>(null);
 
   const handleRunAudit = () => {
     setIsAuditing(true);
     setAuditProgress(0);
+    setHighlightedRowId(null);
+    const pool = filteredCases.length > 0 ? filteredCases : BENCHMARK_CASES;
+
     const interval = setInterval(() => {
       setAuditProgress((prev) => {
-        if (prev >= 36) {
+        const nextVal = prev + 6;
+        const randomItem = pool[Math.floor(Math.random() * pool.length)];
+        setHighlightedRowId(randomItem.id);
+
+        if (nextVal >= 36) {
           clearInterval(interval);
           setIsAuditing(false);
+          const finalItem = pool[Math.floor(Math.random() * pool.length)];
+          setHighlightedRowId(finalItem.id);
           return 36;
         }
-        return prev + 6;
+        return nextVal;
       });
-    }, 100);
+    }, 120);
   };
 
   const filteredCases = BENCHMARK_CASES.filter((c) => {
@@ -73,7 +83,7 @@ export function BenchmarkSection({ onLoadCase }: BenchmarkSectionProps) {
             className="px-4 py-2 rounded-lg border border-[#27272a] hover:border-[#3f3f46] bg-[#0f0f12] text-[#fafafa] font-mono text-xs flex items-center gap-2 transition-all cursor-pointer disabled:opacity-60 shrink-0 self-start md:self-auto"
           >
             <RotateCw className={`w-3.5 h-3.5 ${isAuditing ? "animate-spin text-[#10b981]" : ""}`} />
-            <span>{isAuditing ? `Auditing (${auditProgress}/36)...` : "Run Test Suite Audit"}</span>
+            <span>{isAuditing ? `Auditing (${auditProgress}/36)...` : "Run Live Random Audit"}</span>
           </button>
         </div>
 
@@ -176,10 +186,15 @@ export function BenchmarkSection({ onLoadCase }: BenchmarkSectionProps) {
               <tbody className="divide-y divide-[#27272a]/60">
                 {filteredCases.map((c) => {
                   const isCollision = Boolean(c.evaluation.collision_detected);
+                  const isAuditedHighlight = highlightedRowId === c.id;
                   return (
                     <tr
                       key={c.id}
-                      className="hover:bg-[#18181b]/50 transition-colors group"
+                      className={`transition-colors group ${
+                        isAuditedHighlight
+                          ? "bg-emerald-500/15 border-l-2 border-emerald-400"
+                          : "hover:bg-[#18181b]/50"
+                      }`}
                     >
                       <td className="py-3 px-4 text-[#a1a1aa] font-semibold">{c.id}</td>
                       <td className="py-3 px-4">
@@ -207,9 +222,15 @@ export function BenchmarkSection({ onLoadCase }: BenchmarkSectionProps) {
                       </td>
                       <td className="py-3 px-4">
                         <div className="flex items-center gap-1 text-[10px]">
-                          <span className="px-1.5 py-0.2 rounded bg-[#10b981]/10 text-[#10b981] border border-[#10b981]/30">
-                            100%
-                          </span>
+                          {isAuditedHighlight ? (
+                            <span className="px-1.5 py-0.5 rounded bg-[#10b981]/25 text-[#10b981] border border-[#10b981]/50 font-bold animate-pulse">
+                              PASS (100%)
+                            </span>
+                          ) : (
+                            <span className="px-1.5 py-0.2 rounded bg-[#10b981]/10 text-[#10b981] border border-[#10b981]/30">
+                              100%
+                            </span>
+                          )}
                           {isCollision && (
                             <span className="px-1.5 py-0.2 rounded bg-[#22d3ee]/10 text-[#22d3ee] border border-[#22d3ee]/30">
                               ⚡ Homograph

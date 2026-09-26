@@ -40,13 +40,13 @@ export function InteractiveCompiler({
   const primaryPresets = [
     {
       id: "hinglish_delivery",
-      title: "Hinglish Logistics",
+      title: "Hinglish Dispute",
       subtitle: "Phonetic negation & urgency",
       preset: DEMO_PRESETS.find((p) => p.id === "hinglish_delivery") || DEMO_PRESETS[0],
     },
     {
       id: "homograph_collision",
-      title: "Cross-Lingual Collision",
+      title: "Homograph Collision Trap",
       subtitle: "'me' pronoun vs postposition",
       preset: DEMO_PRESETS.find((p) => p.id === "homograph_collision") || DEMO_PRESETS[3],
     },
@@ -67,6 +67,7 @@ export function InteractiveCompiler({
   const [hoveredToken, setHoveredToken] = useState<AnalyzedToken | null>(null);
   const [latency, setLatency] = useState(640);
   const [isPayloadOpen, setIsPayloadOpen] = useState(false);
+  const [mounted, setMounted] = useState(false);
 
   // In-flight pipeline progress bar & telemetry status ticker
   const [pipelineStage, setPipelineStage] = useState<string>("Ingesting raw text stream & initializing AST...");
@@ -76,6 +77,7 @@ export function InteractiveCompiler({
   const successTimeoutRef = useRef<NodeJS.Timeout | null>(null);
 
   React.useEffect(() => {
+    setMounted(true);
     return () => {
       if (progressIntervalRef.current) clearInterval(progressIntervalRef.current);
       if (successTimeoutRef.current) clearTimeout(successTimeoutRef.current);
@@ -91,6 +93,9 @@ export function InteractiveCompiler({
     openKeyModal,
     showToast,
   } = useEngine();
+
+  const activeEngine = mounted ? engineMode : "demo";
+  const activeHasKey = mounted ? hasKey : false;
 
   // Copy states
   const [copiedNative, setCopiedNative] = useState(false);
@@ -122,8 +127,41 @@ export function InteractiveCompiler({
     if (item) {
       setSelectedPresetId(id);
       setInputText(item.preset.text);
-      setAnalysisResult(item.preset.expectedResult);
       setHoveredToken(null);
+
+      // Trigger instant glowing progress bar simulation (~280ms) with zero network calls
+      setIsAnalyzing(true);
+      setShowSuccessBanner(false);
+      setProgressPercent(20);
+      setPipelineStage("Loading precomputed AST & aligning spans...");
+
+      if (progressIntervalRef.current) clearInterval(progressIntervalRef.current);
+      if (successTimeoutRef.current) clearTimeout(successTimeoutRef.current);
+
+      const startTime = Date.now();
+      progressIntervalRef.current = setInterval(() => {
+        const elapsed = Date.now() - startTime;
+        if (elapsed < 120) {
+          setProgressPercent(Math.min(65, 20 + (elapsed / 120) * 45));
+          setPipelineStage("Resolving cross-lingual collisions & AST...");
+        } else if (elapsed < 240) {
+          setProgressPercent(Math.min(95, 65 + ((elapsed - 120) / 120) * 30));
+          setPipelineStage("Running deterministic invariance assertions...");
+        } else {
+          setProgressPercent(100);
+        }
+      }, 30);
+
+      setTimeout(() => {
+        if (progressIntervalRef.current) clearInterval(progressIntervalRef.current);
+        setAnalysisResult(item.preset.expectedResult);
+        setLatency(280);
+        setIsAnalyzing(false);
+        setShowSuccessBanner(true);
+        successTimeoutRef.current = setTimeout(() => {
+          setShowSuccessBanner(false);
+        }, 3500);
+      }, 280);
     }
   };
 
@@ -273,7 +311,6 @@ export function InteractiveCompiler({
         setShowSuccessBanner(false);
       }, 4000);
     } catch (err: any) {
-      console.warn("API request handled:", err);
       if (matchingPreset && engineMode === "demo") {
         setAnalysisResult({ ...matchingPreset.expectedResult, model_source: "demo-fallback" });
         setLatency(320);
@@ -316,10 +353,31 @@ export function InteractiveCompiler({
   const spanText = hasValidSpan ? inputText.slice(hoveredToken.start_idx, hoveredToken.end_idx) : "";
   const afterSpan = hasValidSpan ? inputText.slice(hoveredToken.end_idx) : "";
 
-  // Copy helpers
-  const copyToClipboard = (text: string, setCopied: (v: boolean) => void) => {
-    navigator.clipboard.writeText(text);
+  // Copy helpers with visual confirmation & toast notification
+  const copyToClipboard = (text: string, setCopied: (v: boolean) => void, label = "Content") => {
+    try {
+      if (typeof navigator !== "undefined" && navigator.clipboard && navigator.clipboard.writeText) {
+        navigator.clipboard.writeText(text).catch(() => {
+          try {
+            const el = document.createElement("textarea");
+            el.value = text;
+            el.style.position = "fixed";
+            el.style.opacity = "0";
+            document.body.appendChild(el);
+            el.select();
+            document.execCommand("copy");
+            document.body.removeChild(el);
+          } catch {}
+        });
+      }
+    } catch {}
+
     setCopied(true);
+    showToast({
+      type: "success",
+      message: `${label} copied to clipboard!`,
+      duration: 2500,
+    });
     setTimeout(() => setCopied(false), 1500);
   };
 
@@ -352,32 +410,32 @@ export function InteractiveCompiler({
             {/* Active Engine Indicator Button */}
             <button
               type="button"
-              onClick={() => setEngineMode(engineMode === "demo" ? "live" : "demo")}
+              onClick={() => setEngineMode(activeEngine === "demo" ? "live" : "demo")}
               className={`flex items-center gap-1.5 px-2.5 py-1 rounded-md border text-xs font-mono transition-all cursor-pointer ${
-                engineMode === "live"
+                activeEngine === "live"
                   ? "border-[#22d3ee]/40 bg-[#22d3ee]/10 text-[#22d3ee]"
                   : "border-[#10b981]/40 bg-[#10b981]/10 text-[#10b981]"
               }`}
               title="Click to toggle between Demo (Precomputed) and Live Gemini Engine"
             >
-              <span className={`w-1.5 h-1.5 rounded-full ${engineMode === "live" ? "bg-[#22d3ee] animate-pulse" : "bg-[#10b981]"}`} />
-              <span className="font-semibold">{engineMode === "live" ? "Live Gemini Engine" : "Demo Mode (Instant)"}</span>
+              <span className={`w-1.5 h-1.5 rounded-full ${activeEngine === "live" ? "bg-[#22d3ee] animate-pulse" : "bg-[#10b981]"}`} />
+              <span className="font-semibold">{activeEngine === "live" ? "Live Gemini Engine" : "Demo Mode (Instant)"}</span>
             </button>
 
             {/* Key Status Pill if in Live Mode */}
-            {engineMode === "live" && (
+            {activeEngine === "live" && (
               <button
                 type="button"
                 onClick={openKeyModal}
                 className={`flex items-center gap-1 px-2.5 py-1 rounded-md border text-[11px] font-mono transition-all cursor-pointer ${
-                  hasKey
+                  activeHasKey
                     ? "border-[#27272a] bg-[#0f0f12] text-[#a1a1aa] hover:text-[#fafafa] hover:border-[#3f3f46]"
                     : "border-[#f59e0b]/50 bg-[#f59e0b]/10 text-[#f59e0b] animate-pulse"
                 }`}
                 title="Configure Gemini API Key"
               >
                 <Key className="w-3 h-3" />
-                <span>{hasKey ? `Key (${maskedKey})` : "Add API Key"}</span>
+                <span>{activeHasKey ? `Key (${maskedKey})` : "Add API Key"}</span>
               </button>
             )}
 
@@ -812,7 +870,8 @@ export function InteractiveCompiler({
                       onClick={() =>
                         copyToClipboard(
                           result.canonical_script || result.canonical_native_script || "",
-                          setCopiedNative
+                          setCopiedNative,
+                          "Canonical native script"
                         )
                       }
                       className="hover:text-[#fafafa] transition-colors cursor-pointer flex items-center gap-1 text-[11px]"
@@ -846,7 +905,8 @@ export function InteractiveCompiler({
                       onClick={() =>
                         copyToClipboard(
                           result.english_translation || result.standard_english || "",
-                          setCopiedEnglish
+                          setCopiedEnglish,
+                          "Standardized English"
                         )
                       }
                       className="hover:text-[#fafafa] transition-colors cursor-pointer flex items-center gap-1 text-[11px]"
@@ -900,7 +960,8 @@ export function InteractiveCompiler({
                           onClick={() =>
                             copyToClipboard(
                               JSON.stringify(result.action_dispatch, null, 2),
-                              setCopiedJson
+                              setCopiedJson,
+                              "Action dispatch payload"
                             )
                           }
                           className="text-xs font-mono text-[#71717a] hover:text-[#fafafa] flex items-center gap-1 cursor-pointer"

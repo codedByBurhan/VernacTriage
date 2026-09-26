@@ -106,8 +106,6 @@ export async function POST(req: NextRequest) {
 
     return NextResponse.json(result, { status: 200 });
   } catch (err: any) {
-    console.error("API /api/triage error:", err);
-
     if (err.code === "MISSING_API_KEY" || err.status === 401) {
       return NextResponse.json(
         {
@@ -136,4 +134,22 @@ export async function POST(req: NextRequest) {
       { status: 500 }
     );
   }
+}
+
+export async function GET() {
+  return NextResponse.json(
+    { error: "METHOD_NOT_ALLOWED", message: "Only POST requests are supported for linguistic analysis." },
+    { status: 405 }
+  );
+}
+
+export async function OPTIONS() {
+  return new NextResponse(null, {
+    status: 204,
+    headers: {
+      "Access-Control-Allow-Origin": "*",
+      "Access-Control-Allow-Methods": "POST, OPTIONS",
+      "Access-Control-Allow-Headers": "Content-Type, x-gemini-api-key",
+    },
+  });
 }

@@ -35,7 +35,6 @@ export async function POST(req: NextRequest) {
       model: "gemini-2.5-flash",
     });
   } catch (err: any) {
-    console.error("Gemini key validation error:", err);
     let errorMessage = err.message || "Failed to validate Gemini API key.";
     try {
       const parsed = JSON.parse(errorMessage);
@@ -52,4 +51,22 @@ export async function POST(req: NextRequest) {
       { status: 400 }
     );
   }
+}
+
+export async function GET() {
+  return NextResponse.json(
+    { error: "METHOD_NOT_ALLOWED", message: "Only POST requests are supported for key validation." },
+    { status: 405 }
+  );
+}
+
+export async function OPTIONS() {
+  return new NextResponse(null, {
+    status: 204,
+    headers: {
+      "Access-Control-Allow-Origin": "*",
+      "Access-Control-Allow-Methods": "POST, OPTIONS",
+      "Access-Control-Allow-Headers": "Content-Type",
+    },
+  });
 }

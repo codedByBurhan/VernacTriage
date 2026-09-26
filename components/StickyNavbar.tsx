@@ -21,6 +21,7 @@ interface StickyNavbarProps {
 export function StickyNavbar({ onOpenDocs }: StickyNavbarProps) {
   const [isScrolled, setIsScrolled] = useState(false);
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
+  const [mounted, setMounted] = useState(false);
 
   const {
     engineMode,
@@ -31,6 +32,7 @@ export function StickyNavbar({ onOpenDocs }: StickyNavbarProps) {
   } = useEngine();
 
   useEffect(() => {
+    setMounted(true);
     const handleScroll = () => {
       setIsScrolled(window.scrollY > 20);
     };
@@ -46,7 +48,8 @@ export function StickyNavbar({ onOpenDocs }: StickyNavbarProps) {
     { label: "Benchmarks", href: "#benchmarks" },
   ];
 
-  const isLive = engineMode === "live";
+  const isLive = mounted ? engineMode === "live" : false;
+  const isKeyActive = mounted ? hasKey : false;
 
   return (
     <header
@@ -131,7 +134,7 @@ export function StickyNavbar({ onOpenDocs }: StickyNavbarProps) {
           </div>
 
           {/* API Key Status Button */}
-          {hasKey ? (
+          {isKeyActive ? (
             <button
               type="button"
               onClick={openKeyModal}
@@ -176,7 +179,7 @@ export function StickyNavbar({ onOpenDocs }: StickyNavbarProps) {
             type="button"
             onClick={openKeyModal}
             className={`p-1.5 rounded-lg border text-xs font-mono flex items-center gap-1 ${
-              hasKey
+              isKeyActive
                 ? "border-[#10b981]/40 bg-[#10b981]/10 text-[#10b981]"
                 : isLive
                 ? "border-[#f59e0b] bg-[#f59e0b]/10 text-[#f59e0b]"

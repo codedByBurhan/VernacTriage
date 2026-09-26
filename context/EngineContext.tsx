@@ -42,6 +42,7 @@ export function EngineProvider({ children }: { children: React.ReactNode }) {
 
   // Load persisted key and mode on client mount
   useEffect(() => {
+    if (typeof window === "undefined") return;
     try {
       const storedKey = localStorage.getItem(STORAGE_KEY);
       if (storedKey && storedKey.trim()) {
@@ -52,16 +53,18 @@ export function EngineProvider({ children }: { children: React.ReactNode }) {
       if (storedMode === "demo" || storedMode === "live") {
         setEngineModeState(storedMode);
       }
-    } catch (e) {
-      console.warn("Could not read from localStorage:", e);
+    } catch {
+      // Silently fall back to default state
     }
   }, []);
 
   const setEngineMode = (mode: EngineMode) => {
     setEngineModeState(mode);
-    try {
-      localStorage.setItem(MODE_STORAGE_KEY, mode);
-    } catch (e) {}
+    if (typeof window !== "undefined") {
+      try {
+        localStorage.setItem(MODE_STORAGE_KEY, mode);
+      } catch {}
+    }
 
     showToast({
       type: "info",
@@ -76,16 +79,20 @@ export function EngineProvider({ children }: { children: React.ReactNode }) {
   const saveApiKey = (key: string) => {
     const trimmed = key.trim();
     setApiKeyState(trimmed);
-    try {
-      localStorage.setItem(STORAGE_KEY, trimmed);
-    } catch (e) {}
+    if (typeof window !== "undefined") {
+      try {
+        localStorage.setItem(STORAGE_KEY, trimmed);
+      } catch {}
+    }
   };
 
   const clearApiKey = () => {
     setApiKeyState("");
-    try {
-      localStorage.removeItem(STORAGE_KEY);
-    } catch (e) {}
+    if (typeof window !== "undefined") {
+      try {
+        localStorage.removeItem(STORAGE_KEY);
+      } catch {}
+    }
     showToast({
       type: "info",
       message: "Personal Gemini API key removed from browser storage.",
