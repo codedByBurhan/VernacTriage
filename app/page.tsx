@@ -20,10 +20,18 @@ import { AnalyzedToken } from "@/lib/types";
 function MainContent() {
   const [modalToken, setModalToken] = useState<AnalyzedToken | null>(null);
   const [isDocsOpen, setIsDocsOpen] = useState(false);
-  const [externalLoadText, setExternalLoadText] = useState<string | undefined>(undefined);
+  const [externalLoad, setExternalLoad] = useState<{ text: string; ts: number } | undefined>(undefined);
 
   const handleLoadBenchmarkCase = (text: string) => {
-    setExternalLoadText(text);
+    setExternalLoad({ text, ts: Date.now() });
+
+    // Automatically and smoothly scroll up to the compiler with sticky navbar offset
+    const compilerEl = document.getElementById("compiler");
+    if (compilerEl) {
+      const navOffset = 72; // 64px header + breathing room
+      const targetY = compilerEl.getBoundingClientRect().top + window.scrollY - navOffset;
+      window.scrollTo({ top: Math.max(0, targetY), behavior: "smooth" });
+    }
   };
 
   return (
@@ -38,7 +46,8 @@ function MainContent() {
         {/* 3. Interactive Compiler (#compiler) */}
         <InteractiveCompiler
           onSelectTokenForModal={(token) => setModalToken(token)}
-          externalLoadText={externalLoadText}
+          externalLoadText={externalLoad?.text}
+          externalLoadTimestamp={externalLoad?.ts}
         />
 
         {/* 4. The Breaking Point / Problem (#problem) */}

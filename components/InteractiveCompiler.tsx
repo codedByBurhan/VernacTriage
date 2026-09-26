@@ -28,11 +28,13 @@ import { useEngine } from "@/context/EngineContext";
 interface InteractiveCompilerProps {
   onSelectTokenForModal: (token: AnalyzedToken) => void;
   externalLoadText?: string;
+  externalLoadTimestamp?: number;
 }
 
 export function InteractiveCompiler({
   onSelectTokenForModal,
   externalLoadText,
+  externalLoadTimestamp,
 }: InteractiveCompilerProps) {
   // 3 Primary Presets specified by product requirements
   const primaryPresets = [
@@ -100,7 +102,7 @@ export function InteractiveCompiler({
 
   // React to external load case (e.g. from benchmark table)
   React.useEffect(() => {
-    if (externalLoadText && externalLoadText !== inputText) {
+    if (externalLoadText) {
       setInputText(externalLoadText);
       const matched = DEMO_PRESETS.find(
         (p) => p.text.trim().toLowerCase() === externalLoadText.trim().toLowerCase()
@@ -112,8 +114,16 @@ export function InteractiveCompiler({
         setSelectedPresetId("");
         runAnalysis(externalLoadText);
       }
+
+      // Smoothly scroll up to compiler with navbar clearance
+      const compilerEl = document.getElementById("compiler");
+      if (compilerEl) {
+        const navOffset = 76;
+        const targetY = compilerEl.getBoundingClientRect().top + window.scrollY - navOffset;
+        window.scrollTo({ top: Math.max(0, targetY), behavior: "smooth" });
+      }
     }
-  }, [externalLoadText]);
+  }, [externalLoadText, externalLoadTimestamp]);
 
   const handleSelectPreset = (id: string) => {
     const item = primaryPresets.find((p) => p.id === id);
@@ -327,7 +337,7 @@ export function InteractiveCompiler({
   const verification = result.verification;
 
   return (
-    <section id="compiler" className="py-16 sm:py-24 border-t border-[#27272a] bg-[#09090b]">
+    <section id="compiler" className="scroll-mt-16 sm:scroll-mt-20 py-16 sm:py-24 border-t border-[#27272a] bg-[#09090b]">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 space-y-6">
         {/* Section Heading & Subtitle */}
         <div className="flex flex-col md:flex-row md:items-end justify-between gap-4">
