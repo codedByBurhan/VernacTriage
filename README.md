@@ -7,15 +7,15 @@
 [![TypeScript](https://img.shields.io/badge/TypeScript-5.0-blue?style=flat-square&logo=typescript)](https://www.typescriptlang.org/)
 [![Gemini 2.5 Flash](https://img.shields.io/badge/Model-Gemini%202.5%20Flash-8E75B2?style=flat-square&logo=google)](https://ai.google.dev/)
 [![Tailwind CSS](https://img.shields.io/badge/Tailwind-4.0-38B2AC?style=flat-square&logo=tailwind-css)](https://tailwindcss.com/)
-[![Production Status](https://img.shields.io/badge/Deployment-Live%20on%20Vercel-success?style=flat-square&logo=vercel)](https://vernactriage.vercel.app/)
+[![Production Status](https://img.shields.io/badge/Deployment-Live%20Production-success?style=flat-square&logo=vercel)](https://www.vernactriage.pokedb.site/)
 
 ---
 
 ### Quick Links
-* **Live Production Instance:** [vernactriage.vercel.app](https://vernactriage.vercel.app/)
-* **Live Sandbox & Interactive Compiler:** [vernactriage.vercel.app/#compiler](https://vernactriage.vercel.app/#compiler)
-* **Empirical Benchmark Suite:** [vernactriage.vercel.app/#benchmarks](https://vernactriage.vercel.app/#benchmarks)
-* **Architecture Specifications:** [vernactriage.vercel.app/#architecture](https://vernactriage.vercel.app/#architecture)
+* **Live Production Instance:** [www.vernactriage.pokedb.site](https://www.vernactriage.pokedb.site/)
+* **Live Sandbox & Interactive Compiler:** [www.vernactriage.pokedb.site/#compiler](https://www.vernactriage.pokedb.site/#compiler)
+* **Empirical Benchmark Suite:** [www.vernactriage.pokedb.site/#benchmarks](https://www.vernactriage.pokedb.site/#benchmarks)
+* **Architecture Specifications:** [www.vernactriage.pokedb.site/#architecture](https://www.vernactriage.pokedb.site/#architecture)
 
 ---
 
