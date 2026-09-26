@@ -21,7 +21,9 @@ import {
   ShieldCheck,
   Layers,
   Sparkles,
+  Key,
 } from "lucide-react";
+import { useEngine } from "@/context/EngineContext";
 
 interface InteractiveCompilerProps {
   onSelectTokenForModal: (token: AnalyzedToken) => void;
@@ -63,6 +65,16 @@ export function InteractiveCompiler({
   const [hoveredToken, setHoveredToken] = useState<AnalyzedToken | null>(null);
   const [latency, setLatency] = useState(640);
   const [isPayloadOpen, setIsPayloadOpen] = useState(false);
+
+  const {
+    engineMode,
+    setEngineMode,
+    apiKey,
+    hasKey,
+    maskedKey,
+    openKeyModal,
+    showToast,
+  } = useEngine();
 
   // Copy states
   const [copiedNative, setCopiedNative] = useState(false);
@@ -107,6 +119,19 @@ export function InteractiveCompiler({
 
   const runAnalysis = async (textToAnalyze: string) => {
     if (!textToAnalyze.trim()) return;
+
+    // If Live Mode and NO key is in localStorage AND no platform key is active:
+    if (engineMode === "live" && !apiKey) {
+      showToast({
+        type: "warning",
+        message: "Please provide a Gemini API Key to run live custom queries.",
+        actionLabel: "Add Key",
+        onAction: openKeyModal,
+      });
+      openKeyModal();
+      return;
+    }
+
     setIsAnalyzing(true);
     setHoveredToken(null);
     const startTime = Date.now();
@@ -124,21 +149,59 @@ export function InteractiveCompiler({
     try {
       const res = await fetch("/api/triage", {
         method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ text: textToAnalyze.trim() }),
+        headers: {
+          "Content-Type": "application/json",
+          "x-gemini-api-key": apiKey || "",
+        },
+        body: JSON.stringify({
+          text: textToAnalyze.trim(),
+          mode: engineMode,
+        }),
       });
+
       const data = await res.json();
-      if (!res.ok) throw new Error(data.error || "Analysis failed");
+
+      if (!res.ok) {
+        if (res.status === 401 || data.error === "MISSING_API_KEY") {
+          showToast({
+            type: "error",
+            message: "Gemini Key Required. Opening configuration dialog...",
+            actionLabel: "Add Key",
+            onAction: openKeyModal,
+          });
+          openKeyModal();
+          throw new Error(data.message || "Missing API Key");
+        }
+
+        if (res.status === 429 || data.error === "QUOTA_EXCEEDED") {
+          showToast({
+            type: "error",
+            message: "Rate limit reached on shared key. Please input your personal Gemini API key to continue.",
+            actionLabel: "Switch to Demo Mode",
+            onAction: () => setEngineMode("demo"),
+          });
+          throw new Error(data.message || "Quota Exceeded");
+        }
+
+        throw new Error(data.message || data.error || "Analysis failed");
+      }
+
+      const elapsed = Date.now() - startTime;
       setAnalysisResult(data);
-      setLatency(Date.now() - startTime);
-    } catch (err) {
-      console.warn("API fallback to verified deterministic cache:", err);
-      if (matchingPreset) {
+      setLatency(elapsed);
+
+      if (engineMode === "live") {
+        showToast({
+          type: "success",
+          message: `Compiled live via Gemini Flash (${elapsed}ms)`,
+          duration: 3500,
+        });
+      }
+    } catch (err: any) {
+      console.warn("API request handled:", err);
+      if (matchingPreset && engineMode === "demo") {
         setAnalysisResult({ ...matchingPreset.expectedResult, model_source: "demo-fallback" });
         setLatency(320);
-      } else {
-        setAnalysisResult(defaultItem.expectedResult);
-        setLatency(410);
       }
     } finally {
       setIsAnalyzing(false);
@@ -199,7 +262,39 @@ export function InteractiveCompiler({
           </div>
 
           {/* Telemetry pill */}
-          <div className="flex items-center gap-3 text-xs font-mono text-[#71717a]">
+          <div className="flex flex-wrap items-center gap-2 sm:gap-2.5 text-xs font-mono text-[#71717a]">
+            {/* Active Engine Indicator Button */}
+            <button
+              type="button"
+              onClick={() => setEngineMode(engineMode === "demo" ? "live" : "demo")}
+              className={`flex items-center gap-1.5 px-2.5 py-1 rounded-md border text-xs font-mono transition-all cursor-pointer ${
+                engineMode === "live"
+                  ? "border-[#22d3ee]/40 bg-[#22d3ee]/10 text-[#22d3ee]"
+                  : "border-[#10b981]/40 bg-[#10b981]/10 text-[#10b981]"
+              }`}
+              title="Click to toggle between Demo (Precomputed) and Live Gemini Engine"
+            >
+              <span className={`w-1.5 h-1.5 rounded-full ${engineMode === "live" ? "bg-[#22d3ee] animate-pulse" : "bg-[#10b981]"}`} />
+              <span className="font-semibold">{engineMode === "live" ? "Live Gemini Engine" : "Demo Mode (Instant)"}</span>
+            </button>
+
+            {/* Key Status Pill if in Live Mode */}
+            {engineMode === "live" && (
+              <button
+                type="button"
+                onClick={openKeyModal}
+                className={`flex items-center gap-1 px-2.5 py-1 rounded-md border text-[11px] font-mono transition-all cursor-pointer ${
+                  hasKey
+                    ? "border-[#27272a] bg-[#0f0f12] text-[#a1a1aa] hover:text-[#fafafa] hover:border-[#3f3f46]"
+                    : "border-[#f59e0b]/50 bg-[#f59e0b]/10 text-[#f59e0b] animate-pulse"
+                }`}
+                title="Configure Gemini API Key"
+              >
+                <Key className="w-3 h-3" />
+                <span>{hasKey ? `Key (${maskedKey})` : "Add API Key"}</span>
+              </button>
+            )}
+
             <div className="flex items-center gap-1.5 px-2.5 py-1 rounded-md border border-[#27272a] bg-[#0f0f12]">
               <span className="w-1.5 h-1.5 rounded-full bg-[#10b981]" />
               <span className="text-[#a1a1aa]">Status:</span>

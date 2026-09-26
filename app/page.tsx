@@ -1,6 +1,7 @@
 "use client";
 
 import React, { useState } from "react";
+import { EngineProvider } from "@/context/EngineContext";
 import { StickyNavbar } from "@/components/StickyNavbar";
 import { HeroSection } from "@/components/HeroSection";
 import { InteractiveCompiler } from "@/components/InteractiveCompiler";
@@ -12,9 +13,11 @@ import { FinalCTA } from "@/components/FinalCTA";
 import { Footer } from "@/components/Footer";
 import { CollisionModal } from "@/components/CollisionModal";
 import { DocsModal } from "@/components/DocsModal";
+import { ApiKeyModal } from "@/components/ApiKeyModal";
+import { ToastContainer } from "@/components/ToastContainer";
 import { AnalyzedToken } from "@/lib/types";
 
-export default function Home() {
+function MainContent() {
   const [modalToken, setModalToken] = useState<AnalyzedToken | null>(null);
   const [isDocsOpen, setIsDocsOpen] = useState(false);
   const [externalLoadText, setExternalLoadText] = useState<string | undefined>(undefined);
@@ -25,7 +28,7 @@ export default function Home() {
 
   return (
     <div className="min-h-screen bg-[#09090b] text-[#fafafa] selection:bg-[#10b981]/25 selection:text-white font-sans antialiased">
-      {/* 1. Sticky Navigation */}
+      {/* 1. Sticky Navigation with BYOK Engine & Key Controls */}
       <StickyNavbar onOpenDocs={() => setIsDocsOpen(true)} />
 
       <main>
@@ -68,6 +71,20 @@ export default function Home() {
         isOpen={isDocsOpen}
         onClose={() => setIsDocsOpen(false)}
       />
+
+      {/* Bring-Your-Own-Key (BYOK) Modal */}
+      <ApiKeyModal />
+
+      {/* Global Enterprise Toast System */}
+      <ToastContainer />
     </div>
+  );
+}
+
+export default function Home() {
+  return (
+    <EngineProvider>
+      <MainContent />
+    </EngineProvider>
   );
 }

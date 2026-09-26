@@ -143,7 +143,9 @@ You MUST respond with a single, strictly valid JSON object matching this TypeScr
 DO NOT enclose the response in markdown backticks or commentary. Return ONLY the raw JSON string. Do NOT calculate character offsets (start_idx / end_idx).`;
 
 export async function analyzeWithGemini(
-  text: string
+  text: string,
+  customApiKey?: string,
+  bypassPresetFallback = false
 ): Promise<Omit<TriageAnalysisResult, "verification"> & { model_source: "gemini-2.5-flash" | "demo-fallback" }> {
   const normalizedText = text.trim();
 
@@ -159,10 +161,19 @@ export async function analyzeWithGemini(
     );
   });
 
-  const apiKey = process.env.GEMINI_API_KEY;
+  const apiKey = customApiKey?.trim() || process.env.GEMINI_API_KEY?.trim();
 
-  if (!apiKey || apiKey.trim() === "" || apiKey === "YOUR_KEY_HERE") {
-    throw new Error("Gemini API key is not configured.");
+  if (!apiKey || apiKey === "" || apiKey === "YOUR_KEY_HERE") {
+    if (!bypassPresetFallback && matchingPreset) {
+      return {
+        ...matchingPreset.expectedResult,
+        model_source: "demo-fallback",
+      };
+    }
+    const err: any = new Error("No Gemini API key provided. Add your key in the header to run live queries.");
+    err.code = "MISSING_API_KEY";
+    err.status = 401;
+    throw err;
   }
 
   // Application model configuration: gemini-2.5-flash for rock-solid stability and low latency
@@ -194,7 +205,7 @@ export async function analyzeWithGemini(
       parsed = JSON.parse(cleanJson);
     } catch (parseErr) {
       console.error("Failed to parse Gemini response as JSON:", rawResponseText);
-      if (matchingPreset) {
+      if (!bypassPresetFallback && matchingPreset) {
         return {
           ...matchingPreset.expectedResult,
           model_source: "demo-fallback",
@@ -250,8 +261,26 @@ export async function analyzeWithGemini(
     };
   } catch (err: any) {
     console.error("Gemini API error:", err);
+
+    // Check if error is quota exceeded (status 429, RESOURCE_EXHAUSTED, quota)
+    const errStr = (err?.message || "").toLowerCase() + " " + JSON.stringify(err || {}).toLowerCase();
+    const isQuota =
+      err?.status === 429 ||
+      errStr.includes("429") ||
+      errStr.includes("resource_exhausted") ||
+      errStr.includes("quota exceeded") ||
+      errStr.includes("rate limit") ||
+      errStr.includes("exhausted");
+
+    if (isQuota) {
+      const quotaErr: any = new Error("Gemini quota exhausted. Provide a personal key or use preset demo mode.");
+      quotaErr.code = "QUOTA_EXCEEDED";
+      quotaErr.status = 429;
+      throw quotaErr;
+    }
+
     // Graceful fallback for presets if API error or rate-limiting occurs
-    if (matchingPreset) {
+    if (!bypassPresetFallback && matchingPreset) {
       console.warn("Using preset fallback due to API error");
       return {
         ...matchingPreset.expectedResult,
