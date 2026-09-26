@@ -7,11 +7,8 @@ import {
   Menu,
   X,
   ArrowRight,
-  FileCode,
   Key,
   Edit2,
-  Sparkles,
-  Zap,
 } from "lucide-react";
 
 interface StickyNavbarProps {

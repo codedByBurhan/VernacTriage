@@ -2,7 +2,6 @@
 
 import React from "react";
 import Image from "next/image";
-import { AlertCircle, CheckCircle2, ArrowRight } from "lucide-react";
 
 export function BreakingPointSection() {
   return (

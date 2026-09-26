@@ -1,7 +1,7 @@
 "use client";
 
 import React from "react";
-import { ArrowRight, Terminal } from "lucide-react";
+import { ArrowRight } from "lucide-react";
 
 export function FinalCTA() {
   return (
@@ -19,7 +19,7 @@ export function FinalCTA() {
 
           <p className="max-w-xl mx-auto text-sm sm:text-base text-[#a1a1aa] leading-relaxed">
             Eliminate communication breakdown in high-growth vernacular markets. Ingest unstructured code-switched
-            streams with cryptographic invariant verification.
+            streams with deterministic invariant verification.
           </p>
 
           <div className="pt-2 flex flex-wrap items-center justify-center gap-3 text-xs font-mono">

@@ -8,11 +8,7 @@ import {
   X,
   CheckCircle2,
   XCircle,
-  Copy,
-  Check,
-  Zap,
   Crosshair,
-  Code2,
 } from "lucide-react";
 
 interface CollisionModalProps {
@@ -21,8 +17,6 @@ interface CollisionModalProps {
 }
 
 export function CollisionModal({ token, onClose }: CollisionModalProps) {
-  const [copied, setCopied] = React.useState(false);
-
   useEffect(() => {
     const handleKeyDown = (e: KeyboardEvent) => {
       if (e.key === "Escape") onClose();
@@ -32,12 +26,6 @@ export function CollisionModal({ token, onClose }: CollisionModalProps) {
   }, [onClose]);
 
   if (!token) return null;
-
-  const handleCopy = () => {
-    navigator.clipboard.writeText(token.raw);
-    setCopied(true);
-    setTimeout(() => setCopied(false), 1200);
-  };
 
   const hasCollision = Boolean(token.collision && token.collision.is_collision);
 

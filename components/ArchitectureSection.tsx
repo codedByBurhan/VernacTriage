@@ -8,9 +8,6 @@ import {
   GitFork,
   ShieldCheck,
   Send,
-  ArrowDown,
-  Layers,
-  Sparkles,
 } from "lucide-react";
 
 export function ArchitectureSection() {

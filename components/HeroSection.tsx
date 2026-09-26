@@ -7,12 +7,9 @@ import {
   ArrowRight,
   FileText,
   Zap,
-  CheckCircle2,
   Code2,
   Terminal,
   Sparkles,
-  Layers,
-  ArrowDown,
 } from "lucide-react";
 
 interface HeroSectionProps {

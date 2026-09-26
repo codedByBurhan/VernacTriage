@@ -1,7 +1,7 @@
 "use client";
 
 import React, { useEffect } from "react";
-import { X, BookOpen, ShieldCheck, Terminal, Layers, ArrowRight } from "lucide-react";
+import { X, BookOpen } from "lucide-react";
 
 interface DocsModalProps {
   isOpen: boolean;
