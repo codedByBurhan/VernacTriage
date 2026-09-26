@@ -1,4 +1,4 @@
-import { AnalyzedToken } from "./types";
+import type { AnalyzedToken } from "./types";
 
 export interface SpanAlignmentResult {
   tokens: AnalyzedToken[];
@@ -37,23 +37,62 @@ export function alignTokenSpans(
       return { ...token, start_idx: undefined, end_idx: undefined };
     }
 
-    // Step 1: Exact substring search starting at current cursor
-    let pos = rawInput.indexOf(rawToken, cursor);
+function findTokenPosition(
+  haystack: string,
+  needle: string,
+  fromIndex: number,
+  caseInsensitive: boolean = false
+): number {
+  if (!needle) return -1;
+  const searchHaystack = caseInsensitive ? haystack.toLowerCase() : haystack;
+  const searchNeedle = caseInsensitive ? needle.toLowerCase() : needle;
+
+  const isWordChar = (ch: string) => /[\p{L}\p{N}]/u.test(ch);
+  const startsWord = isWordChar(searchNeedle[0]);
+  const endsWord = isWordChar(searchNeedle[searchNeedle.length - 1]);
+
+  let cur = fromIndex;
+  // First pass: try boundary-respecting match from current cursor
+  while (cur <= searchHaystack.length - searchNeedle.length) {
+    const idx = searchHaystack.indexOf(searchNeedle, cur);
+    if (idx === -1) break;
+
+    const leftOk = !startsWord || idx === 0 || !isWordChar(searchHaystack[idx - 1]);
+    const rightOk =
+      !endsWord ||
+      idx + searchNeedle.length >= searchHaystack.length ||
+      !isWordChar(searchHaystack[idx + searchNeedle.length]);
+
+    if (leftOk && rightOk) {
+      return idx;
+    }
+    cur = idx + 1;
+  }
+
+  // Fallback: raw substring search if no strict boundary match was found
+  return searchHaystack.indexOf(searchNeedle, fromIndex);
+}
+
+    let matchLen = rawToken.length;
+    let expectedText = rawToken;
+
+    // Step 1: Exact substring search starting at current cursor with boundary preference
+    let pos = findTokenPosition(rawInput, rawToken, cursor, false);
 
     // Step 2: Fallback 1 - Case-insensitive search from cursor
     if (pos === -1) {
-      const lowerInput = rawInput.toLowerCase();
-      const lowerToken = rawToken.toLowerCase();
-      pos = lowerInput.indexOf(lowerToken, cursor);
+      pos = findTokenPosition(rawInput, rawToken, cursor, true);
     }
 
     // Step 3: Fallback 2 - Strip trailing punctuation if token was normalized with/without punctuation
     if (pos === -1) {
       const cleanToken = rawToken.replace(/[.,/#!$%^&*;:{}=\-_`~()?]/g, "").trim();
       if (cleanToken.length > 0) {
-        const cleanPos = rawInput.indexOf(cleanToken, cursor);
+        const cleanPos = findTokenPosition(rawInput, cleanToken, cursor, true);
         if (cleanPos !== -1) {
           pos = cleanPos;
+          matchLen = cleanToken.length;
+          expectedText = cleanToken;
         }
       }
     }
@@ -61,13 +100,13 @@ export function alignTokenSpans(
     // Evaluation of match
     if (pos !== -1) {
       const startIdx = pos;
-      const endIdx = pos + rawToken.length;
+      const endIdx = pos + matchLen;
 
       // Verification: Check substring equality (or case-insensitive equality in fallback)
       const matchedSubstring = rawInput.substring(startIdx, endIdx);
       if (
-        matchedSubstring === rawToken ||
-        matchedSubstring.toLowerCase() === rawToken.toLowerCase()
+        matchedSubstring === expectedText ||
+        matchedSubstring.toLowerCase() === expectedText.toLowerCase()
       ) {
         token.start_idx = startIdx;
         token.end_idx = endIdx;
