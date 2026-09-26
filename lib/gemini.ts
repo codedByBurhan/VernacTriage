@@ -1,6 +1,5 @@
 import { GoogleGenAI } from "@google/genai";
 import { TriageAnalysisResult } from "./types";
-import { DEMO_PRESETS } from "@/data/presets";
 
 const SYSTEM_INSTRUCTION = `You are VernacTriage's specialized multilingual NLP and code-switching interpretation engine.
 Your purpose is to interpret messy, non-standard, and code-switched human communications—specifically focusing on:
@@ -144,32 +143,12 @@ DO NOT enclose the response in markdown backticks or commentary. Return ONLY the
 
 export async function analyzeWithGemini(
   text: string,
-  customApiKey?: string,
-  bypassPresetFallback = false
-): Promise<Omit<TriageAnalysisResult, "verification"> & { model_source: "gemini-2.5-flash" | "demo-fallback" }> {
+  customApiKey?: string
+): Promise<Omit<TriageAnalysisResult, "verification"> & { model_source: "gemini-2.5-flash" }> {
   const normalizedText = text.trim();
-
-  // Check if input matches one of our demo presets (exact or normalized alphanumeric)
-  const cleanInput = normalizedText.toLowerCase().replace(/[^a-z0-9]/g, "");
-  const matchingPreset = DEMO_PRESETS.find((p) => {
-    const cleanPreset = p.text.toLowerCase().replace(/[^a-z0-9]/g, "");
-    return (
-      p.text.toLowerCase().trim() === normalizedText.toLowerCase() ||
-      cleanPreset === cleanInput ||
-      cleanInput.includes(cleanPreset) ||
-      cleanPreset.includes(cleanInput)
-    );
-  });
-
   const apiKey = customApiKey?.trim() || process.env.GEMINI_API_KEY?.trim();
 
   if (!apiKey || apiKey === "" || apiKey === "YOUR_KEY_HERE") {
-    if (!bypassPresetFallback && matchingPreset) {
-      return {
-        ...matchingPreset.expectedResult,
-        model_source: "demo-fallback",
-      };
-    }
     const err: any = new Error("No Gemini API key provided. Add your key in the header to run live queries.");
     err.code = "MISSING_API_KEY";
     err.status = 401;
@@ -204,12 +183,6 @@ export async function analyzeWithGemini(
       const cleanJson = rawResponseText.replace(/^```json\s*/i, "").replace(/```$/, "").trim();
       parsed = JSON.parse(cleanJson);
     } catch (parseErr) {
-      if (!bypassPresetFallback && matchingPreset) {
-        return {
-          ...matchingPreset.expectedResult,
-          model_source: "demo-fallback",
-        };
-      }
       throw new Error("Gemini returned a response that could not be parsed into the expected JSON schema.");
     }
 
@@ -274,14 +247,6 @@ export async function analyzeWithGemini(
       quotaErr.code = "QUOTA_EXCEEDED";
       quotaErr.status = 429;
       throw quotaErr;
-    }
-
-    // Graceful fallback for presets if API error or rate-limiting occurs
-    if (!bypassPresetFallback && matchingPreset) {
-      return {
-        ...matchingPreset.expectedResult,
-        model_source: "demo-fallback",
-      };
     }
 
     // Extract human-readable error from raw Google GenAI JSON errors
