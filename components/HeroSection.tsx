@@ -211,24 +211,8 @@ export function HeroSection({ onOpenDocs }: HeroSectionProps) {
                     transition={{ duration: 0.22, ease: "easeOut" }}
                     className="space-y-6"
                   >
-                    {/* Centered Graphic Showcase with Rich Multi-Stop Gradient Backdrop */}
+                    {/* Centered Graphic Showcase */}
                     <div className="relative rounded-2xl border border-[#27272a] bg-[#09090b] p-6 sm:p-10 flex flex-col items-center justify-center overflow-hidden shadow-2xl">
-                      {/* Rich Dual-Zone Aurora Gradient Atmosphere: Emerald on left, Cyan on right */}
-                      <div
-                        aria-hidden="true"
-                        className="pointer-events-none absolute inset-0 bg-[radial-gradient(circle_at_28%_48%,rgba(16,185,129,0.28),transparent_60%),radial-gradient(circle_at_72%_48%,rgba(34,211,238,0.30),transparent_60%),radial-gradient(ellipse_70%_50%_at_50%_50%,rgba(6,182,212,0.18),transparent_75%)]"
-                      />
-                      {/* Central vertical ambient compiler beam */}
-                      <div
-                        aria-hidden="true"
-                        className="pointer-events-none absolute top-0 bottom-0 left-1/2 -translate-x-1/2 w-64 bg-gradient-to-b from-transparent via-[#22d3ee]/18 to-transparent blur-2xl"
-                      />
-                      {/* Subtle ambient horizontal horizon glow */}
-                      <div
-                        aria-hidden="true"
-                        className="pointer-events-none absolute top-1/2 left-0 right-0 -translate-y-1/2 h-[1px] bg-gradient-to-r from-transparent via-[#22d3ee]/25 to-transparent blur-[1px]"
-                      />
-
                       {/* Header Sub-caption */}
                       <div className="w-full relative z-10 flex items-center justify-between text-[11px] font-mono text-[#71717a] mb-6">
                         <span className="flex items-center gap-1.5 text-[#10b981]">
@@ -244,14 +228,14 @@ export function HeroSection({ onOpenDocs }: HeroSectionProps) {
                         </span>
                       </div>
 
-                      {/* The Brand Asset: Rendered significantly BIGGER and seamlessly blended into the gradient without borders */}
-                      <div className="relative z-10 w-full flex items-center justify-center py-6 sm:py-8">
+                      {/* The Brand Asset: Premium Isometric SaaS Hero Illustration */}
+                      <div className="relative z-10 w-full flex items-center justify-center py-4 sm:py-6">
                         <Image
-                          src="/assets/vernactriage-transformation.png"
+                          src="/assets/premium-enterprise-saas-hero-illustration--isometr.png"
                           alt="VernacTriage Transformation Schematic: Left wing shows code-switched alphanumeric stream; central pillar represents compiler gate; right wing shows canonical Devanagari and Arabic reconstruction"
-                          width={952}
-                          height={552}
-                          className="w-full max-w-[480px] sm:max-w-[600px] md:max-w-[700px] lg:max-w-[760px] h-auto object-contain filter drop-shadow-[0_25px_60px_rgba(0,0,0,0.95)] drop-shadow-[0_0_40px_rgba(34,211,238,0.20)] transition-transform duration-300 hover:scale-[1.02] select-none"
+                          width={1536}
+                          height={768}
+                          className="w-full max-w-[520px] sm:max-w-[660px] md:max-w-[760px] lg:max-w-[820px] h-auto object-contain select-none transition-transform duration-300 hover:scale-[1.01]"
                           priority
                         />
                       </div>
