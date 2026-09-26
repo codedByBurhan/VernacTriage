@@ -114,14 +114,6 @@ export function InteractiveCompiler({
         setSelectedPresetId("");
         runAnalysis(externalLoadText);
       }
-
-      // Smoothly scroll up to compiler with navbar clearance
-      const compilerEl = document.getElementById("compiler");
-      if (compilerEl) {
-        const navOffset = 76;
-        const targetY = compilerEl.getBoundingClientRect().top + window.scrollY - navOffset;
-        window.scrollTo({ top: Math.max(0, targetY), behavior: "smooth" });
-      }
     }
   }, [externalLoadText, externalLoadTimestamp]);
 

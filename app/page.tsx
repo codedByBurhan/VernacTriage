@@ -16,6 +16,7 @@ import { DocsModal } from "@/components/DocsModal";
 import { ApiKeyModal } from "@/components/ApiKeyModal";
 import { ToastContainer } from "@/components/ToastContainer";
 import { AnalyzedToken } from "@/lib/types";
+import { scrollToCompiler } from "@/lib/utils";
 
 function MainContent() {
   const [modalToken, setModalToken] = useState<AnalyzedToken | null>(null);
@@ -24,14 +25,7 @@ function MainContent() {
 
   const handleLoadBenchmarkCase = (text: string) => {
     setExternalLoad({ text, ts: Date.now() });
-
-    // Automatically and smoothly scroll up to the compiler with sticky navbar offset
-    const compilerEl = document.getElementById("compiler");
-    if (compilerEl) {
-      const navOffset = 72; // 64px header + breathing room
-      const targetY = compilerEl.getBoundingClientRect().top + window.scrollY - navOffset;
-      window.scrollTo({ top: Math.max(0, targetY), behavior: "smooth" });
-    }
+    scrollToCompiler();
   };
 
   return (

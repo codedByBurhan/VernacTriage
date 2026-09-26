@@ -222,12 +222,6 @@ export function BenchmarkSection({ onLoadCase }: BenchmarkSectionProps) {
                           type="button"
                           onClick={() => {
                             onLoadCase(c.input);
-                            const el = document.getElementById("compiler");
-                            if (el) {
-                              const navOffset = 76;
-                              const targetY = el.getBoundingClientRect().top + window.scrollY - navOffset;
-                              window.scrollTo({ top: Math.max(0, targetY), behavior: "smooth" });
-                            }
                           }}
                           className="px-2 py-1 rounded border border-[#27272a] hover:border-[#3f3f46] bg-[#09090b] text-[#fafafa] hover:text-white transition-all text-[10px] font-mono inline-flex items-center gap-1 cursor-pointer"
                         >
