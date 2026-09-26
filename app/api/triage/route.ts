@@ -4,13 +4,31 @@ import { alignTokenSpans } from "@/lib/span-aligner";
 import { runDeterministicVerification } from "@/lib/verifier";
 import { TriageAnalysisResult } from "@/lib/types";
 import { DEMO_PRESETS } from "@/data/presets";
+import { checkRateLimit } from "@/lib/rate-limiter";
 
 export async function POST(req: NextRequest) {
+  // 1. Rate Limiting: 30 requests per minute per IP
+  const forwardedFor = req.headers.get("x-forwarded-for");
+  const clientIp = forwardedFor ? forwardedFor.split(",")[0].trim() : "127.0.0.1";
+  const rateCheck = checkRateLimit(`triage:${clientIp}`, 30, 60_000);
+
+  if (!rateCheck.allowed) {
+    return NextResponse.json(
+      { error: "RATE_LIMIT_EXCEEDED", message: "Too many triage requests. Please slow down." },
+      {
+        status: 429,
+        headers: {
+          "Retry-After": Math.ceil(rateCheck.resetMs / 1000).toString(),
+        },
+      }
+    );
+  }
+
   try {
     const body = await req.json();
     const { text, mode = "demo" } = body;
 
-    // 1. Validate input
+    // 2. Validate input
     if (!text || typeof text !== "string" || text.trim().length === 0) {
       return NextResponse.json(
         { error: "INVALID_INPUT", message: "Please provide a non-empty text string to analyze." },
@@ -45,8 +63,8 @@ export async function POST(req: NextRequest) {
     // Mode A: Demo / Mock Mode
     if (!isLive) {
       if (matchingPreset) {
-        // Return precomputed static payload with realistic latency (~350ms)
-        await new Promise((resolve) => setTimeout(resolve, 350));
+        // Return precomputed static payload with simulated realistic processing delay (~250ms)
+        await new Promise((resolve) => setTimeout(resolve, 250));
         return NextResponse.json(
           {
             ...matchingPreset.expectedResult,
@@ -55,19 +73,16 @@ export async function POST(req: NextRequest) {
           { status: 200 }
         );
       }
-      // If demo mode but custom text, check if API key exists to serve live, otherwise return fallback
-      if (!apiKey) {
-        // Return default preset with notice
-        const defaultPreset = DEMO_PRESETS[3]; // homograph_collision
-        return NextResponse.json(
-          {
-            ...defaultPreset.expectedResult,
-            original_text: normalizedText,
-            model_source: "demo-fallback",
-          },
-          { status: 200 }
-        );
-      }
+
+      // If demo mode was requested with custom text not matching any precomputed scenario
+      return NextResponse.json(
+        {
+          error: "DEMO_PRESET_NOT_FOUND",
+          message:
+            "Demo mode only supports precomputed scenarios. Please select a preset scenario from the menu, or configure a Gemini API key to run live inferences on custom text.",
+        },
+        { status: 400 }
+      );
     }
 
     // Mode B: Live Mode
@@ -81,13 +96,13 @@ export async function POST(req: NextRequest) {
       );
     }
 
-    // 2. Call Gemini with custom key
-    const baseAnalysis = await analyzeWithGemini(text, apiKey, isLive);
+    // 3. Call Gemini with custom key
+    const baseAnalysis = await analyzeWithGemini(text, apiKey);
 
-    // 3. Run deterministic span aligner
+    // 4. Run deterministic span aligner
     const spanResult = alignTokenSpans(text, baseAnalysis.tokens);
 
-    // 4. Run deterministic verifier
+    // 5. Run deterministic verifier
     const verification = runDeterministicVerification(
       text,
       {
@@ -97,7 +112,7 @@ export async function POST(req: NextRequest) {
       spanResult
     );
 
-    // 5. Inject verification report
+    // 6. Inject verification report
     const result: TriageAnalysisResult = {
       ...baseAnalysis,
       tokens: spanResult.tokens,
@@ -147,7 +162,6 @@ export async function OPTIONS() {
   return new NextResponse(null, {
     status: 204,
     headers: {
-      "Access-Control-Allow-Origin": "*",
       "Access-Control-Allow-Methods": "POST, OPTIONS",
       "Access-Control-Allow-Headers": "Content-Type, x-gemini-api-key",
     },
