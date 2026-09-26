@@ -10,17 +10,11 @@ import {
   ArrowRight,
   Loader2,
   RotateCcw,
-  CheckCircle2,
   Copy,
   Check,
   ChevronDown,
   ChevronUp,
-  Zap,
-  SlidersHorizontal,
   Code2,
-  ShieldCheck,
-  Layers,
-  Sparkles,
   Key,
 } from "lucide-react";
 import { useEngine } from "@/context/EngineContext";
@@ -661,7 +655,13 @@ export function InteractiveCompiler({
                       Deterministic Assertion Gate
                     </span>
                   </div>
-                  <span className="text-[11px] font-mono font-bold text-[#10b981] px-2 py-0.5 rounded bg-[#10b981]/10 border border-[#10b981]/30">
+                  <span
+                    className={`text-[11px] font-mono font-bold px-2 py-0.5 rounded border ${
+                      (verification?.integrity_score ?? 100) === 100
+                        ? "text-[#10b981] bg-[#10b981]/10 border-[#10b981]/30"
+                        : "text-amber-400 bg-amber-500/10 border-amber-500/30"
+                    }`}
+                  >
                     {verification?.integrity_score ?? 100}/100 Verified
                   </span>
                 </div>
@@ -672,8 +672,14 @@ export function InteractiveCompiler({
                       <span className="text-[10px] text-[#fafafa] block">Numeric Invariance</span>
                       <span className="text-[9px] text-[#71717a]">Values locked</span>
                     </div>
-                    <span className="text-[9px] font-bold text-[#10b981] px-1.5 py-0.5 rounded bg-[#10b981]/10 border border-[#10b981]/30">
-                      PASS
+                    <span
+                      className={`text-[9px] font-bold px-1.5 py-0.5 rounded border ${
+                        verification?.numeric_parity !== false
+                          ? "text-[#10b981] bg-[#10b981]/10 border-[#10b981]/30"
+                          : "text-rose-400 bg-rose-500/10 border-rose-500/30"
+                      }`}
+                    >
+                      {verification?.numeric_parity !== false ? "PASS" : "FAIL"}
                     </span>
                   </div>
 
@@ -682,8 +688,14 @@ export function InteractiveCompiler({
                       <span className="text-[10px] text-[#fafafa] block">Negation Parity</span>
                       <span className="text-[9px] text-[#71717a]">Polarity preserved</span>
                     </div>
-                    <span className="text-[9px] font-bold text-[#10b981] px-1.5 py-0.5 rounded bg-[#10b981]/10 border border-[#10b981]/30">
-                      PASS
+                    <span
+                      className={`text-[9px] font-bold px-1.5 py-0.5 rounded border ${
+                        verification?.negation_parity !== false
+                          ? "text-[#10b981] bg-[#10b981]/10 border-[#10b981]/30"
+                          : "text-rose-400 bg-rose-500/10 border-rose-500/30"
+                      }`}
+                    >
+                      {verification?.negation_parity !== false ? "PASS" : "FAIL"}
                     </span>
                   </div>
 
@@ -692,8 +704,14 @@ export function InteractiveCompiler({
                       <span className="text-[10px] text-[#fafafa] block">AST Continuity</span>
                       <span className="text-[9px] text-[#71717a]">Offset alignment</span>
                     </div>
-                    <span className="text-[9px] font-bold text-[#10b981] px-1.5 py-0.5 rounded bg-[#10b981]/10 border border-[#10b981]/30">
-                      PASS
+                    <span
+                      className={`text-[9px] font-bold px-1.5 py-0.5 rounded border ${
+                        verification?.span_alignment_valid !== false
+                          ? "text-[#10b981] bg-[#10b981]/10 border-[#10b981]/30"
+                          : "text-rose-400 bg-rose-500/10 border-rose-500/30"
+                      }`}
+                    >
+                      {verification?.span_alignment_valid !== false ? "PASS" : "FAIL"}
                     </span>
                   </div>
 
@@ -702,8 +720,14 @@ export function InteractiveCompiler({
                       <span className="text-[10px] text-[#fafafa] block">Schema Validity</span>
                       <span className="text-[9px] text-[#71717a]">Strict JSON</span>
                     </div>
-                    <span className="text-[9px] font-bold text-[#10b981] px-1.5 py-0.5 rounded bg-[#10b981]/10 border border-[#10b981]/30">
-                      PASS
+                    <span
+                      className={`text-[9px] font-bold px-1.5 py-0.5 rounded border ${
+                        verification?.schema_valid !== false
+                          ? "text-[#10b981] bg-[#10b981]/10 border-[#10b981]/30"
+                          : "text-rose-400 bg-rose-500/10 border-rose-500/30"
+                      }`}
+                    >
+                      {verification?.schema_valid !== false ? "PASS" : "FAIL"}
                     </span>
                   </div>
                 </div>
